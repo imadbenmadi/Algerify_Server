@@ -48,7 +48,7 @@ app.use("/ChangePassword", require("./Routes/Auth/Password/ChangePassword"));
 
 
 // ----------------- App Routes -----------------
-app.use("Users", require("./Routes/Users"));
+app.use("/Users", require("./Routes/Users"));
 app.use("/Store", require("./Routes/Store"));
 app.use("/Product", require("./Routes/Product"));
 
