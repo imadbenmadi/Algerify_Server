@@ -78,7 +78,6 @@ const handle_send_Email = async (req, res) => {
     try {
         const { userId } = req.body;
         const accessToken = req.cookies.accessToken;
-        console.log("acess token", accessToken);
         if (!userId) {
             return res.status(409).json({ message: "Missing Data" });
         } else {
@@ -123,7 +122,6 @@ const handle_send_Email = async (req, res) => {
         });
     } catch (err) {
         res.status(400).json({ err });
-        console.log(" Error in Send_Verification_EmailController: ", err);
     }
 };
 

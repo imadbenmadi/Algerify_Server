@@ -99,10 +99,8 @@ const handle_send_Email = async (req, res) => {
 
         const user = await Users.findById(userId);
         if (!user) {
-            console.log("User not found");
             return res.status(401).json({ error: "User not found" });
         } else if (user.IsEmailVerified) {
-            console.log("Email Already Verified");
             return res.status(401).json({ error: "Email Already Verified" });
         }
         try {
@@ -125,7 +123,6 @@ const handle_send_Email = async (req, res) => {
         });
     } catch (err) {
         res.status(400).json({ err });
-        console.log(" Error in Send_Verification_EmailController: ", err);
     }
 };
 

@@ -14,7 +14,6 @@ const Verify_user = async (req, res) => {
             // Token expired, attempt to refresh it
             try {
                 if (!refreshToken) {
-                    console.error("Refresh token is missing.");
                     return { status: false, Refresh: false, decoded: null };
                 }
 
@@ -23,7 +22,6 @@ const Verify_user = async (req, res) => {
                 }).exec();
 
                 if (!found_in_DB) {
-                    console.error("Refresh token not found in the database.");
                     return { status: false, Refresh: false, decoded: null };
                 }
 
@@ -33,10 +31,6 @@ const Verify_user = async (req, res) => {
                         process.env.REFRESH_TOKEN_SECRET,
                         async (err, decoded) => {
                             if (err) {
-                                console.error(
-                                    "Failed to verify JWT. Refresh token does not match.",
-                                    err
-                                );
                                 resolve({
                                     status: false,
                                     Refresh: false,
@@ -54,7 +48,6 @@ const Verify_user = async (req, res) => {
                                     process.env.ACCESS_TOKEN_SECRET,
                                     { expiresIn: "5m" }
                                 );
-                                console.log("token refreshed");
                                 resolve({
                                     status: true,
                                     Refresh: true,
@@ -66,12 +59,10 @@ const Verify_user = async (req, res) => {
                     );
                 });
             } catch (refreshErr) {
-                console.error("Error refreshing token:", refreshErr);
                 return { status: false, Refresh: false, decoded: null };
             }
         } else {
             // Other verification error, return false
-            console.error("Error verifying token:", err);
             return { status: false, Refresh: false, decoded: null };
         }
     }

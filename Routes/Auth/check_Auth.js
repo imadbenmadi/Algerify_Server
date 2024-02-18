@@ -18,7 +18,6 @@ router.get("/", async (req, res) => {
                     // Access token expired, attempt to refresh it
                     try {
                         if (!refreshToken) {
-                            console.error("Refresh token is missing.");
                             return res.status(401).json({
                                 error: "Unauthorized: Refresh token is missing",
                             });
@@ -29,9 +28,7 @@ router.get("/", async (req, res) => {
                         }).exec();
 
                         if (!found_in_DB) {
-                            console.error(
-                                "Refresh token not found in the database."
-                            );
+                            
                             return res.status(401).json({
                                 error: "Unauthorized: Refresh token not found in the database",
                             });
@@ -42,19 +39,14 @@ router.get("/", async (req, res) => {
                             process.env.REFRESH_TOKEN_SECRET,
                             async (err, decoded) => {
                                 if (err) {
-                                    console.error(
-                                        "Failed to verify JWT. Refresh token does not match.",
-                                        err
-                                    );
+                                        
                                     return res.status(401).json({
                                         error: "Unauthorized: Failed to verify JWT. Refresh token does not match",
                                     });
                                 } else if (
                                     found_in_DB.userId != decoded.userId
                                 ) {
-                                    console.error(
-                                        "found_in_DB.userId != decoded.userId"
-                                    );
+                                    
                                     return res.status(401).json({
                                         error: "Unauthorized: User ID mismatch",
                                     });
@@ -72,8 +64,6 @@ router.get("/", async (req, res) => {
                                     secure: true,
                                     maxAge: 60 * 60 * 1000, // 1 hour in milliseconds
                                 });
-                                console.log("Token refreshed");
-                                // Continue with the response
                                 const user = await Users.findOne({
                                     _id: decoded.userId,
                                 });
@@ -96,7 +86,6 @@ router.get("/", async (req, res) => {
                             }
                         );
                     } catch (refreshErr) {
-                        console.error("Error refreshing token:", refreshErr);
                         return res
                             .status(500)
                             .json({ error: "Internal Server Error" });
