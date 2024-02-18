@@ -8,14 +8,14 @@ const Verify_user = async (req, res) => {
     const refreshToken = req.cookies.refreshToken;
     try {
         const decoded = jwt.verify(accessToken, secretKey);
-        return { status: true, Refresh: false };
+        return { status: true, Refresh: false, decoded };
     } catch (err) {
         if (err.name === "TokenExpiredError") {
             // Token expired, attempt to refresh it
             try {
                 if (!refreshToken) {
                     console.error("Refresh token is missing.");
-                    return { status: false, Refresh: false };
+                    return { status: false, Refresh: false, decoded: null };
                 }
 
                 const found_in_DB = await Refresh_tokens.findOne({
@@ -24,7 +24,7 @@ const Verify_user = async (req, res) => {
 
                 if (!found_in_DB) {
                     console.error("Refresh token not found in the database.");
-                    return { status: false, Refresh: false };
+                    return { status: false, Refresh: false, decoded: null };
                 }
 
                 return new Promise((resolve, reject) => {
@@ -37,9 +37,17 @@ const Verify_user = async (req, res) => {
                                     "Failed to verify JWT. Refresh token does not match.",
                                     err
                                 );
-                                resolve({ status: false, Refresh: false });
+                                resolve({
+                                    status: false,
+                                    Refresh: false,
+                                    decoded: null,
+                                });
                             } else if (found_in_DB.userId != decoded.userId) {
-                                resolve({ status: false, Refresh: false });
+                                resolve({
+                                    status: false,
+                                    Refresh: false,
+                                    decoded: null,
+                                });
                             } else {
                                 const newAccessToken = jwt.sign(
                                     { userId: decoded.userId },
@@ -50,6 +58,7 @@ const Verify_user = async (req, res) => {
                                 resolve({
                                     status: true,
                                     Refresh: true,
+                                    decoded: decoded,
                                     newAccessToken,
                                 });
                             }
@@ -58,12 +67,12 @@ const Verify_user = async (req, res) => {
                 });
             } catch (refreshErr) {
                 console.error("Error refreshing token:", refreshErr);
-                return { status: false, Refresh: false };
+                return { status: false, Refresh: false, decoded: null };
             }
         } else {
             // Other verification error, return false
             console.error("Error verifying token:", err);
-            return { status: false, Refresh: false };
+            return { status: false, Refresh: false, decoded: null };
         }
     }
 };

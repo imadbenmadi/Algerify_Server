@@ -1,6 +1,7 @@
 const { Users } = require("../models/Database");
 require("dotenv").config();
 const Verify_user = require("../Middleware/verify_user");
+const Verify_Admin = require("../Middleware/Verify_Admin");
 const EditProfile = async (req, res) => {
     const isAuth = await Verify_user(req, res);
     if (isAuth.status == false)
