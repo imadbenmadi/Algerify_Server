@@ -112,7 +112,7 @@ const handle_send_Email = async (req, res) => {
         try {
             await email_verification_tokens.deleteMany({ userId: userId });
         } catch (err) {
-            res.status(400).json({ err });
+          return res.status(400).json({ err });
         }
 
         const verificationToken = generateVerificationCode();
@@ -122,12 +122,12 @@ const handle_send_Email = async (req, res) => {
         });
         await newVerificationToken.save();
         sendVerificationEmail(user.Email, verificationToken);
-        res.status(200).json({
-            message: "Email Sended Successfully",
-            Date: new Date(),
-        });
+      return res.status(200).json({
+          message: "Email Sended Successfully",
+          Date: new Date(),
+      });
     } catch (error) {
-        res.status(500).json({ error });
+      return res.status(500).json({ error });
     }
 };
 

@@ -61,9 +61,9 @@ const EditProfile = async (req, res) => {
         // Save the updated user
         await userToUpdate.save();
 
-        res.status(200).json({ message: "Profile updated successfully" });
+      return res.status(200).json({ message: "Profile updated successfully" });
     } catch (error) {
-        res.status(500).json({ error: error });
+      return res.status(500).json({ error: error });
     }
 };
 // Only Admin can get all users
@@ -84,9 +84,9 @@ const getAllUsers = async (req, res) => {
             "FirstName LastName Telephone Email Age"
         );
 
-        res.status(200).json(allUsers);
+      return res.status(200).json(allUsers);
     } catch (error) {
-        res.status(500).json({ error: error });
+      return res.status(500).json({ error: error });
     }
 };
 const getUser = async (req, res) => {
@@ -99,9 +99,9 @@ const getUser = async (req, res) => {
         if (!user_in_db) {
             return res.status(404).json({ error: "user not found." });
         }
-        res.status(200).json(user_in_db);
+      return res.status(200).json(user_in_db);
     } catch (error) {
-        res.status(500).json({ error: error });
+      return res.status(500).json({ error: error });
     }
 };
 const getProfile = async (req, res) => {
@@ -135,9 +135,9 @@ const getProfile = async (req, res) => {
         if (!user_in_db) {
             return res.status(404).json({ error: "user not found." });
         }
-        res.status(200).json(user_in_db);
+      return res.status(200).json(user_in_db);
     } catch (error) {
-        res.status(500).json({ error: error });
+       return res.status(500).json({ error: error });
     }
 };
 const DeleteProfile = async (req, res) => {
@@ -172,9 +172,9 @@ const DeleteProfile = async (req, res) => {
             return res.status(404).json({ error: "User not found." });
         }
         await Users.findByIdAndDelete(userId);
-        res.status(200).json({ message: "Profile deleted successfully." });
+      return res.status(200).json({ message: "Profile deleted successfully." });
     } catch (error) {
-        res.status(500).json({ error: error });
+      return res.status(500).json({ error: error });
     }
 };
 // Only Admin can create a new user without verification email
@@ -220,9 +220,9 @@ const CreateUser = async (req, res) => {
             IsEmailVerified: true,
         });
         await newUser.save();
-        res.status(200).json({ message: "User Created successfully." });
+      return res.status(200).json({ message: "User Created successfully." });
     } catch (error) {
-        res.status(500).json({ error: error });
+      return res.status(500).json({ error: error });
     }
 };
 // userid trogh body
@@ -269,11 +269,11 @@ const add_to_Basket = async (req, res) => {
         }
         user_in_db.basket.push({ ProductId: productId });
         await user_in_db.save();
-        res.status(200).json({
-            message: "Product added to basket successfully.",
-        });
+       return res.status(200).json({
+           message: "Product added to basket successfully.",
+       });
     } catch (error) {
-        res.status(500).json({ error: error });
+      return res.status(500).json({ error: error });
     }
 };
 const delete_from_Basket = async (req, res) => {
@@ -321,11 +321,11 @@ const delete_from_Basket = async (req, res) => {
         // Remove the product from the basket array
         user_in_db.basket.splice(productIndex, 1);
         await user_in_db.save();
-        res.status(200).json({
-            message: "Product deleted from basket successfully.",
-        });
+     return res.status(200).json({
+         message: "Product deleted from basket successfully.",
+     });
     } catch (error) {
-        res.status(500).json({ error: error });
+     return res.status(500).json({ error: error });
     }
 };
 const get_Basket = async (req, res) => {
@@ -359,9 +359,9 @@ const get_Basket = async (req, res) => {
         if (!user_in_db) {
             return res.status(404).json({ error: "User not found." });
         }
-        res.status(200).json(user_in_db.basket);
+      return res.status(200).json(user_in_db.basket);
     } catch (error) {
-        res.status(500).json({ error: error });
+      return res.status(500).json({ error: error });
     }
 }
 const add_to_Favorit = async (req, res) => {
@@ -407,11 +407,11 @@ const add_to_Favorit = async (req, res) => {
         }
         user_in_db.Favorite.push({ ProductId: productId });
         await user_in_db.save();
-        res.status(200).json({
-            message: "Product added to Favorite successfully.",
-        });
+      return res.status(200).json({
+          message: "Product added to Favorite successfully.",
+      });
     } catch (error) {
-        res.status(500).json({ error: error });
+     return res.status(500).json({ error: error });
     }
 }
 
@@ -460,11 +460,11 @@ const delete_from_Favorit = async (req, res) => {
         // Remove the product from the basket array
         user_in_db.Favorite.splice(productIndex, 1);
         await user_in_db.save();
-        res.status(200).json({
-            message: "Product deleted from Favorite successfully.",
-        });
+     return res.status(200).json({
+         message: "Product deleted from Favorite successfully.",
+     });
     } catch (error) {
-        res.status(500).json({ error: error });
+     return res.status(500).json({ error: error });
     }
 }
 const get_Favorite = async (req, res) => {
@@ -498,9 +498,9 @@ const get_Favorite = async (req, res) => {
         if (!user_in_db) {
             return res.status(404).json({ error: "User not found." });
         }
-        res.status(200).json(user_in_db.Favorite);
+     return res.status(200).json(user_in_db.Favorite);
     } catch (error) {
-        res.status(500).json({ error: error });
+     return res.status(500).json({ error: error });
     }
 }
 module.exports = {

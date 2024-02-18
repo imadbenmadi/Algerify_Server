@@ -125,13 +125,13 @@ const handleRegister = async (req, res) => {
                 .status(409)
                 .json({ message: "Last Name must be more that 3 chars" });
         } else if (FirstName.length > 14) {
-            res.status(409).json({
-                message: "First Name must be less than 14 chars",
-            });
+         return res.status(409).json({
+             message: "First Name must be less than 14 chars",
+         });
         } else if (LastName.length > 14) {
-            res.status(409).json({
-                message: "LastName must be less than 14 chars",
-            });
+          return res.status(409).json({
+              message: "LastName must be less than 14 chars",
+          });
         } else if (Password.length < 8) {
             return res
                 .status(409)
@@ -184,13 +184,13 @@ const handleRegister = async (req, res) => {
         });
         await newVerificationToken.save();
         sendVerificationEmail(Email, verificationToken);
-        res.status(200).json({
-            message: "Account Created Successfully",
-            _id: newUser._id,
-            Date: new Date(),
-        });
+       return res.status(200).json({
+           message: "Account Created Successfully",
+           _id: newUser._id,
+           Date: new Date(),
+       });
     } catch (err) {
-        res.status(400).json({ err });
+      return res.status(400).json({ err });
     }
 };
 

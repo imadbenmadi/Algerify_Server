@@ -36,9 +36,9 @@ const handleVerifyAccount = async (req, res) => {
             _id: verificationToken._id,
         });
 
-        res.status(200).json({ message: "Account Verified Successfully" });
+      return res.status(200).json({ message: "Account Verified Successfully" });
     } catch (error) {
-        res.status(500).json({ error });
+      return res.status(500).json({ error });
     }
 };
 
