@@ -33,8 +33,8 @@ const handleLogin = async (req, res) => {
                     token: refreshToken,
                 });
             } catch (err) {
-                res.status(500).json({
-                    error: "Internal Server Error " + err.message,
+                return res.status(500).json({
+                    error: err,
                 });
             }
             res.cookie("accessToken", accessToken, {
@@ -82,18 +82,18 @@ const handleLogin = async (req, res) => {
                 Favorite : user.Favorite,
                 IsEmailVerified: user.IsEmailVerified,
             };
-            res.status(200).json({
+            return res.status(200).json({
                 message: "Logged In Successfully",
                 userData: UserData_To_Send,
                 jwt: accessToken,
             });
         } else {
-            res.status(401).json({
+            return res.status(401).json({
                 error: "Username or Password isn't correct",
             });
         }
     } catch (err) {
-        res.status(400).json({ error: err });
+        return res.status(500).json({ error: err });
     }
 };
 module.exports = { handleLogin };
