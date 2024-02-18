@@ -12,8 +12,8 @@ const sendVerificationEmail = (Email, verificationToken) => {
     let transporter = nodemailer.createTransport({
         service: "gmail",
         auth: {
-            user: process.env.EMAIL2, // Your Gmail email address
-            pass: process.env.PASSWORD2, // Your Gmail password
+            user: process.env.EMAIL, // Your Gmail email address
+            pass: process.env.PASSWORD, // Your Gmail password
         },
     });
     const htmlTemplate = `
@@ -61,7 +61,7 @@ const sendVerificationEmail = (Email, verificationToken) => {
     `;
     transporter.sendMail(
         {
-            from: process.env.EMAIL2,
+            from: process.env.EMAIL,
             to: Email,
             subject: "Skate Email verification",
             html: htmlTemplate,

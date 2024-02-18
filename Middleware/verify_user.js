@@ -8,14 +8,14 @@ const Verify_user = async (req, res) => {
     const refreshToken = req.cookies.refreshToken;
     try {
         const decoded = jwt.verify(accessToken, secretKey);
-        return true;
+        return { status: true, Refresh: false };
     } catch (err) {
         if (err.name === "TokenExpiredError") {
             // Token expired, attempt to refresh it
             try {
                 if (!refreshToken) {
                     console.error("Refresh token is missing.");
-                    return false;
+                    return { status: false, Refresh: false };
                 }
 
                 const found_in_DB = await Refresh_tokens.findOne({
@@ -24,51 +24,46 @@ const Verify_user = async (req, res) => {
 
                 if (!found_in_DB) {
                     console.error("Refresh token not found in the database.");
-                    return false;
+                    return { status: false, Refresh: false };
                 }
 
-                jwt.verify(
-                    refreshToken,
-                    process.env.REFRESH_TOKEN_SECRET,
-                    async (err, decoded) => {
-                        if (err) {
-                            console.error(
-                                "Failed to verify JWT. Refresh token does not match.",
-                                err
-                            );
-                            return false;
-                        } else if (found_in_DB.userId != decoded.userId) {
-                            console.error(
-                                "found_in_DB.userId != decoded.userId"
-                            );
-                            return false;
+                return new Promise((resolve, reject) => {
+                    jwt.verify(
+                        refreshToken,
+                        process.env.REFRESH_TOKEN_SECRET,
+                        async (err, decoded) => {
+                            if (err) {
+                                console.error(
+                                    "Failed to verify JWT. Refresh token does not match.",
+                                    err
+                                );
+                                resolve({ status: false, Refresh: false });
+                            } else if (found_in_DB.userId != decoded.userId) {
+                                resolve({ status: false, Refresh: false });
+                            } else {
+                                const newAccessToken = jwt.sign(
+                                    { userId: decoded.userId },
+                                    process.env.ACCESS_TOKEN_SECRET,
+                                    { expiresIn: "5m" }
+                                );
+                                console.log("token refreshed");
+                                resolve({
+                                    status: true,
+                                    Refresh: true,
+                                    newAccessToken,
+                                });
+                            }
                         }
-
-                        // Generate new access token
-                        const newAccessToken = jwt.sign(
-                            { userId: decoded.userId },
-                            process.env.ACCESS_TOKEN_SECRET,
-                            { expiresIn: "1h" }
-                        );res.cookie("accessToken", newAccessToken, {
-                            httpOnly: true,
-                            sameSite: "None",
-                            secure: true,
-                            maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
-                        });
-                        // Update the access token wherever it's stored (e.g., in a cookie)
-                        // For example, res.cookie("accessToken", newAccessToken, { ... });
-                        console.log("token refreshed");
-                        return true;
-                    }
-                );
+                    );
+                });
             } catch (refreshErr) {
                 console.error("Error refreshing token:", refreshErr);
-                return false;
+                return { status: false, Refresh: false };
             }
         } else {
             // Other verification error, return false
             console.error("Error verifying token:", err);
-            return false;
+            return { status: false, Refresh: false };
         }
     }
 };

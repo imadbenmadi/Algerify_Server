@@ -2,21 +2,21 @@ require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const { Refresh_tokens } = require("../models/Database");
 
-const Verify_Admin = async(req, res) => {
+const Verify_Admin = async (req, res) => {
     const secretKey = process.env.ADMIN_ACCESS_TOKEN_SECRET;
     const accessToken = req.cookies.admin_accessToken;
     const refreshToken = req.cookies.admin_refreshToken;
-    
+
     try {
         const decoded = jwt.verify(accessToken, secretKey);
-        return true;
+        return { status: true, Refresh: false };
     } catch (err) {
         if (err.name === "TokenExpiredError") {
             // Token expired, attempt to refresh it
             try {
                 if (!refreshToken) {
                     console.error("Refresh token is missing.");
-                    return false;
+                    return { status: false, Refresh: false };
                 }
 
                 const found_in_DB = await Refresh_tokens.findOne({
@@ -25,48 +25,48 @@ const Verify_Admin = async(req, res) => {
 
                 if (!found_in_DB) {
                     console.error("Refresh token not found in the database.");
-                    return false;
+                    return { status: false, Refresh: false };
                 }
 
-                jwt.verify(
-                    refreshToken,
-                    process.env.ADMIN_REFRESH_TOKEN_SECRET,
-                    async (err, decoded) => {
-                        if (err) {
-                            console.error(
-                                "Failed to verify JWT. Refresh token does not match.",
-                                err
-                            );
-                            return false;
-                        } 
+                return new Promise((resolve, reject) => {
+                    jwt.verify(
+                        refreshToken,
+                        process.env.ADMIN_REFRESH_TOKEN_SECRET,
+                        async (err, decoded) => {
+                            if (err) {
+                                console.error(
+                                    "Failed to verify JWT. Refresh token does not match.",
+                                    err
+                                );
+                                resolve({ status: false, Refresh: false });
+                            } else {
+                                // Generate new access token
+                                const newAccessToken = jwt.sign(
+                                    { userId: decoded.userId },
+                                    process.env.ADMIN_ACCESS_TOKEN_SECRET,
+                                    { expiresIn: "5m" }
+                                );
 
-                        // Generate new access token
-                        const newAccessToken = jwt.sign(
-                            { userId: decoded.userId },
-                            process.env.ADMIN_ACCESS_TOKEN_SECRET,
-                            { expiresIn: "5m" }
-                        );
-                        res.cookie("admin_accessToken", newAccessToken, {
-                            httpOnly: true,
-                            sameSite: "None",
-                            secure: true,
-                            maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
-                        });
-                        // Update the access token wherever it's stored (e.g., in a cookie)
-                        // For example, res.cookie("accessToken", newAccessToken, { ... });
-                        console.log("token refreshed");
-                        return true;
-                    }
-                );
+                                console.log("Token refreshed");
+                                resolve({
+                                    status: true,
+                                    Refresh: true,
+                                    newAccessToken,
+                                });
+                            }
+                        }
+                    );
+                });
             } catch (refreshErr) {
                 console.error("Error refreshing token:", refreshErr);
-                return false;
+                return { status: false, Refresh: false };
             }
         } else {
             // Other verification error, return false
             console.error("Error verifying token:", err);
-            return false;
+            return { status: false, Refresh: false };
         }
     }
 };
+
 module.exports = Verify_Admin;
