@@ -78,14 +78,13 @@ const isEmailValid = (Email) => {
         const domain = Email.split("@")[1];
         dns.resolve(domain, "MX", (err, addresses) => {
             if (err || !addresses || addresses.length === 0) {
-                resolve(false); // No MX records found, domain is invalid
+                resolve(false);
             } else {
-                // Additional check for A or AAAA records to further validate domain existence
                 dns.resolve(domain, (err, addresses) => {
                     if (err || !addresses || addresses.length === 0) {
-                        resolve(false); // No A or AAAA records found, domain is invalid
+                        resolve(false);
                     } else {
-                        resolve(true); // Domain is valid
+                        resolve(true);
                     }
                 });
             }
@@ -164,7 +163,7 @@ const handleRegister = async (req, res) => {
 
         const existingUser = await Users.findOne({ Email: Email });
         if (existingUser) {
-            return res.status(401).json({ error: "Email already exists" });
+            return res.status(400).json({ error: "Email already exists" });
         }
 
         const verificationToken = generateVerificationCode();
