@@ -89,12 +89,7 @@ const DeleteProfile = async (req, res) => {
 
     if (!userId) return res.status(400).json({ error: "User Id is required." });
     try {
-        const verified = await Verify_user(req, res);
-        if (!verified) {
-            return res
-                .status(401)
-                .json({ error: "Unauthorized: Invalid token" });
-        }
+        
 
         const user_in_db = await Users.findById(userId);
         if (!user_in_db) {
