@@ -4,7 +4,6 @@ const { Users, email_verification_tokens } = require("../../models/Database");
 const handleVerifyAccount = async (req, res) => {
     try {
         const { Code, userId } = req.body;
-
         if (!Code || !userId) {
             return res.status(409).json({ error: "Missing Data" });
         }
@@ -31,21 +30,15 @@ const handleVerifyAccount = async (req, res) => {
         if (!user) {
             return res.status(404).json({ error: "User not found" });
         }
-
-        // Update user's email verification status
         user.IsEmailVerified = true;
         await user.save();
-
-        // Remove the verification token from the database
         await email_verification_tokens.deleteOne({
             _id: verificationToken._id,
         });
 
         res.status(200).json({ message: "Account Verified Successfully" });
-    } catch (err) {
-        res.status(400).json({
-            error: "An error occurred while verifying the account",
-        });
+    } catch (error) {
+        res.status(500).json({ error });
     }
 };
 

@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const ReSend_Verification_EmailController = require("../../Controllers/emails/Resend_verificationController");
+const ReSend_Verification_EmailController = require("../../Controllers/emails/ReSend_Verification_EmailController");
 // route handler
 // Object to track attempts and block expiration time for each IP address
 const Attempts = {};
@@ -26,7 +26,7 @@ const cleanupExpiredBlocks = () => {
 // Cleanup expired IP address blocks every minute
 setInterval(cleanupExpiredBlocks, 60000); // Run every minute
 
-router.post("/", async (req, res) => {
+router.post("/:userId", async (req, res) => {
     const ipAddress = req.ip;
 
     // Check if the IP address is already blocked and the block has expired
