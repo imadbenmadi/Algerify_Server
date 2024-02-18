@@ -1,7 +1,7 @@
 const { Users, email_verification_tokens } = require("../../models/Database");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
-const Verify_user = require("../../Middleware/verify_user");
+const Verify_user = require("../../Middleware/Verify_user");
 
 const generateVerificationCode = () => {
     const code = crypto.randomInt(100000, 999999);
@@ -78,14 +78,23 @@ const handle_send_Email = async (req, res) => {
     try {
         const { userId } = req.body;
         const accessToken = req.cookies.accessToken;
-        console.log("acess token", accessToken);
+        
         if (!userId) {
             return res.status(409).json({ message: "Missing Data" });
-        } else if (!Verify_user(req, res)) {
-            console.log("accessToken not valid ");
-            return res
-                .status(401)
-                .json({ error: "Unauthorized: Invalid token" });
+        } else {
+            const isAuth = await Verify_user(req, res);
+            if (isAuth.status == false)
+                return res
+                    .status(401)
+                    .json({ error: "Unauthorized: Invalid token" });
+            if (isAuth.status == true && isAuth.Refresh == true) {
+                res.cookie("accessToken", isAuth.newAccessToken, {
+                    httpOnly: true,
+                    sameSite: "None",
+                    secure: true,
+                    maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
+                });
+            }
         }
 
         const user = await Users.findById(userId);
