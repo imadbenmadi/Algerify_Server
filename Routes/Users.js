@@ -17,11 +17,11 @@ router.post("/Favorit/:productId", UserController.add_to_Favorit);
 router.delete("/Favorit/:productId", UserController.delete_from_Favorit);
 router.get("/Favorit/:userId", UserController.get_Favorite);
 
-
+// userId through body 
 router.post("/RateProduct/:productId", ReateController.RateProduct);
-router.delete("/RateProduct/:userId", UserController.RateProduct);
+router.delete("/RateProduct/:userId", UserController.Delete_RateProduct);
 router.post("/CommentProduct/:userId", UserController.CommentProduct);
-router.delete("/CommentProduct/:userId", UserController.CommentProduct);
+router.delete("/CommentProduct/:userId", UserController.Delete_CommentProduct);
 router.get("/getRate/:productId", UserController.getRate);
 router.get("/getComment/:productId", UserController.getComment);
 

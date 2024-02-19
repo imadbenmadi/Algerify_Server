@@ -1,52 +1,45 @@
-const { Users, Stores } = require("../models/Database");
+const { Users, Stores, Products } = require("../models/Database");
 require("dotenv").config();
 const Verify_user = require("../Middleware/Verify_user");
 const Verify_Admin = require("../Middleware/Verify_Admin");
 const RateProduct = async (req, res) => {
-    const isAdmin = await Verify_Admin(req, res);
-    if (isAdmin.status == true && isAdmin.Refresh == true) {
-        res.cookie("admin_accessToken", isAdmin.newAccessToken, {
+    const isAuth = await Verify_user(req, res);
+    if (isAuth.status == false)
+        return res.status(401).json({ error: "Unauthorized: Invalid token" });
+    if (isAuth.status == true && isAuth.Refresh == true) {
+        res.cookie("accessToken", isAuth.newAccessToken, {
             httpOnly: true,
             sameSite: "None",
             secure: true,
             maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
         });
-    } else if (isAdmin.status == false && isAdmin.Refresh == false) {
-        const isAuth = await Verify_user(req, res);
-        if (isAuth.status == false)
-            return res
-                .status(401)
-                .json({ error: "Unauthorized: Invalid token" });
-        if (isAuth.status == true && isAuth.Refresh == true) {
-            res.cookie("accessToken", isAuth.newAccessToken, {
-                httpOnly: true,
-                sameSite: "None",
-                secure: true,
-                maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
-            });
-        }
     }
     try {
         const userId = req.body.userId;
         const productId = req.params.productId;
+        const rate = req.body.rate;
         if (!userId || !productId)
             return res.status(409).json({ error: "Messing Data" });
         const user_in_db = await Users.findById(userId);
         if (!user_in_db) {
             return res.status(404).json({ error: "User not found." });
         }
-        const productExists = user_in_db.Favorite.some(
-            (item) => item.ProductId === productId
+        const product_in_db = await Products.findById(productId);
+        if (!product_in_db) {
+            return res.status(404).json({ error: "Product not found." });
+        }
+        const Already_Rated = product_in_db.Ratings.some(
+            (item) => item.user == userId
         );
-        if (productExists) {
+        if (Already_Rated) {
             return res
                 .status(400)
-                .json({ error: "Product already in Favorite." });
+                .json({ error: "You already rated this product." });
         }
-        user_in_db.Favorite.push({ ProductId: productId });
-        await user_in_db.save();
+        product_in_db.Ratings.push({ user: userId, rate: rate });
+        await product_in_db.save();
         return res.status(200).json({
-            message: "Product added to Favorite successfully.",
+            message: "Product rated successfully.",
         });
     } catch (error) {
         return res.status(500).json({ error: error });
