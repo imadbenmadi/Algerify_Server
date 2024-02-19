@@ -7,7 +7,6 @@ router.get("/:userId", UserController.getUser);
 
 router.put("/:userId", UserController.EditProfile); 
 router.delete("/:userId", UserController.DeleteProfile); // both Admin and User
-router.post("/Create", UserController.CreateUser); // Only Dashboard
 
 router.post("/Basket/:productId", UserController.add_to_Basket);
 router.delete("/Basket/:productId", UserController.delete_from_Basket);

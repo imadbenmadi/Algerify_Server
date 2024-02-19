@@ -177,54 +177,6 @@ const DeleteProfile = async (req, res) => {
       return res.status(500).json({ error: error });
     }
 };
-// Only Admin can create a new user without verification email
-const CreateUser = async (req, res) => {
-    const isAdmin = await Verify_Admin(req, res);
-    if (isAdmin.status == true && isAdmin.Refresh == true) {
-        res.cookie("admin_accessToken", isAdmin.newAccessToken, {
-            httpOnly: true,
-            sameSite: "None",
-            secure: true,
-            maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
-        });
-    } else if (isAdmin.status == false && isAdmin.Refresh == false) {
-        return res.status(401).json({ error: "Unauthorized: Invalid token" });
-    }
-    try {
-        const {
-            FirstName,
-            LastName,
-            Email,
-            Password,
-            Telephone,
-            Age,
-            Gender,
-            Address,
-        } = req.body;
-        if (!FirstName || !LastName || !Email || !Password || !Telephone) {
-            return res.status(409).json({ error: "Messing Data" });
-        }
-        const user_in_db = await Users.findOne({ Email: Email });
-        if (user_in_db) {
-            return res.status(400).json({ error: "User already exists." });
-        }
-        const newUser = new Users({
-            FirstName: FirstName,
-            LastName: LastName,
-            Email: Email,
-            Password: Password,
-            Telephone: Telephone,
-            Age: Age,
-            Gender: Gender,
-            Address: Address,
-            IsEmailVerified: true,
-        });
-        await newUser.save();
-      return res.status(200).json({ message: "User Created successfully." });
-    } catch (error) {
-      return res.status(500).json({ error: error });
-    }
-};
 // userid trogh body
 const add_to_Basket = async (req, res) => {
     const isAdmin = await Verify_Admin(req, res);
