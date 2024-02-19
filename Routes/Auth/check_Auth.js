@@ -48,11 +48,10 @@ router.get("/", async (req, res) => {
                                 ) {
                                     
                                     return res.status(401).json({
-                                        error: "Unauthorized: User ID mismatch",
+                                        error: "Unauthorized ",
                                     });
                                 }
 
-                                // Generate new access token
                                 const newAccessToken = jwt.sign(
                                     { userId: decoded.userId },
                                     process.env.ACCESS_TOKEN_SECRET,
@@ -62,7 +61,7 @@ router.get("/", async (req, res) => {
                                     httpOnly: true,
                                     sameSite: "None",
                                     secure: true,
-                                    maxAge: 60 * 60 * 1000, // 1 hour in milliseconds
+                                    maxAge: 60 * 60 * 1000,
                                 });
                                 const user = await Users.findOne({
                                     _id: decoded.userId,
@@ -91,14 +90,11 @@ router.get("/", async (req, res) => {
                             .json({ error: "Internal Server Error" });
                     }
                 } else {
-                    // Other verification error, return unauthorized
-
                     return res.status(401).json({
                         error: "Unauthorized: Access token is invalid",
                     });
                 }
             } else {
-                // Access token is valid, continue with the response
                 const user = await Users.findOne({ _id: decoded.userId });
                 const UserData_To_Send = {
                     _id: user._id,
@@ -118,7 +114,7 @@ router.get("/", async (req, res) => {
             }
         });
     } catch (err) {
-        return res.status(500).json({ error: "Internal Server Error" });
+        return res.status(500).json({ error: err });
     }
 });
 

@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const StoreLogin = require("../../Controllers/Auth/StoreLogin");
+const StoreLogin = require("../../../Controllers/Auth/Store/StoreLoginController");
 
 // Object to track Storelogin attempts and block expiration time for each IP address
 const StoreloginAttempts = {};
