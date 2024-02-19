@@ -54,6 +54,8 @@ const Stores = mongoose.model(
     "Stores",
     new mongoose.Schema({
         Owner: { type: mongoose.Types.ObjectId, ref: "Users" },
+        Email: { type: String },
+        Password: { type: String },
         StoreName: { type: String },
         Store_Describtion: { type: String },
         Telephone: { type: String },

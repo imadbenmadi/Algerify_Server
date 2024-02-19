@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
-const { Users, Refresh_tokens } = require("../../models/Database");
+const {Stores,  Refresh_tokens } = require("../../models/Database");
 
 const handleLogin = async (req, res) => {
     try {
@@ -14,22 +14,22 @@ const handleLogin = async (req, res) => {
         } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(Email)) {
             return res.status(409).json({ error: "Invalid Email" });
         }
-        const user = await Users.findOne({ Email: Email });
-        if (user && user.Password === Password) {
+        const Store = await Stores.findOne({ Email: Email });
+        if (Store && Store.Password === Password) {
             const accessToken = jwt.sign(
-                { userId: user._id },
-                process.env.ACCESS_TOKEN_SECRET,
+                { StoreId: Store._id },
+                process.env.ADMIN_ACCESS_TOKEN_SECRET,
                 { expiresIn: "1h" }
             );
             const refreshToken = jwt.sign(
-                { userId: user._id },
-                process.env.REFRESH_TOKEN_SECRET,
+                { StoreId: Store._id },
+                process.env.ADMIN_REFRESH_TOKEN_SECRET,
                 { expiresIn: "1d" }
             );
 
             try {
                 await Refresh_tokens.create({
-                    userId: user._id,
+                    userId: Store._id,
                     token: refreshToken,
                 });
             } catch (err) {
@@ -37,23 +37,23 @@ const handleLogin = async (req, res) => {
                     error: err,
                 });
             }
-            res.cookie("accessToken", accessToken, {
+            res.cookie("admin_accessToken", accessToken, {
                 httpOnly: true,
                 sameSite: "None",
                 secure: true,
                 maxAge: 60 * 60 * 1000,
             });
-            res.cookie("refreshToken", refreshToken, {
+            res.cookie("admin_refreshToken", refreshToken, {
                 httpOnly: true,
                 sameSite: "None",
                 secure: true,
                 maxAge: 24 * 60 * 60 * 1000,
             });
-            if (req.cookies.admin_accessToken) {
-                res.clearCookie("admin_accessToken");
+            if (req.cookies.accessToken) {
+                res.clearCookie("accessToken");
             }
-            if (req.cookies.admin_refreshToken) {
-                res.clearCookie("admin_refreshToken");
+            if (req.cookies.refreshToken) {
+                res.clearCookie("refreshToken");
             }
             const today = new Date();
             const lastMonth = new Date(
@@ -62,7 +62,7 @@ const handleLogin = async (req, res) => {
                 today.getDate()
             );
             // Filter notifications that are unread or from the last month
-            const notificationsToSend = user.Notifications.filter(
+            const notificationsToSend = Store.Notifications.filter(
                 (notification) => {
                     // Include notification if it's unread or from the last month
                     return (
@@ -70,25 +70,25 @@ const handleLogin = async (req, res) => {
                     );
                 }
             );
-            const UserData_To_Send = {
-                _id: user._id,
-                Email: user.Email,
-                FirstName: user.FirstName,
-                LastName: user.LastName,
+            const StoreData_To_Send = {
+                _id: Store._id,
+                Email: Store.Email,
+                FirstName: Store.FirstName,
+                LastName: Store.LastName,
                 Notifications: notificationsToSend,
-                ProfilePic: user.ProfilePic,
-                Address: user.Address,
-                basket: user.basket,
-                Favorite : user.Favorite,
-                IsEmailVerified: user.IsEmailVerified,
+                ProfilePic: Store.ProfilePic,
+                Address: Store.Address,
+                basket: Store.basket,
+                Favorite: Store.Favorite,
+                IsEmailVerified: Store.IsEmailVerified,
             };
             return res.status(200).json({
-                message: "Logged In Successfully",
-                userData: UserData_To_Send,
+                message: "Logged In to store Successfully",
+                StoreData: StoreData_To_Send,
             });
         } else {
             return res.status(401).json({
-                error: "Username or Password isn't correct",
+                error: "Store email or Password isn't correct",
             });
         }
     } catch (err) {
