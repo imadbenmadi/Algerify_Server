@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const UserController = require("../Controllers/UserController");
+const ReateController = require("../Controllers/ReateController");
 router.get("/", UserController.getAllUsers); // Only Admin
 router.get("/Profile/:userId", UserController.getProfile); // Only Admin
 router.get("/:userId", UserController.getUser); 
@@ -17,7 +18,7 @@ router.delete("/Favorit/:productId", UserController.delete_from_Favorit);
 router.get("/Favorit/:userId", UserController.get_Favorite);
 
 
-router.post("/RateProduct/:productId", UserController.RateProduct);
+router.post("/RateProduct/:productId", ReateController.RateProduct);
 router.delete("/RateProduct/:userId", UserController.RateProduct);
 router.post("/CommentProduct/:userId", UserController.CommentProduct);
 router.delete("/CommentProduct/:userId", UserController.CommentProduct);

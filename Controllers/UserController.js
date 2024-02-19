@@ -1,4 +1,4 @@
-const { Users,Stores } = require("../models/Database");
+const { Users, Stores } = require("../models/Database");
 require("dotenv").config();
 const Verify_user = require("../Middleware/Verify_user");
 const Verify_Admin = require("../Middleware/Verify_Admin");
@@ -61,9 +61,11 @@ const EditProfile = async (req, res) => {
         // Save the updated user
         await userToUpdate.save();
 
-      return res.status(200).json({ message: "Profile updated successfully" });
+        return res
+            .status(200)
+            .json({ message: "Profile updated successfully" });
     } catch (error) {
-      return res.status(500).json({ error: error });
+        return res.status(500).json({ error: error });
     }
 };
 // Only Admin can get all users
@@ -84,9 +86,9 @@ const getAllUsers = async (req, res) => {
             "FirstName LastName Telephone Email Age"
         );
 
-      return res.status(200).json(allUsers);
+        return res.status(200).json(allUsers);
     } catch (error) {
-      return res.status(500).json({ error: error });
+        return res.status(500).json({ error: error });
     }
 };
 const getUser = async (req, res) => {
@@ -99,9 +101,9 @@ const getUser = async (req, res) => {
         if (!user_in_db) {
             return res.status(404).json({ error: "user not found." });
         }
-      return res.status(200).json(user_in_db);
+        return res.status(200).json(user_in_db);
     } catch (error) {
-      return res.status(500).json({ error: error });
+        return res.status(500).json({ error: error });
     }
 };
 const getProfile = async (req, res) => {
@@ -135,9 +137,9 @@ const getProfile = async (req, res) => {
         if (!user_in_db) {
             return res.status(404).json({ error: "user not found." });
         }
-      return res.status(200).json(user_in_db);
+        return res.status(200).json(user_in_db);
     } catch (error) {
-       return res.status(500).json({ error: error });
+        return res.status(500).json({ error: error });
     }
 };
 const DeleteProfile = async (req, res) => {
@@ -172,35 +174,25 @@ const DeleteProfile = async (req, res) => {
             return res.status(404).json({ error: "User not found." });
         }
         await Users.findByIdAndDelete(userId);
-      return res.status(200).json({ message: "Profile deleted successfully." });
+        return res
+            .status(200)
+            .json({ message: "Profile deleted successfully." });
     } catch (error) {
-      return res.status(500).json({ error: error });
+        return res.status(500).json({ error: error });
     }
 };
 // userid trogh body
 const add_to_Basket = async (req, res) => {
-    const isAdmin = await Verify_Admin(req, res);
-    if (isAdmin.status == true && isAdmin.Refresh == true) {
-        res.cookie("admin_accessToken", isAdmin.newAccessToken, {
+    const isAuth = await Verify_user(req, res);
+    if (isAuth.status == false)
+        return res.status(401).json({ error: "Unauthorized: Invalid token" });
+    if (isAuth.status == true && isAuth.Refresh == true) {
+        res.cookie("accessToken", isAuth.newAccessToken, {
             httpOnly: true,
             sameSite: "None",
             secure: true,
             maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
         });
-    } else if (isAdmin.status == false && isAdmin.Refresh == false) {
-        const isAuth = await Verify_user(req, res);
-        if (isAuth.status == false)
-            return res
-                .status(401)
-                .json({ error: "Unauthorized: Invalid token" });
-        if (isAuth.status == true && isAuth.Refresh == true) {
-            res.cookie("accessToken", isAuth.newAccessToken, {
-                httpOnly: true,
-                sameSite: "None",
-                secure: true,
-                maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
-            });
-        }
     }
     try {
         const userId = req.body.userId;
@@ -221,36 +213,24 @@ const add_to_Basket = async (req, res) => {
         }
         user_in_db.basket.push({ ProductId: productId });
         await user_in_db.save();
-       return res.status(200).json({
-           message: "Product added to basket successfully.",
-       });
+        return res.status(200).json({
+            message: "Product added to basket successfully.",
+        });
     } catch (error) {
-      return res.status(500).json({ error: error });
+        return res.status(500).json({ error: error });
     }
 };
 const delete_from_Basket = async (req, res) => {
-    const isAdmin = await Verify_Admin(req, res);
-    if (isAdmin.status == true && isAdmin.Refresh == true) {
-        res.cookie("admin_accessToken", isAdmin.newAccessToken, {
+    const isAuth = await Verify_user(req, res);
+    if (isAuth.status == false)
+        return res.status(401).json({ error: "Unauthorized: Invalid token" });
+    if (isAuth.status == true && isAuth.Refresh == true) {
+        res.cookie("accessToken", isAuth.newAccessToken, {
             httpOnly: true,
             sameSite: "None",
             secure: true,
             maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
         });
-    } else if (isAdmin.status == false && isAdmin.Refresh == false) {
-        const isAuth = await Verify_user(req, res);
-        if (isAuth.status == false)
-            return res
-                .status(401)
-                .json({ error: "Unauthorized: Invalid token" });
-        if (isAuth.status == true && isAuth.Refresh == true) {
-            res.cookie("accessToken", isAuth.newAccessToken, {
-                httpOnly: true,
-                sameSite: "None",
-                secure: true,
-                maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
-            });
-        }
     }
     try {
         const userId = req.body.userId;
@@ -273,11 +253,11 @@ const delete_from_Basket = async (req, res) => {
         // Remove the product from the basket array
         user_in_db.basket.splice(productIndex, 1);
         await user_in_db.save();
-     return res.status(200).json({
-         message: "Product deleted from basket successfully.",
-     });
+        return res.status(200).json({
+            message: "Product deleted from basket successfully.",
+        });
     } catch (error) {
-     return res.status(500).json({ error: error });
+        return res.status(500).json({ error: error });
     }
 };
 const get_Basket = async (req, res) => {
@@ -311,35 +291,24 @@ const get_Basket = async (req, res) => {
         if (!user_in_db) {
             return res.status(404).json({ error: "User not found." });
         }
-      return res.status(200).json(user_in_db.basket);
+        return res.status(200).json(user_in_db.basket);
     } catch (error) {
-      return res.status(500).json({ error: error });
+        return res.status(500).json({ error: error });
     }
-}
+};
 const add_to_Favorit = async (req, res) => {
-    const isAdmin = await Verify_Admin(req, res);
-    if (isAdmin.status == true && isAdmin.Refresh == true) {
-        res.cookie("admin_accessToken", isAdmin.newAccessToken, {
+    const isAuth = await Verify_user(req, res);
+    if (isAuth.status == false)
+        return res.status(401).json({ error: "Unauthorized: Invalid token" });
+    if (isAuth.status == true && isAuth.Refresh == true) {
+        res.cookie("accessToken", isAuth.newAccessToken, {
             httpOnly: true,
             sameSite: "None",
             secure: true,
             maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
         });
-    } else if (isAdmin.status == false && isAdmin.Refresh == false) {
-        const isAuth = await Verify_user(req, res);
-        if (isAuth.status == false)
-            return res
-                .status(401)
-                .json({ error: "Unauthorized: Invalid token" });
-        if (isAuth.status == true && isAuth.Refresh == true) {
-            res.cookie("accessToken", isAuth.newAccessToken, {
-                httpOnly: true,
-                sameSite: "None",
-                secure: true,
-                maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
-            });
-        }
     }
+
     try {
         const userId = req.body.userId;
         const productId = req.params.productId;
@@ -359,37 +328,25 @@ const add_to_Favorit = async (req, res) => {
         }
         user_in_db.Favorite.push({ ProductId: productId });
         await user_in_db.save();
-      return res.status(200).json({
-          message: "Product added to Favorite successfully.",
-      });
+        return res.status(200).json({
+            message: "Product added to Favorite successfully.",
+        });
     } catch (error) {
-     return res.status(500).json({ error: error });
+        return res.status(500).json({ error: error });
     }
-}
+};
 
 const delete_from_Favorit = async (req, res) => {
-    const isAdmin = await Verify_Admin(req, res);
-    if (isAdmin.status == true && isAdmin.Refresh == true) {
-        res.cookie("admin_accessToken", isAdmin.newAccessToken, {
+    const isAuth = await Verify_user(req, res);
+    if (isAuth.status == false)
+        return res.status(401).json({ error: "Unauthorized: Invalid token" });
+    if (isAuth.status == true && isAuth.Refresh == true) {
+        res.cookie("accessToken", isAuth.newAccessToken, {
             httpOnly: true,
             sameSite: "None",
             secure: true,
             maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
         });
-    } else if (isAdmin.status == false && isAdmin.Refresh == false) {
-        const isAuth = await Verify_user(req, res);
-        if (isAuth.status == false)
-            return res
-                .status(401)
-                .json({ error: "Unauthorized: Invalid token" });
-        if (isAuth.status == true && isAuth.Refresh == true) {
-            res.cookie("accessToken", isAuth.newAccessToken, {
-                httpOnly: true,
-                sameSite: "None",
-                secure: true,
-                maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
-            });
-        }
     }
     try {
         const userId = req.body.userId;
@@ -412,13 +369,13 @@ const delete_from_Favorit = async (req, res) => {
         // Remove the product from the basket array
         user_in_db.Favorite.splice(productIndex, 1);
         await user_in_db.save();
-     return res.status(200).json({
-         message: "Product deleted from Favorite successfully.",
-     });
+        return res.status(200).json({
+            message: "Product deleted from Favorite successfully.",
+        });
     } catch (error) {
-     return res.status(500).json({ error: error });
+        return res.status(500).json({ error: error });
     }
-}
+};
 const get_Favorite = async (req, res) => {
     const isAdmin = await Verify_Admin(req, res);
     if (isAdmin.status == true && isAdmin.Refresh == true) {
@@ -450,11 +407,11 @@ const get_Favorite = async (req, res) => {
         if (!user_in_db) {
             return res.status(404).json({ error: "User not found." });
         }
-     return res.status(200).json(user_in_db.Favorite);
+        return res.status(200).json(user_in_db.Favorite);
     } catch (error) {
-     return res.status(500).json({ error: error });
+        return res.status(500).json({ error: error });
     }
-}
+};
 const CreateStore = async (req, res) => {
     const isAuth = await Verify_Store(req, res);
     if (isAuth.status == true && isAuth.Refresh == true) {
@@ -475,14 +432,18 @@ const CreateStore = async (req, res) => {
         if (StoreName.length < 3 || Store_Describtion.length < 3) {
             return res
                 .status(409)
-                .json({ error: "StoreName and Store Description must be at least 3 characters long." });
+                .json({
+                    error: "StoreName and Store Description must be at least 3 characters long.",
+                });
         }
         if (Telephone.length < 9 || Telephone.length > 11) {
             return res.status(409).json({ error: "Invalid Telephone number" });
         }
         const Store_Name_Exist = await Stores.findOne({ StoreName: StoreName });
         if (Store_Name_Exist) {
-            return res.status(409).json({ error: "Store Name already exists." });
+            return res
+                .status(409)
+                .json({ error: "Store Name already exists." });
         }
         const newStore = new Stores({
             Owner: req.params.userId,
@@ -502,7 +463,6 @@ module.exports = {
     getProfile,
     getUser,
     DeleteProfile,
-    CreateUser,
     CreateStore,
     add_to_Basket,
     delete_from_Basket,
