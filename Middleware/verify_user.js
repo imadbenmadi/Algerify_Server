@@ -36,7 +36,7 @@ const Verify_user = async (req, res) => {
                                     Refresh: false,
                                     decoded: null,
                                 });
-                            } else if (found_in_DB.userId != decoded.userId) {
+                            } else if (found_in_DB.userId != decoded._id) {
                                 resolve({
                                     status: false,
                                     Refresh: false,

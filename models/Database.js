@@ -30,6 +30,7 @@ const Users = mongoose.model(
         Favorite: [
             { ProductId: { type: mongoose.Types.ObjectId, ref: "Products" } },
         ],
+        Stores: [ { StoreId: { type: mongoose.Types.ObjectId, ref: "Stores" } } ],
     })
 );
 const Refresh_tokens = mongoose.model(
@@ -55,7 +56,7 @@ const Stores = mongoose.model(
         Owner: { type: mongoose.Types.ObjectId, ref: "Users" },
         StoreName: { type: String, required: true },
         Store_Describtion: { type: String },
-        Store_Image: { data: Buffer, contentType: String },
+        Store_Image: { type: String },
         Store_Rating: [
             {
                 userId: { type: mongoose.Types.ObjectId, ref: "Users" },
@@ -73,12 +74,11 @@ const Products = mongoose.model(
         Describtion: { type: String, required: true },
         Category: {
             type: String,
-            enum: ["Tech", "Kitchen", "Books", "clothes"],
+            // enum: ["Tech", "Kitchen", "Books", "clothes"],
             required: true,
         },
         Price: { type: Number, default: 0 },
-        Price_Currency: { type: String, enum: ["EURO", "USD", "DA"] },
-        Product_Image: { data: Buffer, contentType: String },
+        Product_Image: { type: String },
         Comments: [
             {
                 user: { type: mongoose.Types.ObjectId, ref: "Users" },
@@ -94,6 +94,8 @@ const Products = mongoose.model(
         Product_RatingAverage: { type: Number, default: 0 },
     })
 );
+
+
 const UserActions = mongoose.model(
     "UsersActions",
     new mongoose.Schema({

@@ -9,13 +9,13 @@ const Verify_Admin = async (req, res) => {
 
     try {
         const decoded = jwt.verify(accessToken, secretKey);
-        return { status: true, Refresh: false };
+        return { status: true, Refresh: false, decoded };
     } catch (err) {
         if (err.name === "TokenExpiredError") {
             // Token expired, attempt to refresh it
             try {
                 if (!refreshToken) {
-                    return { status: false, Refresh: false };
+                    return { status: false, Refresh: false, decoded };
                 }
 
                 const found_in_DB = await Refresh_tokens.findOne({
@@ -23,7 +23,7 @@ const Verify_Admin = async (req, res) => {
                 }).exec();
 
                 if (!found_in_DB) {
-                    return { status: false, Refresh: false };
+                    return { status: false, Refresh: false, decoded };
                 }
 
                 return new Promise((resolve, reject) => {
@@ -32,8 +32,17 @@ const Verify_Admin = async (req, res) => {
                         process.env.ADMIN_REFRESH_TOKEN_SECRET,
                         async (err, decoded) => {
                             if (err) {
-                                
-                                resolve({ status: false, Refresh: false });
+                                resolve({
+                                    status: false,
+                                    Refresh: false,
+                                    decoded,
+                                });
+                            } else if (found_in_DB.userId != decoded._id) {
+                                resolve({
+                                    status: false,
+                                    Refresh: false,
+                                    decoded: null,
+                                });
                             } else {
                                 // Generate new access token
                                 const newAccessToken = jwt.sign(
@@ -46,17 +55,18 @@ const Verify_Admin = async (req, res) => {
                                     status: true,
                                     Refresh: true,
                                     newAccessToken,
+                                    decoded,
                                 });
                             }
                         }
                     );
                 });
             } catch (refreshErr) {
-                return { status: false, Refresh: false };
+                return { status: false, Refresh: false, decoded };
             }
         } else {
             // Other verification error, return false
-            return { status: false, Refresh: false };
+            return { status: false, Refresh: false, decoded };
         }
     }
 };
