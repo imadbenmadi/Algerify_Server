@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const UserController = require("../Controllers/UserController");
-const ReateController = require("../Controllers/ReateController");
+const RateController = require("../Controllers/RateController");
+const CommentController = require("../Controllers/CommentController");
 router.get("/", UserController.getAllUsers); // Only Admin
 router.get("/Profile/:userId", UserController.getProfile); // Only Admin
 router.get("/:userId", UserController.getUser); 
@@ -18,16 +19,19 @@ router.delete("/Favorit/:productId", UserController.delete_from_Favorit);
 router.get("/Favorit/:userId", UserController.get_Favorite);
 
 // userId through body 
-router.post("/RateProduct/:productId", ReateController.RateProduct);
-router.delete("/RateProduct/:userId", ReateController.Delete_RateProduct);
-router.post("/CommentProduct/:userId", UserController.CommentProduct);
-router.delete("/CommentProduct/:userId", UserController.Delete_CommentProduct);
-router.get("/getRate/:productId", UserController.get_product_Rate);
-router.get("/getComment/:productId", UserController.getComment);
+router.post("/RateProduct/:productId", RateController.RateProduct);
+router.delete("/RateProduct/:userId", RateController.Delete_RateProduct);
+router.post("/CommentProduct/:userId", CommentController.CommentProduct);
+router.delete(
+    "/CommentProduct/:userId",
+    CommentController.Delete_CommentProduct
+);
+router.get("/get_user_Rate/:productId", RateController.get_product_userRate);
+router.get("/get_user_Comment/:productId", CommentController.get_product_userComment);
 
-router.get("/getRate/:storeId", UserController.getRate);
-router.post("/RateStore/:userId", UserController.RateStore);
-router.delete("/RateStore/:userId", UserController.RateStore);
+router.get("/get_user_Rate/:storeId", RateController.get_Store_userRate);
+router.post("/RateStore/:userId", RateController.RateStore);
+router.delete("/RateStore/:userId", RateController.Delete_RateStore);
 
 router.post("/:userId/Create", UserController.CreateStore);
 

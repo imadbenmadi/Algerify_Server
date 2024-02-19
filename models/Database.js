@@ -58,7 +58,7 @@ const Stores = mongoose.model(
         Store_Describtion: { type: String },
         Telephone: { type: String },
         Store_Image: { type: String },
-        Store_Rating: [
+        Store_Ratings: [
             {
                 userId: { type: mongoose.Types.ObjectId, ref: "Users" },
                 rate: { type: Number },
