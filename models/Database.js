@@ -2,11 +2,11 @@ const mongoose = require("mongoose");
 const Users = mongoose.model(
     "Users",
     new mongoose.Schema({
-        FirstName: { type: String, required: true },
-        LastName: { type: String, required: true },
-        Telephone: { type: String, required: true },
-        Email: { type: String, required: true },
-        Password: { type: String, required: true },
+        FirstName: { type: String },
+        LastName: { type: String },
+        Telephone: { type: String },
+        Email: { type: String },
+        Password: { type: String },
         Age: { type: Number },
         Gender: { type: String, enum: ["male", "female"] },
         ProfilePic: { type: String },
@@ -30,7 +30,7 @@ const Users = mongoose.model(
         Favorite: [
             { ProductId: { type: mongoose.Types.ObjectId, ref: "Products" } },
         ],
-        Stores: [ { StoreId: { type: mongoose.Types.ObjectId, ref: "Stores" } } ],
+        Stores: [{ StoreId: { type: mongoose.Types.ObjectId, ref: "Stores" } }],
     })
 );
 const Refresh_tokens = mongoose.model(
@@ -54,47 +54,47 @@ const Stores = mongoose.model(
     "Stores",
     new mongoose.Schema({
         Owner: { type: mongoose.Types.ObjectId, ref: "Users" },
-        StoreName: { type: String, required: true },
+        StoreName: { type: String },
         Store_Describtion: { type: String },
+        Telephone: { type: String },
         Store_Image: { type: String },
         Store_Rating: [
             {
                 userId: { type: mongoose.Types.ObjectId, ref: "Users" },
-                rate: { type: Number, required: true },
+                rate: { type: Number },
             },
         ],
         Store_RatingAverage: { type: Number, default: 0 },
+        storeProducts: [ { type: mongoose.Types.ObjectId, ref: "Products" } ],
     })
 );
 const Products = mongoose.model(
     "Products",
     new mongoose.Schema({
         Owner: { type: mongoose.Types.ObjectId, ref: "Stores" },
-        Title: { type: String, required: true },
-        Describtion: { type: String, required: true },
+        Title: { type: String },
+        Describtion: { type: String },
         Category: {
             type: String,
             // enum: ["Tech", "Kitchen", "Books", "clothes"],
-            required: true,
         },
         Price: { type: Number, default: 0 },
         Product_Image: { type: String },
         Comments: [
             {
                 user: { type: mongoose.Types.ObjectId, ref: "Users" },
-                Comment: { type: String, required: true },
+                Comment: { type: String },
             },
         ],
         Ratings: [
             {
                 user: { type: mongoose.Types.ObjectId, ref: "Users" },
-                stars: { type: Number, required: true },
+                stars: { type: Number },
             },
         ],
         Product_RatingAverage: { type: Number, default: 0 },
     })
 );
-
 
 const UserActions = mongoose.model(
     "UsersActions",

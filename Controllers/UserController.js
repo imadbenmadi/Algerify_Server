@@ -1,4 +1,4 @@
-const { Users } = require("../models/Database");
+const { Users,Stores } = require("../models/Database");
 require("dotenv").config();
 const Verify_user = require("../Middleware/Verify_user");
 const Verify_Admin = require("../Middleware/Verify_Admin");
@@ -503,6 +503,47 @@ const get_Favorite = async (req, res) => {
      return res.status(500).json({ error: error });
     }
 }
+const CreateStore = async (req, res) => {
+    const isAuth = await Verify_Store(req, res);
+    if (isAuth.status == true && isAuth.Refresh == true) {
+        res.cookie("accessToken", isAuth.newAccessToken, {
+            httpOnly: true,
+            sameSite: "None",
+            secure: true,
+            maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
+        });
+    }
+    if (isAuth.status == false)
+        return res.status(401).json({ error: "Unauthorized: Invalid token" });
+    try {
+        const { StoreName, Store_Describtion, Telephone } = req.body;
+        if (!StoreName || !Store_Describtion || !Telephone) {
+            return res.status(409).json({ error: "Messing Data" });
+        }
+        if (StoreName.length < 3 || Store_Describtion.length < 3) {
+            return res
+                .status(409)
+                .json({ error: "StoreName and Store Description must be at least 3 characters long." });
+        }
+        if (Telephone.length < 9 || Telephone.length > 11) {
+            return res.status(409).json({ error: "Invalid Telephone number" });
+        }
+        const Store_Name_Exist = await Stores.findOne({ StoreName: StoreName });
+        if (Store_Name_Exist) {
+            return res.status(409).json({ error: "Store Name already exists." });
+        }
+        const newStore = new Stores({
+            Owner: req.params.userId,
+            StoreName,
+            Store_Describtion,
+            Telephone,
+        });
+        await newStore.save();
+        return res.status(200).json({ message: "Store Created successfully." });
+    } catch (error) {
+        return res.status(500).json({ error: error });
+    }
+};
 module.exports = {
     EditProfile,
     getAllUsers,
@@ -510,6 +551,7 @@ module.exports = {
     getUser,
     DeleteProfile,
     CreateUser,
+    CreateStore,
     add_to_Basket,
     delete_from_Basket,
     get_Basket,

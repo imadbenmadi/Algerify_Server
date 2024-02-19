@@ -1,61 +1,44 @@
 const { Users, Stores , Products } = require("../models/Database");
 require("dotenv").config();
-const Verify_user = require("../Middleware/Verify_user");
-const EditProfile = async (req, res) => {
-    const isAuth = await Verify_user(req, res);
-    if (isAuth.status == false)
-        return res.status(401).json({ error: "Unauthorized: Invalid token" });
-    if (isAuth.status == true && isAuth.Refresh == true) {
-        res.cookie("accessToken", isAuth.newAccessToken, {
+const Verify_Store = require("../Middleware/Verify_Store");
+const EditStore = async (req, res) => {
+    const isAdmin = await Verify_Admin(req, res);
+    if (isAdmin.status == true && isAdmin.Refresh == true) {
+        res.cookie("admin_accessToken", isAdmin.newAccessToken, {
             httpOnly: true,
             sameSite: "None",
             secure: true,
             maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
         });
+    } else if (isAdmin.status == false && isAdmin.Refresh == false) {
+        res.status(401).json({ error: "Unauthorized: Invalid token" });
     }
     try {
-        const { userId } = req.body;
-        if (!userId) {
-            return res.status(400).json({ error: "Messing Data" });
+        const StoreId = req.params.storeId;
+        if (!StoreId) {
+            return res.status(409).json({ error: "Messing Data" });
         }
-
-        const userToUpdate = await Users.findById(userId);
-        if (!userToUpdate) {
-            return res.status(404).json({ error: "User not found." });
+        const StoreToUpdate = await Stores.findById(StoreId);
+        if (!StoreToUpdate) {
+            return res.status(404).json({ error: "Store not found." });
         }
-
-        // Extract fields that can be modified from the request body
-        const { FirstName, LastName, Email, Age, Gender, Telephone } = req.body;
-
-        // Update individual fields
-        if (FirstName) {
-            userToUpdate.FirstName = FirstName;
+        if (StoreToUpdate.Owner != StoreId) {
+            return res.status(401).json({ error: "Unauthorized" });
         }
-        if (LastName) {
-            userToUpdate.LastName = LastName;
+        const { StoreName, Store_Describtion, Telephone } = req.body;
+        if (StoreName) {
+            StoreToUpdate.StoreName = StoreName;
         }
-        if (Email) {
-            userToUpdate.Email = Email;
-        }
-
-        if (Age) {
-            userToUpdate.Age = Age;
-        }
-        if (Gender) {
-            userToUpdate.Gender = Gender;
+        if (Store_Describtion) {
+            StoreToUpdate.Store_Describtion = Store_Describtion;
         }
         if (Telephone) {
-            userToUpdate.Telephone = Telephone;
+            StoreToUpdate.Telephone = Telephone;
         }
-
-        // Save the updated user
-        await userToUpdate.save();
-
-        return res
-            .status(200)
-            .json({ message: "Profile updated successfully" });
+        await StoreToUpdate.save();
+      return res.status(200).json({ message: "Store updated successfully" });
     } catch (error) {
-        return res.status(500).json({ error: error });
+      return res.status(500).json({ error: error });
     }
 };
 const EditProduct = async (req, res) => {
@@ -81,7 +64,7 @@ const EditProduct = async (req, res) => {
         if (!ProductToUpdate) {
             return res.status(404).json({ error: "Product not found." });
         }
-        if (ProductToUpdate.Owner !=  ) {
+        if (ProductToUpdate.Owner !=  storeId) {
             return res.status(401).json({ error: "Unauthorized" });
         }
         const { Title, Describtion, Price } = req.body;
@@ -103,7 +86,90 @@ const EditProduct = async (req, res) => {
         return res.status(500).json({ error: error });
     }
 };
-// Only Admin can delete a Product
+const getAllStores = async (req, res) => {
+    try {
+        const allStores = await Stores.find().select(
+            "StoreName Store_Describtion Telephone Store_Image Store_RatingAverage"
+        );
+        return res.status(200).json(allStores);
+    } catch (error) {
+        return res.status(500).json({ error: error });
+    }
+};
+
+const getStore = async (req, res) => {
+    const StoreId = req.params.storeId;
+    if (!StoreId) return res.status(409).json({ error: "Messing Data." });
+    const isAuth = await Verify_Store(req, res);
+    if (isAuth.status == true && isAuth.Refresh == true) {
+        res.cookie("accessToken", isAuth.newAccessToken, {
+            httpOnly: true,
+            sameSite: "None",
+            secure: true,
+            maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
+        });
+    }
+    if (isAuth.status == false)
+        return res.status(401).json({ error: "Unauthorized: Invalid token" });
+    try {
+        const Store_in_db = await Stores.findById(StoreId).populate({
+            path: "products",
+            select: "Title Describtion Price Product_RatingAverage", 
+        });
+        if (!Store_in_db) {
+            return res.status(404).json({ error: "Store not found." });
+        }
+        return res.status(200).json(Store_in_db);
+    } catch (error) {
+        return res.status(500).json({ error: error });
+    }
+};
+const getStoreProducts = async (req, res) => {
+    const StoreId = req.params.storeId;
+    if (!StoreId) return res.status(409).json({ error: "Messing Data." });
+    try {
+        const Store_in_db = await Stores.findById(StoreId);
+        if (!Store_in_db) {
+            return res.status(404).json({ error: "Store not found." });
+        }
+        const Products_in_db = await Products.find({ Owner: StoreId }).select(
+            "Title Describtion Price Product_RatingAverage"
+        );
+        return res.status(200).json(Products_in_db);
+    } catch (error) {
+        return res.status(500).json({ error: error });
+    }
+};
+const DeleteStore = async (req, res) => {
+    const isAdmin = await Verify_Admin(req, res);
+    if (isAdmin.status == true && isAdmin.Refresh == true) {
+        res.cookie("admin_accessToken", isAdmin.newAccessToken, {
+            httpOnly: true,
+            sameSite: "None",
+            secure: true,
+            maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
+        });
+    } else if (isAdmin.status == false && isAdmin.Refresh == false) {
+        return res.status(401).json({ error: "Unauthorized: Invalid token" });
+    }
+    const StoreId = req.params.StoreId;
+    if (!StoreId)
+        return res.status(409).json({ error: "Store Id is required." });
+    try {
+        const Store_in_db = await Stores.findById(StoreId);
+        if (!Store_in_db) {
+            return res.status(404).json({ error: "Store not found." });
+        }
+        if (Store_in_db.Owner != StoreId) {
+            return res.status(401).json({ error: "Unauthorized" });
+        }
+        await Products.deleteMany({ Owner: StoreId });
+        await Stores.findByIdAndDelete(StoreId);
+        return res.status(200).json(Store_in_db);
+    } catch (error) {
+        return res.status(500).json({ error: error});
+    }
+};
 const DeleteProduct = async (req, res) => {
     const isAdmin = await Verify_Admin(req, res);
     if (isAdmin.status == true && isAdmin.Refresh == true) {
@@ -151,32 +217,20 @@ const CreateProduct = async (req, res) => {
     }
     try {
         const {
-            FirstName,
-            LastName,
-            Email,
-            Password,
-            Telephone,
-            Age,
-            Gender,
-            Address,
+            Title,
+            Describtion,
+            Category,
+            Price,
         } = req.body;
-        if (!FirstName || !LastName || !Email || !Password || !Telephone) {
+        if (!Title || !Describtion || !Category || !Price ) {
             return res.status(409).json({ error: "Messing Data" });
         }
-        const Product_in_db = await Products.findOne({ Email: Email });
-        if (Product_in_db) {
-            return res.status(400).json({ error: "Product already exists." });
-        }
         const newProduct = new Products({
-            FirstName: FirstName,
-            LastName: LastName,
-            Email: Email,
-            Password: Password,
-            Telephone: Telephone,
-            Age: Age,
-            Gender: Gender,
-            Address: Address,
-            IsEmailVerified: true,
+            Owner: req.params.storeId,
+            Title,
+            Describtion,
+            Category,
+            Price,
         });
         await newProduct.save();
         return res
@@ -186,53 +240,16 @@ const CreateProduct = async (req, res) => {
         return res.status(500).json({ error: error });
     }
 };
-const getProfile = async (req, res) => {
-    const userId = req.body.userId;
 
-    if (!userId) return res.status(400).json({ error: "User Id is required." });
-    const isAuth = await Verify_user(req, res);
-    if (isAuth.status == false)
-        return res.status(401).json({ error: "Unauthorized: Invalid token" });
-    if (isAuth.status == true && isAuth.Refresh == true) {
-        res.cookie("accessToken", isAuth.newAccessToken, {
-            httpOnly: true,
-            sameSite: "None",
-            secure: true,
-            maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
-        });
-    }
-    try {
-        const user_in_db = await Users.findById(userId);
-        if (!user_in_db) {
-            return res.status(401).json({ error: "user not found." });
-        }
 
-        return res.status(200).json(user_in_db);
-    } catch (error) {
-        return res.status(500).json({ error: "Internal server error." });
-    }
-};
-const DeleteProfile = async (req, res) => {
-    const userId = req.body.userId;
-
-    if (!userId) return res.status(400).json({ error: "User Id is required." });
-    try {
-        const user_in_db = await Users.findById(userId);
-        if (!user_in_db) {
-            return res.status(404).json({ error: "User not found." });
-        }
-
-        await Users.findByIdAndDelete(userId);
-        return res.status(200).json(user_in_db);
-    } catch (error) {
-        return res.status(500).json({ error: "Internal server error." });
-    }
-};
 
 module.exports = {
-    EditProfile,
+    EditStore,
     EditProduct,
+    getAllStores,
+    getStoreProducts,
+    getStore,
     DeleteProduct,
-    getProfile,
-    DeleteProfile,
+    DeleteStore,
+    CreateProduct,
 };
