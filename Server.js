@@ -42,9 +42,9 @@ app.use("/Send_Verification_Email", require("./Routes/Emails/Send_Verification_E
 app.use("/ReSend_Verification_Email",require("./Routes/Emails/Resend_verification"));
 app.use("/is_email_verified", require("./Routes/Emails/is_email_verified"));
 
-app.use("/ForgotPassword", require("./Routes/Auth/Password/ForgotPassword"));
-app.use("/ResetPassword", require("./Routes/Auth/Password/ResetPassword"));
-app.use("/ChangePassword", require("./Routes/Auth/Password/ChangePassword"));
+// app.use("/ForgotPassword", require("./Routes/Auth/Password/ForgotPassword"));
+// app.use("/ResetPassword", require("./Routes/Auth/Password/ResetPassword"));
+// app.use("/ChangePassword", require("./Routes/Auth/Password/ChangePassword"));
 
 
 // ----------------- App Routes -----------------

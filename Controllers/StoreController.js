@@ -1,6 +1,6 @@
 const { Users, Stores , Products } = require("../models/Database");
 require("dotenv").config();
-const Verify_Store = require("../Middleware/Verify_Store");
+const Verify_Admin = require("../Middleware/Verify_Admin");
 const EditStore = async (req, res) => {
     const isAdmin = await Verify_Admin(req, res);
     if (isAdmin.status == true && isAdmin.Refresh == true) {
