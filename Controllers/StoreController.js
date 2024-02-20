@@ -1,4 +1,12 @@
-const { Users, Stores, Products } = require("../models/Database");
+const {
+    Users,
+    Stores,
+    Products,
+    Refresh_tokens,
+    email_verification_tokens,
+    UserActions,
+} = require("../models/Database");
+
 require("dotenv").config();
 const Verify_Admin = require("../Middleware/Verify_Admin");
 const EditStore = async (req, res) => {
@@ -165,6 +173,9 @@ const DeleteStore = async (req, res) => {
         }
         await Products.deleteMany({ Owner: StoreId });
         await Stores.findByIdAndDelete(StoreId);
+        res.clearCookie("admin_accessToken");
+        res.clearCookie("admin_refreshToken");
+
         return res.status(200).json(Store_in_db);
     } catch (error) {
         return res.status(500).json({ error: error });
