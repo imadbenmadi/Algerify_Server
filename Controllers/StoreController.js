@@ -111,7 +111,7 @@ const getStore = async (req, res) => {
 
     try {
         const Store_in_db = await Stores.findById(StoreId).select(
-            "StoreName Store_Describtion Telephone Store_RatingAverage"
+            "StoreName Store_Describtion Telephone Store_RatingAverage Email Telephone storeProducts"
         );
         if (!Store_in_db) {
             return res.status(404).json({ error: "Store not found." });
@@ -136,10 +136,7 @@ const getStore_Profile = async (req, res) => {
     if (isAuth.status == false)
         return res.status(401).json({ error: "Unauthorized: Invalid token" });
     try {
-        const Store_in_db = await Stores.findById(StoreId).populate({
-            path: "products",
-            select: "Title Describtion Price Product_RatingAverage",
-        });
+        const Store_in_db = await Stores.findById(StoreId);
         if (!Store_in_db) {
             return res.status(404).json({ error: "Store not found." });
         }
