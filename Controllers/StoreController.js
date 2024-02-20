@@ -23,16 +23,18 @@ const EditStore = async (req, res) => {
     }
     try {
         const StoreId = req.params.storeId;
+        
         if (!StoreId) {
             return res.status(409).json({ error: "Messing Data" });
+        }
+        if (StoreId != isAdmin.decoded.StoreId) {
+            return res.status(401).json({ error: "Unauthorized" });
         }
         const StoreToUpdate = await Stores.findById(StoreId);
         if (!StoreToUpdate) {
             return res.status(404).json({ error: "Store not found." });
         }
-        if (StoreToUpdate.Owner != StoreId) {
-            return res.status(401).json({ error: "Unauthorized" });
-        }
+        
         const { StoreName, Store_Describtion, Telephone } = req.body;
         if (StoreName) {
             StoreToUpdate.StoreName = StoreName;
@@ -67,7 +69,9 @@ const EditProduct = async (req, res) => {
         if (!productId || !storeId) {
             return res.status(409).json({ error: "Messing Data" });
         }
-
+        if (storeId != isAdmin.decoded.StoreId) {
+            return res.status(401).json({ error: "Unauthorized" });
+        }
         const ProductToUpdate = await Products.findById(productId);
         if (!ProductToUpdate) {
             return res.status(404).json({ error: "Product not found." });
