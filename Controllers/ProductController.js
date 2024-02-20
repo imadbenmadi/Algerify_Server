@@ -1,7 +1,7 @@
 const { Products, Users } = require("../models/Database");
 require("dotenv").config();
 
-const Verify_Admin = require("../Middleware/Verify_Admin");
+
 
 const getAllProducts = async (req, res) => {
     try {

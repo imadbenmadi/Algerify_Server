@@ -10,17 +10,15 @@ router.get("/:userId", UserController.getUser);
 router.put("/:userId", UserController.EditProfile); 
 router.delete("/:userId", UserController.DeleteProfile); // both Admin and User
 
-router.post("/Basket/:productId", UserController.add_to_Basket);
-router.delete("/Basket/:productId", UserController.delete_from_Basket);
+
+router.post("/:userid/Basket/:productId", UserController.add_to_Basket);
+router.delete("/:userid/Basket/:productId", UserController.delete_from_Basket);
 router.get("/Basket/:userId", UserController.get_Basket);
-
-router.post("/Favorit/:productId", UserController.add_to_Favorit);
-router.delete("/Favorit/:productId", UserController.delete_from_Favorit);
+router.post("/:userid/Favorit/:productId", UserController.add_to_Favorit);
+router.delete("/:userid/Favorit/:productId", UserController.delete_from_Favorit);
 router.get("/Favorit/:userId", UserController.get_Favorite);
-
-// userId through body 
-router.post("/RateProduct/:productId", RateController.RateProduct);
-router.delete("/RateProduct/:userId", RateController.Delete_RateProduct);
+router.post("/:userid/RateProduct/:productId", RateController.RateProduct);
+router.delete("/:userid/RateProduct/:userId", RateController.Delete_RateProduct);
 router.post("/CommentProduct/:userId", CommentController.CommentProduct);
 router.delete(
     "/CommentProduct/:userId",

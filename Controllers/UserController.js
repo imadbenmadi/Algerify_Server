@@ -1,4 +1,11 @@
-const { Users, Stores, Products, Refresh_tokens,email_verification_tokens , UserActions } = require("../models/Database");
+const {
+    Users,
+    Stores,
+    Products,
+    Refresh_tokens,
+    email_verification_tokens,
+    UserActions,
+} = require("../models/Database");
 require("dotenv").config();
 const Verify_user = require("../Middleware/Verify_user");
 const Verify_Admin = require("../Middleware/Verify_Admin");
@@ -140,10 +147,12 @@ const DeleteProfile = async (req, res) => {
         await Products.deleteMany({ Owner: userId });
         await Refresh_tokens.deleteMany({ userId: userId });
         await email_verification_tokens.deleteMany({ userId: userId });
-        await UserActions.deleteMany({ userId: userId })
+        await UserActions.deleteMany({ userId: userId });
         res.clearCookie("accessToken");
         res.clearCookie("refreshToken");
-        return res.status(200).json({ message: "Profile deleted successfully." });
+        return res
+            .status(200)
+            .json({ message: "Profile deleted successfully." });
     } catch (error) {
         return res.status(500).json({ error: error });
     }
@@ -162,7 +171,7 @@ const add_to_Basket = async (req, res) => {
         });
     }
     try {
-        const userId = req.body.userId;
+        const userId = req.params.userId;
         const productId = req.params.productId;
         if (!userId || !productId)
             return res.status(409).json({ error: "Messing Data" });
@@ -200,7 +209,7 @@ const delete_from_Basket = async (req, res) => {
         });
     }
     try {
-        const userId = req.body.userId;
+        const userId = req.params.userId;
         const productId = req.params.productId;
         if (!userId || !productId)
             return res.status(409).json({ error: "Messing Data" });
@@ -277,7 +286,7 @@ const add_to_Favorit = async (req, res) => {
     }
 
     try {
-        const userId = req.body.userId;
+        const userId = req.params.userId;
         const productId = req.params.productId;
         if (!userId || !productId)
             return res.status(409).json({ error: "Messing Data" });
@@ -316,7 +325,7 @@ const delete_from_Favorit = async (req, res) => {
         });
     }
     try {
-        const userId = req.body.userId;
+        const userId = req.params.userId;
         const productId = req.params.productId;
         if (!userId || !productId)
             return res.status(409).json({ error: "Messing Data" });

@@ -54,7 +54,7 @@ app.use("/is_email_verified", require("./Routes/Emails/is_email_verified"));
 // ----------------- App Routes -----------------
 app.use("/Users", require("./Routes/Users"));
 app.use("/Stores", require("./Routes/Store"));
-app.use("/Product", require("./Routes/Product"));
+app.use("/Products", require("./Routes/Product"));
 
 app.listen(3000);
 
