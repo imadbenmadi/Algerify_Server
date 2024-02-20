@@ -33,7 +33,7 @@ router.get("/get_user_Rate/:storeId", RateController.get_Store_userRate);
 router.post("/RateStore/:userId", RateController.RateStore);
 router.delete("/RateStore/:userId", RateController.Delete_RateStore);
 
-router.post("/:userId/Create", UserController.CreateStore);
+router.post("/:userId/CreateStore", UserController.CreateStore);
 
 
 module.exports = router;

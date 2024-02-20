@@ -413,7 +413,7 @@ const get_Favorite = async (req, res) => {
     }
 };
 const CreateStore = async (req, res) => {
-    const isAuth = await Verify_Store(req, res);
+    const isAuth = await Verify_user(req, res);
     if (isAuth.status == true && isAuth.Refresh == true) {
         res.cookie("accessToken", isAuth.newAccessToken, {
             httpOnly: true,
@@ -425,20 +425,31 @@ const CreateStore = async (req, res) => {
     if (isAuth.status == false)
         return res.status(401).json({ error: "Unauthorized: Invalid token" });
     try {
-        const { StoreName, Store_Describtion, Telephone } = req.body;
-        if (!StoreName || !Store_Describtion || !Telephone) {
+        const { Email, Password, StoreName, Store_Describtion, Telephone } =
+            req.body;
+        if (
+            !Email ||
+            !Password ||
+            !StoreName ||
+            !Store_Describtion ||
+            !Telephone
+        ) {
             return res.status(409).json({ error: "Messing Data" });
         }
         if (StoreName.length < 3 || Store_Describtion.length < 3) {
+            return res.status(409).json({
+                error: "StoreName and Store Description must be at least 3 characters long.",
+            });
+        }
+        else if (Telephone.length < 9 || Telephone.length > 11) {
+            return res.status(409).json({ error: "Invalid Telephone number" });
+        } else if (Password.length < 8) {
             return res
                 .status(409)
-                .json({
-                    error: "StoreName and Store Description must be at least 3 characters long.",
-                });
-        }
-        if (Telephone.length < 9 || Telephone.length > 11) {
-            return res.status(409).json({ error: "Invalid Telephone number" });
-        }
+                .json({ error: "Password must be at least 8 characters" });
+        } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(Email)) {
+            return res.status(409).json({ error: "Invalid Email" });
+        } 
         const Store_Name_Exist = await Stores.findOne({ StoreName: StoreName });
         if (Store_Name_Exist) {
             return res
@@ -447,6 +458,8 @@ const CreateStore = async (req, res) => {
         }
         const newStore = new Stores({
             Owner: req.params.userId,
+            Email,
+            Password,
             StoreName,
             Store_Describtion,
             Telephone,

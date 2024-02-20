@@ -66,7 +66,7 @@ const Verify_Admin = async (req, res) => {
             }
         } else {
             // Other verification error, return false
-            return { status: false, Refresh: false, decoded };
+            return { status: false, Refresh: false, decoded: null };
         }
     }
 };

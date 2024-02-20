@@ -1,4 +1,4 @@
-const { Users, Stores , Products } = require("../models/Database");
+const { Users, Stores, Products } = require("../models/Database");
 require("dotenv").config();
 const Verify_Admin = require("../Middleware/Verify_Admin");
 const EditStore = async (req, res) => {
@@ -36,9 +36,9 @@ const EditStore = async (req, res) => {
             StoreToUpdate.Telephone = Telephone;
         }
         await StoreToUpdate.save();
-      return res.status(200).json({ message: "Store updated successfully" });
+        return res.status(200).json({ message: "Store updated successfully" });
     } catch (error) {
-      return res.status(500).json({ error: error });
+        return res.status(500).json({ error: error });
     }
 };
 const EditProduct = async (req, res) => {
@@ -64,7 +64,7 @@ const EditProduct = async (req, res) => {
         if (!ProductToUpdate) {
             return res.status(404).json({ error: "Product not found." });
         }
-        if (ProductToUpdate.Owner !=  storeId) {
+        if (ProductToUpdate.Owner != storeId) {
             return res.status(401).json({ error: "Unauthorized" });
         }
         const { Title, Describtion, Price } = req.body;
@@ -100,7 +100,7 @@ const getAllStores = async (req, res) => {
 const getStore = async (req, res) => {
     const StoreId = req.params.storeId;
     if (!StoreId) return res.status(409).json({ error: "Messing Data." });
-    const isAuth = await Verify_Store(req, res);
+    const isAuth = await Verify_Admin(req, res);
     if (isAuth.status == true && isAuth.Refresh == true) {
         res.cookie("accessToken", isAuth.newAccessToken, {
             httpOnly: true,
@@ -114,7 +114,7 @@ const getStore = async (req, res) => {
     try {
         const Store_in_db = await Stores.findById(StoreId).populate({
             path: "products",
-            select: "Title Describtion Price Product_RatingAverage", 
+            select: "Title Describtion Price Product_RatingAverage",
         });
         if (!Store_in_db) {
             return res.status(404).json({ error: "Store not found." });
@@ -167,7 +167,7 @@ const DeleteStore = async (req, res) => {
         await Stores.findByIdAndDelete(StoreId);
         return res.status(200).json(Store_in_db);
     } catch (error) {
-        return res.status(500).json({ error: error});
+        return res.status(500).json({ error: error });
     }
 };
 const DeleteProduct = async (req, res) => {
@@ -216,13 +216,8 @@ const CreateProduct = async (req, res) => {
         return res.status(401).json({ error: "Unauthorized: Invalid token" });
     }
     try {
-        const {
-            Title,
-            Describtion,
-            Category,
-            Price,
-        } = req.body;
-        if (!Title || !Describtion || !Category || !Price ) {
+        const { Title, Describtion, Category, Price } = req.body;
+        if (!Title || !Describtion || !Category || !Price) {
             return res.status(409).json({ error: "Messing Data" });
         }
         const newProduct = new Products({
@@ -240,8 +235,6 @@ const CreateProduct = async (req, res) => {
         return res.status(500).json({ error: error });
     }
 };
-
-
 
 module.exports = {
     EditStore,
