@@ -33,6 +33,7 @@ connect_to_db().catch((err) => console.log(err));
 
 // ----------------- Auth Routes -----------------
 app.use("/check_Auth", require("./Routes/Auth/check_Auth"));
+app.use("/Storecheck_Auth", require("./Routes/Auth/Store/Store_check_Auth"));
 app.use("/Login", require("./Routes/Auth/Login"));
 app.use("/Register", require("./Routes/Auth/Register"));
 app.use("/Logout", require("./Routes/Auth/Logout"));
