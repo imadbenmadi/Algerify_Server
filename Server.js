@@ -39,6 +39,8 @@ app.use("/Logout", require("./Routes/Auth/Logout"));
 app.use("/VerifyAccount", require("./Routes/Auth/verifyAccount"));
 
 app.use("/StoreLogin", require("./Routes/Auth/Store/StoreLogin"));
+app.use("/StoreLogout", require("./Routes/Auth/Store/StoreLogout"));
+
 app.use("/Send_Verification_Email", require("./Routes/Emails/Send_Verification_Email"));
 app.use("/ReSend_Verification_Email",require("./Routes/Emails/Resend_verification"));
 app.use("/is_email_verified", require("./Routes/Emails/is_email_verified"));
