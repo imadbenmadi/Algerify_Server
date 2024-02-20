@@ -54,6 +54,7 @@ const sendVerificationEmail = (Email, verificationToken) => {
             <body>
                 <div class="container">
                     <h1>Verification Email</h1>
+                    <p>This is the Resended Code</p>
                     <p>Please use the following verification code to Verify Your Account:</p>
                     <div class="verification-code">${verificationToken}</div>
                 </div>
@@ -76,29 +77,18 @@ const sendVerificationEmail = (Email, verificationToken) => {
 };
 
 const handle_send_Email = async (req, res) => {
-    const isAdmin = await Verify_Admin(req, res);
-    if (isAdmin.status == true && isAdmin.Refresh == true) {
-        res.cookie("admin_accessToken", isAdmin.newAccessToken, {
+    const isAuth = await Verify_user(req, res);
+    if (isAuth.status == false)
+        return res.status(401).json({ error: "Unauthorized: Invalid token" });
+    if (isAuth.status == true && isAuth.Refresh == true) {
+        res.cookie("accessToken", isAuth.newAccessToken, {
             httpOnly: true,
             sameSite: "None",
             secure: true,
             maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
         });
-    } else if (isAdmin.status == false && isAdmin.Refresh == false) {
-        const isAuth = await Verify_user(req, res);
-        if (isAuth.status == false)
-            return res
-                .status(401)
-                .json({ error: "Unauthorized: Invalid token" });
-        if (isAuth.status == true && isAuth.Refresh == true) {
-            res.cookie("accessToken", isAuth.newAccessToken, {
-                httpOnly: true,
-                sameSite: "None",
-                secure: true,
-                maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
-            });
-        }
     }
+
     try {
         const userId = req.params.userId;
         if (!userId) {
@@ -113,7 +103,7 @@ const handle_send_Email = async (req, res) => {
         try {
             await email_verification_tokens.deleteMany({ userId: userId });
         } catch (error) {
-          return res.status(500).json({ error });
+            return res.status(500).json({ error });
         }
 
         const verificationToken = generateVerificationCode();
@@ -123,13 +113,13 @@ const handle_send_Email = async (req, res) => {
         });
         await newVerificationToken.save();
         sendVerificationEmail(user.Email, verificationToken);
-       return res.status(200).json({
-           message: "Email Sended Successfully",
+        return res.status(200).json({
+            message: "Email Sended Successfully",
 
-           Date: new Date(),
-       });
+            Date: new Date(),
+        });
     } catch (err) {
-     return res.status(500).json({ err });
+        return res.status(500).json({ err });
     }
 };
 
