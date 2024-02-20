@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
-const {Stores,  Refresh_tokens } = require("../../../models/Database");
+const { Stores, Refresh_tokens } = require("../../../models/Database");
 
 const handleLogin = async (req, res) => {
     try {
@@ -61,26 +61,17 @@ const handleLogin = async (req, res) => {
                 today.getMonth() - 1,
                 today.getDate()
             );
-            // Filter notifications that are unread or from the last month
-            const notificationsToSend = Store.Notifications.filter(
-                (notification) => {
-                    // Include notification if it's unread or from the last month
-                    return (
-                        !notification.Readed || notification.Date >= lastMonth
-                    );
-                }
-            );
+
             const StoreData_To_Send = {
                 _id: Store._id,
                 Email: Store.Email,
-                FirstName: Store.FirstName,
-                LastName: Store.LastName,
-                Notifications: notificationsToSend,
-                ProfilePic: Store.ProfilePic,
-                Address: Store.Address,
-                basket: Store.basket,
-                Favorite: Store.Favorite,
-                IsEmailVerified: Store.IsEmailVerified,
+                StoreName: Store.StoreName,
+                Store_Describtion: Store.Store_Describtion,
+                Telephone: Store.Telephone,
+                Store_Image: Store.Store_Image,
+                Store_Ratings: Store.Store_Ratings,
+                Store_RatingAverage: Store.Store_RatingAverage,
+                storeProducts: Store.storeProducts,
             };
             return res.status(200).json({
                 message: "Logged In to store Successfully",
@@ -92,7 +83,7 @@ const handleLogin = async (req, res) => {
             });
         }
     } catch (err) {
-        return res.status(500).json({ error: err });
+        return res.status(500).json({ err });
     }
 };
 module.exports = { handleLogin };
