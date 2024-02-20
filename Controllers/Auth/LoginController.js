@@ -49,12 +49,6 @@ const handleLogin = async (req, res) => {
                 secure: true,
                 maxAge: 24 * 60 * 60 * 1000,
             });
-            if (req.cookies.admin_accessToken) {
-                res.clearCookie("admin_accessToken");
-            }
-            if (req.cookies.admin_refreshToken) {
-                res.clearCookie("admin_refreshToken");
-            }
             const today = new Date();
             const lastMonth = new Date(
                 today.getFullYear(),

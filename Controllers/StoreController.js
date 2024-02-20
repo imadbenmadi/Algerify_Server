@@ -108,6 +108,22 @@ const getAllStores = async (req, res) => {
 const getStore = async (req, res) => {
     const StoreId = req.params.storeId;
     if (!StoreId) return res.status(409).json({ error: "Messing Data." });
+
+    try {
+        const Store_in_db = await Stores.findById(StoreId).select(
+            "StoreName Store_Describtion Telephone Store_RatingAverage"
+        );
+        if (!Store_in_db) {
+            return res.status(404).json({ error: "Store not found." });
+        }
+        return res.status(200).json(Store_in_db);
+    } catch (error) {
+        return res.status(500).json({ error: error });
+    }
+};
+const getStore_Profile = async (req, res) => {
+    const StoreId = req.params.storeId;
+    if (!StoreId) return res.status(409).json({ error: "Messing Data." });
     const isAuth = await Verify_Admin(req, res);
     if (isAuth.status == true && isAuth.Refresh == true) {
         res.cookie("accessToken", isAuth.newAccessToken, {
@@ -253,6 +269,7 @@ module.exports = {
     getAllStores,
     getStoreProducts,
     getStore,
+    getStore_Profile,
     DeleteProduct,
     DeleteStore,
     CreateProduct,

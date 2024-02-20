@@ -57,7 +57,7 @@ const EditProfile = async (req, res) => {
 // Only Admin can get all users
 const getAllUsers = async (req, res) => {
     try {
-        const allUsers = await Users.find().select("FirstName LastName Age");
+        const allUsers = await Users.find().select("FirstName LastName ");
 
         return res.status(200).json(allUsers);
     } catch (error) {

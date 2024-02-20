@@ -23,6 +23,48 @@ const cleanupExpiredBlocks = () => {
 // Cleanup expired IP address blocks every minute
 setInterval(cleanupExpiredBlocks, 60000); // Run every minute
 
+
+// StoreLogin route handler
+router.post("/user_Stores/:storId", (req, res) => {
+    const ipAddress = req.ip;
+
+    // Check if the IP address is blocked and the block has expired
+    if (
+        StoreloginAttempts[ipAddress] &&
+        StoreloginAttempts[ipAddress].expirationTime < Date.now()
+    ) {
+        delete StoreloginAttempts[ipAddress]; // Unblock the IP address
+    }
+
+    // Check if the IP address is already blocked
+    if (StoreloginAttempts[ipAddress]) {
+        // Check if Storelogin attempts threshold is exceeded
+        if (StoreloginAttempts[ipAddress].attempts >= 5) {
+            return res
+                .status(429)
+                .json({
+                    error: "Too many Storelogin attempts. Try again later.",
+                });
+        }
+    }
+
+    // Increment Storelogin attempts or set initial attempt if not present
+    StoreloginAttempts[ipAddress] = StoreloginAttempts[ipAddress] || {
+        attempts: 0,
+    };
+    StoreloginAttempts[ipAddress].attempts++;
+
+    // Check if Storelogin attempts threshold is exceeded after incrementing
+    if (StoreloginAttempts[ipAddress].attempts >= 5) {
+        blockIP(ipAddress, 60000); // Block IP address for 1 minute (60000 milliseconds)
+        return res
+            .status(429)
+            .json({ error: "Too many login attempts. Try again later." });
+    }
+
+    // Handle login
+    StoreLogin.handleLogin_byStorId(req, res);
+});
 // StoreLogin route handler
 router.post("/", (req, res) => {
     const ipAddress = req.ip;
@@ -60,5 +102,4 @@ router.post("/", (req, res) => {
     // Handle login
     StoreLogin.handleLogin(req, res);
 });
-
 module.exports = router;
