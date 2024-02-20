@@ -25,7 +25,7 @@ const EditProfile = async (req, res) => {
         if (!userToUpdate) {
             return res.status(404).json({ error: "User not found." });
         }
-        const { FirstName, LastName,  Age, Gender, Telephone } = req.body;
+        const { FirstName, LastName, Age, Gender, Telephone } = req.body;
         // Update individual fields
         if (FirstName) {
             userToUpdate.FirstName = FirstName;
@@ -33,7 +33,7 @@ const EditProfile = async (req, res) => {
         if (LastName) {
             userToUpdate.LastName = LastName;
         }
-        
+
         if (Age) {
             userToUpdate.Age = Age;
         }
@@ -57,9 +57,7 @@ const EditProfile = async (req, res) => {
 // Only Admin can get all users
 const getAllUsers = async (req, res) => {
     try {
-        const allUsers = await Users.find().select(
-            "FirstName LastName Age"
-        );
+        const allUsers = await Users.find().select("FirstName LastName Age");
 
         return res.status(200).json(allUsers);
     } catch (error) {
@@ -118,29 +116,18 @@ const getProfile = async (req, res) => {
     }
 };
 const DeleteProfile = async (req, res) => {
-    const isAdmin = await Verify_Admin(req, res);
-    if (isAdmin.status == true && isAdmin.Refresh == true) {
-        res.cookie("admin_accessToken", isAdmin.newAccessToken, {
+    const isAuth = await Verify_user(req, res);
+    if (isAuth.status == false)
+        return res.status(401).json({ error: "Unauthorized: Invalid token" });
+    if (isAuth.status == true && isAuth.Refresh == true) {
+        res.cookie("accessToken", isAuth.newAccessToken, {
             httpOnly: true,
             sameSite: "None",
             secure: true,
             maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
         });
-    } else if (isAdmin.status == false && isAdmin.Refresh == false) {
-        const isAuth = await Verify_user(req, res);
-        if (isAuth.status == false)
-            return res
-                .status(401)
-                .json({ error: "Unauthorized: Invalid token" });
-        if (isAuth.status == true && isAuth.Refresh == true) {
-            res.cookie("accessToken", isAuth.newAccessToken, {
-                httpOnly: true,
-                sameSite: "None",
-                secure: true,
-                maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
-            });
-        }
     }
+
     try {
         const userId = req.params.userId;
         if (!userId) return res.status(409).json({ error: "Messing Data" });
