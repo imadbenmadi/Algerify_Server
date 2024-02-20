@@ -3,7 +3,7 @@ const router = express.Router();
 const UserController = require("../Controllers/UserController");
 const RateController = require("../Controllers/RateController");
 const CommentController = require("../Controllers/CommentController");
-// router.get("/", UserController.getAllUsers); // Only Admin
+router.get("/", UserController.getAllUsers); // Only Admin
 router.get("/Profile/:userId", UserController.getProfile); // Only Admin
 router.get("/:userId", UserController.getUser); 
 

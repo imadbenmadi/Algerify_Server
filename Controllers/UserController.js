@@ -3,28 +3,16 @@ require("dotenv").config();
 const Verify_user = require("../Middleware/Verify_user");
 const Verify_Admin = require("../Middleware/Verify_Admin");
 const EditProfile = async (req, res) => {
-    const isAdmin = await Verify_Admin(req, res);
-    if (isAdmin.status == true && isAdmin.Refresh == true) {
-        res.cookie("admin_accessToken", isAdmin.newAccessToken, {
+    const isAuth = await Verify_user(req, res);
+    if (isAuth.status == false)
+        return res.status(401).json({ error: "Unauthorized: Invalid token" });
+    if (isAuth.status == true && isAuth.Refresh == true) {
+        res.cookie("accessToken", isAuth.newAccessToken, {
             httpOnly: true,
             sameSite: "None",
             secure: true,
             maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
         });
-    } else if (isAdmin.status == false && isAdmin.Refresh == false) {
-        const isAuth = await Verify_user(req, res);
-        if (isAuth.status == false)
-            return res
-                .status(401)
-                .json({ error: "Unauthorized: Invalid token" });
-        if (isAuth.status == true && isAuth.Refresh == true) {
-            res.cookie("accessToken", isAuth.newAccessToken, {
-                httpOnly: true,
-                sameSite: "None",
-                secure: true,
-                maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
-            });
-        }
     }
 
     try {
@@ -440,8 +428,7 @@ const CreateStore = async (req, res) => {
             return res.status(409).json({
                 error: "StoreName and Store Description must be at least 3 characters long.",
             });
-        }
-        else if (Telephone.length < 9 || Telephone.length > 11) {
+        } else if (Telephone.length < 9 || Telephone.length > 11) {
             return res.status(409).json({ error: "Invalid Telephone number" });
         } else if (Password.length < 8) {
             return res
@@ -449,7 +436,7 @@ const CreateStore = async (req, res) => {
                 .json({ error: "Password must be at least 8 characters" });
         } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(Email)) {
             return res.status(409).json({ error: "Invalid Email" });
-        } 
+        }
         const Store_Name_Exist = await Stores.findOne({ StoreName: StoreName });
         if (Store_Name_Exist) {
             return res
