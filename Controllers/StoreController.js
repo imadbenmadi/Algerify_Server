@@ -72,6 +72,10 @@ const EditProduct = async (req, res) => {
         if (storeId != isAdmin.decoded.StoreId) {
             return res.status(401).json({ error: "Unauthorized" });
         }
+        const Store_in_db = await Stores.findById(storeId);
+        if (!Store_in_db) {
+            return res.status(404).json({ error: "Store not found." });
+        }
         const ProductToUpdate = await Products.findById(productId);
         if (!ProductToUpdate) {
             return res.status(404).json({ error: "Product not found." });
@@ -177,23 +181,26 @@ const DeleteStore = async (req, res) => {
     } else if (isAdmin.status == false && isAdmin.Refresh == false) {
         return res.status(401).json({ error: "Unauthorized: Invalid token" });
     }
-    const StoreId = req.params.StoreId;
+    const StoreId = req.params.storeId;
     if (!StoreId)
-        return res.status(409).json({ error: "Store Id is required." });
+        return res.status(409).json({ error: "Messing Data" });
     try {
+        if (StoreId != isAdmin.decoded.StoreId) {
+            console.log("here");
+            return res.status(401).json({ error: "Unauthorized" });
+        }
+        
         const Store_in_db = await Stores.findById(StoreId);
         if (!Store_in_db) {
             return res.status(404).json({ error: "Store not found." });
         }
-        if (Store_in_db.Owner != StoreId) {
-            return res.status(401).json({ error: "Unauthorized" });
-        }
+        
         await Products.deleteMany({ Owner: StoreId });
         await Stores.findByIdAndDelete(StoreId);
         res.clearCookie("admin_accessToken");
         res.clearCookie("admin_refreshToken");
 
-        return res.status(200).json(Store_in_db);
+        return res.status(200).json({message : " Store deleted successfully."});
     } catch (error) {
         return res.status(500).json({ error: error });
     }
@@ -213,12 +220,21 @@ const DeleteProduct = async (req, res) => {
     try {
         const storeId = req.params.storeId;
         const productId = req.params.productId;
-        if (!productId) return res.status(409).json({ error: "Messing Data" });
-        const Product_in_db = await Products.findById(productId);
-        if (!Product_in_db) {
+        if (!productId || !storeId) {
+            return res.status(409).json({ error: "Messing Data" });
+        }
+        if (storeId != isAdmin.decoded.StoreId) {
+            return res.status(401).json({ error: "Unauthorized" });
+        }
+        const Store_in_db = await Stores.findById(storeId);
+        if (!Store_in_db) {
+            return res.status(404).json({ error: "Store not found." });
+        }
+        const ProductToUpdate = await Products.findById(productId);
+        if (!ProductToUpdate) {
             return res.status(404).json({ error: "Product not found." });
         }
-        if (Product_in_db.Owner != storeId) {
+        if (ProductToUpdate.Owner != storeId) {
             return res.status(401).json({ error: "Unauthorized" });
         }
         await Products.findByIdAndDelete(productId);
