@@ -61,6 +61,53 @@ const EditProfile = async (req, res) => {
         return res.status(500).json({ error: error });
     }
 };
+const Follow_Store = async (req, res) => {
+    const isAuth = await Verify_user(req, res);
+    if (isAuth.status == false)
+        return res.status(401).json({ error: "Unauthorized: Invalid token" });
+    if (isAuth.status == true && isAuth.Refresh == true) {
+        res.cookie("accessToken", isAuth.newAccessToken, {
+            httpOnly: true,
+            sameSite: "None",
+            secure: true,
+            maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
+        });
+    }
+    try {
+        const userId = req.params.userId;
+        const storeId = req.params.storeId;
+        if (!userId || !storeId)
+            return res.status(409).json({ error: "Messing Data" });
+        const user_in_db = await Users.findById(userId);
+        if (!user_in_db) {
+            return res.status(404).json({ error: "User not found." });
+        }
+        const store_in_db = await Stores.findById(storeId);
+        if (!store_in_db) {
+            return res.status(404).json({ error: "Store not found." });
+        }
+        const Already_Followed = user_in_db.Stores.some(
+            (item) => item.StoreId == storeId
+        );
+        if (Already_Followed) {
+            return res
+                .status(400)
+                .json({ error: "User already followed this store." });
+        }
+        store_in_db.Followers.push(userId);
+        const userActions = await UserActions.findOne({ userId: userId });
+        if (userActions) {
+            userActions.Followed_Stores.push(storeId);
+            await userActions.save();
+        } 
+        await user_in_db.save();
+        return res.status(200).json({
+            message: "Store followed successfully.",
+        });
+    } catch (error) {
+        return res.status(500).json({ error: error });
+    }
+};
 // Only Dashboard can get all users
 const getAllUsers = async (req, res) => {
     try {
@@ -221,7 +268,7 @@ const delete_from_Basket = async (req, res) => {
         const productIndex = user_in_db.basket.findIndex((item) => {
             return item.ProductId == productId;
         });
-        
+
         if (productIndex === -1)
             return res
                 .status(404)
@@ -447,6 +494,7 @@ const CreateStore = async (req, res) => {
     }
 };
 module.exports = {
+    Follow_Store,
     EditProfile,
     getAllUsers,
     getProfile,

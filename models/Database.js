@@ -60,6 +60,7 @@ const Stores = mongoose.model(
         Store_Describtion: { type: String },
         Telephone: { type: String },
         Store_Image: { type: String },
+        Followers: [{ type: mongoose.Types.ObjectId, ref: "Users" }],
         Ratings: [
             {
                 userId: { type: mongoose.Types.ObjectId, ref: "Users" },
@@ -172,7 +173,7 @@ const UserActions = mongoose.model(
             },
         
         ],
-        subscribed_Stores: [
+        Followed_Stores: [
             {
                 storeId: { type: mongoose.Types.ObjectId, ref: "Stores" },
                 time: { type: Number, default: 0 },
