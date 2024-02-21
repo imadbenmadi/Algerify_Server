@@ -104,84 +104,78 @@ const UserActions = mongoose.model(
         userId: { type: mongoose.Types.ObjectId, ref: "Users" },
         Favorite_Products: [
             {
-                Product_Category: {
-                    type: String,
-                    enum: ["Tech", "Kitchen", "Books", "clothes"],
-                },
+                productId: { type: mongoose.Types.ObjectId, ref: "Products" },
                 time: { type: Date, default: Date.now },
-                Store_Rating_Average: { type: Number },
-                Store_Rating_Length: { type: Number },
-                Product_Rating_Average: { type: Number },
-                Product_Rating_Length: { type: Number },
-                Product_Comments_Length: { type: Number },
             },
         ],
         Basket_Products: [
             {
-                Product_Category: {
-                    type: String,
-                    enum: ["Tech", "Kitchen", "Books", "clothes"],
-                },
+                productId: { type: mongoose.Types.ObjectId, ref: "Products" },
                 time: { type: Date, default: Date.now },
-                Store_Rating_Average: { type: Number },
-                Store_Rating_Length: { type: Number },
-                Product_Rating_Average: { type: Number },
-                Product_Rating_Length: { type: Number },
-                Product_Comments_Length: { type: Number },
+            },
+        ],
+        Card_Products: [
+            {
+                productId: { type: mongoose.Types.ObjectId, ref: "Products" },
+                time: { type: Date, default: Date.now },
             },
         ],
         Rated_Products: [
             {
                 rate: { type: Number },
-                Product_Category: {
-                    type: String,
-                    enum: ["Tech", "Kitchen", "Books", "clothes"],
-                },
+                productId: { type: mongoose.Types.ObjectId, ref: "Products" },
                 time: { type: Date, default: Date.now },
-                Store_Rating_Average: { type: Number },
-                Store_Rating_Length: { type: Number },
-                Product_Rating_Average: { type: Number },
-                Product_Rating_Length: { type: Number },
-                Product_Comments_Length: { type: Number },
             },
         ],
         Commented_Products: [
             {
                 Comment: { type: String },
-                Product_Category: {
-                    type: String,
-                    enum: ["Tech", "Kitchen", "Books", "clothes"],
-                },
+                productId: { type: mongoose.Types.ObjectId, ref: "Products" },
                 time: { type: Date, default: Date.now },
-                Store_Rating_Average: { type: Number },
-                Store_Rating_Length: { type: Number },
-                Product_Rating_Average: { type: Number },
-                Product_Rating_Length: { type: Number },
-                Product_Comments_Length: { type: Number },
             },
         ],
         Rated_Stores: [
             {
                 rate: { type: Number },
-                Store_Rating_Average: { type: Number },
-                Store_Rating_Length: { type: Number },
-                Time_Of_Watching: { type: Number },
+                productId: { type: mongoose.Types.ObjectId, ref: "Products" },
                 time: { type: Date, default: Date.now },
             },
         ],
         Visited_Products: [
             {
+                productId: { type: mongoose.Types.ObjectId, ref: "Products" },
                 time: { type: Number, default: 0 },
-                Product_Category: {
-                    type: String,
-                    enum: ["Tech", "Kitchen", "Books", "clothes"],
-                },
-                time: { type: Date, default: Date.now },
-                Store_Rating_Average: { type: Number },
-                Store_Rating_Length: { type: Number },
-                Product_Rating_Average: { type: Number },
-                Product_Rating_Length: { type: Number },
-                Product_Comments_Length: { type: Number },
+            },
+        ],
+        Visited_Stores: [
+            {
+                storeId: { type: mongoose.Types.ObjectId, ref: "Stores" },
+                time: { type: Number, default: 0 },
+            },
+        ],
+        Not_interesting_Products: [
+            {
+                productId: { type: mongoose.Types.ObjectId, ref: "Products" },
+                time: { type: Number, default: 0 },
+            },
+        ],
+        Reported_Products: [
+            {
+                productId: { type: mongoose.Types.ObjectId, ref: "Products" },
+                time: { type: Number, default: 0 },
+            },
+        ],
+        interesting_Products: [
+            {
+                productId: { type: mongoose.Types.ObjectId, ref: "Products" },
+                time: { type: Number, default: 0 },
+            },
+        
+        ],
+        subscribed_Stores: [
+            {
+                storeId: { type: mongoose.Types.ObjectId, ref: "Stores" },
+                time: { type: Number, default: 0 },
             },
         ],
     })
