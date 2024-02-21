@@ -100,6 +100,11 @@ const Products = mongoose.model(
             },
         ],
         Product_RatingAverage: { type: Number, default: 0 },
+        Favorite_Counter: { type: Number, default: 0 },
+        Basket_Counter: { type: Number, default: 0 },
+        Visits: { type: Number, default: 0 },
+
+
     })
 );
 
@@ -184,6 +189,7 @@ const Categories = mongoose.model(
         ],
     })
 );
+
 
 module.exports = {
     Users,
