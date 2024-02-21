@@ -118,16 +118,15 @@ const getStore = async (req, res) => {
     if (!StoreId) return res.status(409).json({ error: "Messing Data." });
     if (req.body.userId) {
         const user_in_db = await Users.findById(req.body.userId);
-        if (!user_in_db) {
-            return res.status(404).json({ error: "User not found." });
-        }
-        const userActions = await UserActions.findOne({ userId: userId });
-        if (userActions) {
-            userActions.Visited_Stores.push({
-                storeId: StoreId,
-                time: new Date(),
-            });
-            await userActions.save();
+        if (user_in_db) {
+            const userActions = await UserActions.findOne({ userId: userId });
+            if (userActions) {
+                userActions.Visited_Products.push({
+                    productId: productId,
+                    time: new Date(),
+                });
+                await userActions.save();
+            }
         }
     }
     try {

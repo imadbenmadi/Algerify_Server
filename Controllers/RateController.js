@@ -1,4 +1,4 @@
-const { Users, Stores, Products } = require("../models/Database");
+const { Users, Stores, Products,UserActions } = require("../models/Database");
 require("dotenv").config();
 const Verify_user = require("../Middleware/Verify_user");
 const Verify_Admin = require("../Middleware/Verify_Admin");
@@ -13,6 +13,19 @@ const RateProduct = async (req, res) => {
             secure: true,
             maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
         });
+    }
+
+    const user_in_db = await Users.findById(req.params.userId);
+    if (!user_in_db) {
+        return res.status(404).json({ error: "User not found." });
+    }
+    const userActions = await UserActions.findOne({ userId: userId });
+    if (userActions) {
+        userActions.Visited_Products.push({
+            productId: productId,
+            time: new Date(),
+        });
+        await userActions.save();
     }
     try {
         const userId = req.params.userId;
