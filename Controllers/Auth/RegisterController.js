@@ -1,4 +1,4 @@
-const { Users, email_verification_tokens } = require("../../models/Database");
+const { Users, email_verification_tokens,UserActions } = require("../../models/Database");
 const nodemailer = require("nodemailer");
 const dns = require("dns");
 const crypto = require("crypto");
@@ -184,6 +184,13 @@ const handleRegister = async (req, res) => {
         });
         await newVerificationToken.save();
         sendVerificationEmail(Email, verificationToken);
+
+        const userAction = new UserActions({
+            userId: newUser._id,
+            Action: "Register",
+            Date: new Date(),
+        });
+        await userAction.save();
        return res.status(200).json({
            message: "Account Created Successfully",
            _id: newUser._id,
