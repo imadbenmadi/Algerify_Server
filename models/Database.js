@@ -103,13 +103,13 @@ const UserActions = mongoose.model(
     "UsersActions",
     new mongoose.Schema({
         userId: { type: mongoose.Types.ObjectId, ref: "Users" },
-        Favorite_Products: [
+        Added_To_Favorite: [
             {
                 productId: { type: mongoose.Types.ObjectId, ref: "Products" },
                 time: { type: Date, default: Date.now },
             },
         ],
-        Basket_Products: [
+        Added_To_Basket: [
             {
                 productId: { type: mongoose.Types.ObjectId, ref: "Products" },
                 time: { type: Date, default: Date.now },

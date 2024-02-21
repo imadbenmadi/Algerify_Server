@@ -236,6 +236,14 @@ const add_to_Basket = async (req, res) => {
         }
         user_in_db.basket.push({ ProductId: productId });
         await user_in_db.save();
+        const userActions = await UserActions.findOne({ userId: userId });
+        if (userActions) {
+            userActions.Added_To_Basket.push({
+                productId: productId,
+                time: new Date(),
+            });
+            await userActions.save();
+        }
         return res.status(200).json({
             message: "Product added to basket successfully.",
         });
@@ -352,6 +360,14 @@ const add_to_Favorit = async (req, res) => {
         }
         user_in_db.Favorite.push({ ProductId: productId });
         await user_in_db.save();
+        const userActions = await UserActions.findOne({ userId: userId });
+        if (userActions) {
+            userActions.Added_To_Favorite.push({
+                productId: productId,
+                time: new Date(),
+            });
+            await userActions.save();
+        }
         return res.status(200).json({
             message: "Product added to Favorite successfully.",
         });
