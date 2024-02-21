@@ -55,4 +55,12 @@ router.post("/:userId/RateStore/:storeId", RateController.RateStore);
 router.delete("/:userId/RateStore/:storeId", RateController.Delete_RateStore);
 router.put("/:userId/Edit_RateStore/:storeId", RateController.Edit_RateStore);
 
+router.post(
+    "/:userId/Intrested/:productId",
+    UserController.add_to_intrested_products
+);
+router.delete(
+    "/:userId/Intrested/:productId",
+    UserController.delete_from_intrested_products
+);
 module.exports = router;
