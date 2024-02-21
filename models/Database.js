@@ -172,6 +172,12 @@ const UserActions = mongoose.model(
         ],
     })
 );
+const Categories = mongoose.model(
+    "Categories",
+    new mongoose.Schema({
+        Categories: { type: String },
+    })
+);
 module.exports = {
     Users,
     Refresh_tokens,
@@ -179,4 +185,5 @@ module.exports = {
     Products,
     Stores,
     UserActions,
+    Categories,
 };

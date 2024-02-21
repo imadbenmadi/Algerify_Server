@@ -1,4 +1,9 @@
-const { Products, Users, UserActions } = require("../models/Database");
+const {
+    Products,
+    Users,
+    UserActions,
+    Categories,
+} = require("../models/Database");
 require("dotenv").config();
 
 const getAllProducts = async (req, res) => {
@@ -41,9 +46,8 @@ const getProduct = async (req, res) => {
 };
 const getAllCategorys = async (req, res) => {
     try {
-        return res
-            .status(200)
-            .json({ Categories: ["Tech", "Kitchen", "Books", "Clothes"] });
+        const categories = await Categories.find().select("Category");
+        return res.status(200).json(categories);
     } catch (error) {
         return res.status(500).json({ error: error });
     }
