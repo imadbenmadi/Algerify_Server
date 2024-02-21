@@ -23,7 +23,7 @@ const EditStore = async (req, res) => {
     }
     try {
         const StoreId = req.params.storeId;
-        
+
         if (!StoreId) {
             return res.status(409).json({ error: "Messing Data" });
         }
@@ -34,7 +34,7 @@ const EditStore = async (req, res) => {
         if (!StoreToUpdate) {
             return res.status(404).json({ error: "Store not found." });
         }
-        
+
         const { StoreName, Store_Describtion, Telephone } = req.body;
         if (StoreName) {
             StoreToUpdate.StoreName = StoreName;
@@ -116,7 +116,20 @@ const getAllStores = async (req, res) => {
 const getStore = async (req, res) => {
     const StoreId = req.params.storeId;
     if (!StoreId) return res.status(409).json({ error: "Messing Data." });
-
+    if (req.body.userId) {
+        const user_in_db = await Users.findById(req.body.userId);
+        if (!user_in_db) {
+            return res.status(404).json({ error: "User not found." });
+        }
+        const userActions = await UserActions.findOne({ userId: userId });
+        if (userActions) {
+            userActions.Visited_Stores.push({
+                storeId: StoreId,
+                time: new Date(),
+            });
+            await userActions.save();
+        }
+    }
     try {
         const Store_in_db = await Stores.findById(StoreId).select(
             "StoreName Store_Describtion Telephone Store_RatingAverage Email Telephone storeProducts"
@@ -182,25 +195,26 @@ const DeleteStore = async (req, res) => {
         return res.status(401).json({ error: "Unauthorized: Invalid token" });
     }
     const StoreId = req.params.storeId;
-    if (!StoreId)
-        return res.status(409).json({ error: "Messing Data" });
+    if (!StoreId) return res.status(409).json({ error: "Messing Data" });
     try {
         if (StoreId != isAdmin.decoded.StoreId) {
             console.log("here");
             return res.status(401).json({ error: "Unauthorized" });
         }
-        
+
         const Store_in_db = await Stores.findById(StoreId);
         if (!Store_in_db) {
             return res.status(404).json({ error: "Store not found." });
         }
-        
+
         await Products.deleteMany({ Owner: StoreId });
         await Stores.findByIdAndDelete(StoreId);
         res.clearCookie("admin_accessToken");
         res.clearCookie("admin_refreshToken");
 
-        return res.status(200).json({message : " Store deleted successfully."});
+        return res
+            .status(200)
+            .json({ message: " Store deleted successfully." });
     } catch (error) {
         return res.status(500).json({ error: error });
     }
