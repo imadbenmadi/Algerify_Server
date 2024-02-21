@@ -543,7 +543,7 @@ const add_to_intrested_products = async (req, res) => {
         await user_in_db.save();
         const userActions = await UserActions.findOne({ userId: userId });
         if (userActions) {
-            userActions.intrested_products.push({
+            userActions.interesting_Products.push({
                 productId: productId,
                 time: new Date(),
             });
@@ -553,6 +553,7 @@ const add_to_intrested_products = async (req, res) => {
             message: "Product added to intrested products successfully.",
         });
     } catch (error) {
+        console.log(error);
         return res.status(500).json({ error: error });
     }
 };

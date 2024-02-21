@@ -30,6 +30,9 @@ const Users = mongoose.model(
         Favorite: [
             { ProductId: { type: mongoose.Types.ObjectId, ref: "Products" } },
         ],
+        intrested_products: [
+            { ProductId: { type: mongoose.Types.ObjectId, ref: "Products" } },
+        ],
         Stores: [{ StoreId: { type: mongoose.Types.ObjectId, ref: "Stores" } }],
     })
 );
@@ -149,12 +152,6 @@ const UserActions = mongoose.model(
             },
         ],
         Not_interesting_Products: [
-            {
-                productId: { type: mongoose.Types.ObjectId, ref: "Products" },
-                time: { type: Number, default: 0 },
-            },
-        ],
-        Reported_Products: [
             {
                 productId: { type: mongoose.Types.ObjectId, ref: "Products" },
                 time: { type: Number, default: 0 },
