@@ -20,6 +20,7 @@ router.delete(
     UserController.delete_from_Favorit
 );
 router.get("/:userId/Favorit", UserController.get_Favorite);
+
 router.post("/:userId/RateProduct/:productId", RateController.RateProduct);
 router.delete(
     "/:userId/RateProduct/:productId",
@@ -38,12 +39,15 @@ router.get(
     RateController.get_product_userRate
 );
 router.get(
-    "/:userId/get_user_Comment/:productId",
+    "/:userId/get_user_Comments/:productId",
     CommentController.get_product_userComment
 );
-
+router.put(
+    "/:userId/Edit_user_Comments/:productId",
+    CommentController.Etid_Comment
+);
 router.get(
-    "/:userId/get_user_Rate/:storeId",
+    "/:userId/get_user_StoreRate/:storeId",
     RateController.get_Store_userRate
 );
 router.post("/:userId/RateStore/:userId", RateController.RateStore);

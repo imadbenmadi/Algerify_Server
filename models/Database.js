@@ -91,7 +91,7 @@ const Products = mongoose.model(
         Ratings: [
             {
                 user: { type: mongoose.Types.ObjectId, ref: "Users" },
-                stars: { type: Number },
+                rate: { type: Number },
             },
         ],
         Product_RatingAverage: { type: Number, default: 0 },

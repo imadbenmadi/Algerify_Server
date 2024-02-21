@@ -15,10 +15,10 @@ const CommentProduct = async (req, res) => {
         });
     }
     try {
-        const userId = req.body.userId;
+        const userId = req.params.userId;
         const productId = req.params.productId;
         const Comment = req.body.Comment;
-        if (!userId || !productId)
+        if (!userId || !productId || !Comment)
             return res.status(409).json({ error: "Messing Data" });
         const user_in_db = await Users.findById(userId);
         if (!user_in_db) {
@@ -58,7 +58,7 @@ const Delete_CommentProduct = async (req, res) => {
         });
     }
     try {
-        const userId = req.body.userId;
+        const userId = req.params.userId;
         const productId = req.params.productId;
         if (!userId || !productId)
             return res.status(409).json({ error: "Messing Data" });
@@ -103,7 +103,7 @@ const get_product_userComment = async (req, res) => {
         });
     }
     try {
-        const userId = req.body.userId;
+        const userId = req.params.userId;
         const productId = req.params.productId;
         if (!userId || !productId)
             return res.status(409).json({ error: "Messing Data" });
@@ -115,22 +115,84 @@ const get_product_userComment = async (req, res) => {
         if (!product_in_db) {
             return res.status(404).json({ error: "Product not found." });
         }
-        const userComment = product_in_db.Comments.find(
+        const userComments = product_in_db.Comments.filter(
             (item) => item.user == userId
         );
-        if (!userComment) {
+        if (!userComments) {
             return res
                 .status(404)
                 .json({ error: "User didn't Comment this product." });
         }
-        return res.status(200).json(userComment);
+        return res.status(200).json(userComments);
     } catch (error) {
         return res.status(500).json({ error: error });
     }
 };
+const Etid_Comment = async (req, res) => {
+    const isAuth = await Verify_user(req, res);
+    if (isAuth.status == false)
+        return res.status(401).json({
+            error: "Unauthorized: Invalid",
+        });
+    if (isAuth.status == true && isAuth.Refresh == true) {
+        res.cookie("accessToken", isAuth.newAccessToken, {
+            httpOnly: true,
+            sameSite: "None",
+            secure: true,
+            maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
+        });
+    }
+    try {
+        const userId = req.params.userId;
+        const productId = req.params.productId;
+        if (!userId || !productId || !req.body.Comment)
+            return res.status(409).json({ error: "Messing Data" });
 
+        const user_in_db = await Users.findById(userId);
+        if (!user_in_db) {
+            return res.status(404).json({ error: "User not found." });
+        }
+        const product_in_db = await Products.findById(productId);
+        if (!product_in_db) {
+            return res.status(404).json({ error: "Product not found." });
+        }
+        const userComments = product_in_db.Comments.filter(
+            (item) => item.user == userId
+        );
+        if (!userComments) {
+            return res
+                .status(404)
+                .json({ error: "User didn't Comment this product." });
+        }
+        const CommentIndex = product_in_db.Comments.findIndex(
+            (item) => item.user == userId
+        );
+        if (CommentIndex == -1)
+            return res.status(404).json({
+                error: "User didn't Comment this product.",
+            });
+        
+        console.log(isAuth.decoded.userId);
+        if (product_in_db.Comments[CommentIndex].user != isAuth.decoded.userId)
+            return res.status(401).json({
+                error: "Unauthorized ",
+            });
+        else if (
+            product_in_db.Comments[CommentIndex].Comment != req.body.Comment
+        ) {
+            product_in_db.Comments[CommentIndex].Comment = req.body.Comment;
+            await product_in_db.save();
+        }
+        return res.status(200).json({
+            message: "Product Comment edited successfully.",
+        });
+    } catch (error) {
+        return res.status(500).json({ error: error });
+    }
+};
 module.exports = {
     CommentProduct,
     Delete_CommentProduct,
     get_product_userComment,
+    Etid_Comment,
 };

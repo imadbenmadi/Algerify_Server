@@ -15,10 +15,14 @@ const RateProduct = async (req, res) => {
         });
     }
     try {
-        const userId = req.body.userId;
+        const userId = req.params.userId;
         const productId = req.params.productId;
         const rate = req.body.rate;
-        if (!userId || !productId)
+        if (typeof rate != "number")
+            return res.status(409).json({ error: "Rate must be a number" });
+        if (rate < 1 || rate > 5)
+            return res.status(409).json({ error: "Rate must be between 1 and 5" });
+        if (!userId || !productId || !rate)
             return res.status(409).json({ error: "Messing Data" });
         const user_in_db = await Users.findById(userId);
         if (!user_in_db) {
@@ -58,7 +62,7 @@ const Delete_RateProduct = async (req, res) => {
         });
     }
     try {
-        const userId = req.body.userId;
+        const userId = req.params.userId;
         const productId = req.params.productId;
         if (!userId || !productId)
             return res.status(409).json({ error: "Messing Data" });
@@ -102,7 +106,7 @@ const get_product_userRate = async (req, res) => {
         });
     }
     try {
-        const userId = req.body.userId;
+        const userId = req.params.userId;
         const productId = req.params.productId;
         if (!userId || !productId)
             return res.status(409).json({ error: "Messing Data" });
@@ -114,13 +118,23 @@ const get_product_userRate = async (req, res) => {
         if (!product_in_db) {
             return res.status(404).json({ error: "Product not found." });
         }
-        const userRate = product_in_db.Ratings.find(
-            (item) => item.user == userId
-        );
-        if (!userRate) {
-            return res.status(404).json({ error: "User didn't rate this product." });
-        }
-        return res.status(200).json(userRate);
+        const userRateindex = product_in_db.Ratings.findIndex((item) => {
+            return item.user == userId;
+        });
+
+        if (userRateindex === -1)
+            return res
+                .status(404)
+                .json({ error: "User didn't rate this product." });
+
+        // const userRateindex = product_in_db.Ratings.find(
+            
+        //     (item) => item.user == userId
+        // );
+        // if (!userRateindex) {
+        //     return res.status(404).json({ error: "User didn't rate this product." });
+        // }
+        return res.status(200).json(product_in_db.Ratings[userRateindex].rate);
     } catch (error) {
         return res.status(500).json({ error: error });
     }
@@ -138,7 +152,7 @@ const RateStore = async (req, res) => {
         });
     }
     try {
-        const userId = req.body.userId;
+        const userId = req.params.userId;
         const StoreId = req.params.storeId;
         const rate = req.body.rate;
         if (!userId || !StoreId)
@@ -181,7 +195,7 @@ const Delete_RateStore = async (req, res) => {
         });
     }
     try {
-        const userId = req.body.userId;
+        const userId = req.params.userId;
         const StoreId = req.params.storeId;
         if (!userId || !StoreId)
             return res.status(409).json({ error: "Messing Data" });
@@ -226,7 +240,7 @@ const get_Store_userRate = async (req, res) => {
         });
     }
     try {
-        const userId = req.body.userId;
+        const userId = req.params.userId;
         const StoreId = req.params.storeId;
         if (!userId || !StoreId)
             return res.status(409).json({ error: "Messing Data" });
