@@ -175,10 +175,10 @@ const RateStore = async (req, res) => {
         if (!Store_in_db) {
             return res.status(404).json({ error: "Store not found." });
         }
-        if (Store_in_db.Owner == userId)
-            return res
-                .status(409)
-                .json({ error: "You can't rate your Store." });
+        // if (Store_in_db.Owner == userId)
+        //     return res
+        //         .status(409)
+        //         .json({ error: "You can't rate your Store." });
         const Already_Rated = Store_in_db.Ratings.some(
             (item) => item.userId == userId
         );
@@ -267,7 +267,7 @@ const get_Store_userRate = async (req, res) => {
             return res.status(404).json({ error: "Store not found." });
         }
         const userRate = Store_in_db.Ratings.find(
-            (item) => item.user == userId
+            (item) => item.userId == userId
         );
         if (!userRate) {
             return res
@@ -308,13 +308,14 @@ const Edit_RateStore = async (req, res) => {
             return res.status(404).json({ error: "Store not found." });
         }
         const userRate = Store_in_db.Ratings.find(
-            (item) => item.user == userId
+            (item) => item.userId == userId
         );
         if (!userRate) {
             return res
                 .status(404)
                 .json({ error: "User didn't rate this Store." });
         }
+
         userRate.rate = rate;
         await Store_in_db.save();
         return res.status(200).json({

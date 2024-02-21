@@ -172,7 +172,6 @@ const Etid_Comment = async (req, res) => {
                 error: "User didn't Comment this product.",
             });
         
-        console.log(isAuth.decoded.userId);
         if (product_in_db.Comments[CommentIndex].user != isAuth.decoded.userId)
             return res.status(401).json({
                 error: "Unauthorized ",
