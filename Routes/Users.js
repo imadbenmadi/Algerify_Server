@@ -6,6 +6,7 @@ const CommentController = require("../Controllers/CommentController");
 router.get("/", UserController.getAllUsers); // Only Admin
 router.get("/:userId/Profile", UserController.getProfile); // Only Admin
 router.get("/:userId", UserController.getUser);
+router.post("/:userId/CreateStore", UserController.CreateStore);
 
 router.put("/:userId", UserController.EditProfile);
 router.delete("/:userId", UserController.DeleteProfile); // both Admin and User
@@ -48,6 +49,5 @@ router.get(
 router.post("/:userId/RateStore/:userId", RateController.RateStore);
 router.delete("/:userId/RateStore/:userId", RateController.Delete_RateStore);
 
-router.post("/:userId/CreateStore", UserController.CreateStore);
 
 module.exports = router;

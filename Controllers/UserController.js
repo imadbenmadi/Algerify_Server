@@ -61,7 +61,7 @@ const EditProfile = async (req, res) => {
         return res.status(500).json({ error: error });
     }
 };
-// Only Admin can get all users
+// Only Dashboard can get all users
 const getAllUsers = async (req, res) => {
     try {
         const allUsers = await Users.find().select("FirstName LastName ");
@@ -218,9 +218,10 @@ const delete_from_Basket = async (req, res) => {
             return res.status(404).json({ error: "User not found." });
         }
         // Find the index of the product in the basket array
-        const productIndex = user_in_db.basket.findIndex(
-            (item) => item.ProductId === productId
-        );
+        const productIndex = user_in_db.basket.findIndex((item) => {
+            return item.ProductId == productId;
+        });
+        
         if (productIndex === -1)
             return res
                 .status(404)
@@ -334,10 +335,10 @@ const delete_from_Favorit = async (req, res) => {
             return res.status(404).json({ error: "User not found." });
         }
         // Find the index of the product in the basket array
-        const productIndex = user_in_db.Favorite.findIndex(
-            (item) => item.ProductId === productId
-        );
-        if (productIndex === -1)
+        const productIndex = user_in_db.Favorite.findIndex((item) => {
+            return item.ProductId == productId;
+        });
+        if (productIndex == -1)
             return res
                 .status(404)
                 .json({ error: "Product not found in user's Favorite." });
