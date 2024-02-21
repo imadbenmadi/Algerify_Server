@@ -71,19 +71,26 @@ const getProductByCategory = async (req, res) => {
 };
 const searchProduct = async (req, res) => {
     const search = req.params.search;
-    if (!search) return res.status(409).json({ error: "Messing Data" });
     try {
-        const Product_in_db = await Products.find({
+        if (!search) {
+            return res.status(400).json({ error: "Missing Data" });
+        }
+
+        const products = await Products.find({
             Title: { $regex: search, $options: "i" },
-        }).select("Title Describtion Category Price Product_RatingAverage");
-        if (!Product_in_db) {
+        }).select("Title Description Category Price Product_RatingAverage");
+
+        if (products.length === 0) {
             return res
                 .status(404)
-                .json({ error: " Could not find products with that category" });
+                .json({
+                    error: "No products found matching the search query.",
+                });
         }
-        return res.status(200).json(Product_in_db);
+
+        return res.status(200).json(products);
     } catch (error) {
-        return res.status(500).json({ error: error });
+        return res.status(500).json({ error: "Internal Server Error" });
     }
 };
 const FilterProducts = async (req, res) => {
