@@ -50,8 +50,8 @@ router.get(
     "/:userId/get_user_StoreRate/:storeId",
     RateController.get_Store_userRate
 );
-router.post("/:userId/RateStore/:userId", RateController.RateStore);
-router.delete("/:userId/RateStore/:userId", RateController.Delete_RateStore);
-
+router.post("/:userId/RateStore/:storeId", RateController.RateStore);
+router.delete("/:userId/RateStore/:storeId", RateController.Delete_RateStore);
+router.put("/:userId/Edit_RateStore/:storeId", RateController.Edit_RateStore);
 
 module.exports = router;

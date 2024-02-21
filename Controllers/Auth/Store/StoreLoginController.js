@@ -76,7 +76,7 @@ const handleLogin_byStorId = async (req, res) => {
             Store_Describtion: Store.Store_Describtion,
             Telephone: Store.Telephone,
             Store_Image: Store.Store_Image,
-            Store_Ratings: Store.Store_Ratings,
+            Ratings: Store.Ratings,
             Store_RatingAverage: Store.Store_RatingAverage,
             storeProducts: Store.storeProducts,
         };
@@ -154,7 +154,7 @@ const handleLogin = async (req, res) => {
                 Store_Describtion: Store.Store_Describtion,
                 Telephone: Store.Telephone,
                 Store_Image: Store.Store_Image,
-                Store_Ratings: Store.Store_Ratings,
+                Ratings: Store.Ratings,
                 Store_RatingAverage: Store.Store_RatingAverage,
                 storeProducts: Store.storeProducts,
             };
