@@ -10,5 +10,5 @@ router.get("/:storeId/Products", StoreController.getStoreProducts);
 router.delete("/:storeId", StoreController.DeleteStore);
 router.delete("/:storeId/Products/:productId",StoreController.DeleteProduct);
 router.post("/:storeId/Products/Create", StoreController.CreateProduct);
-
+router.get("/:storeId/Followers", StoreController.getStoreFollowers);
 module.exports = router;

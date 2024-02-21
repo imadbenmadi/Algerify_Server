@@ -292,6 +292,20 @@ const CreateProduct = async (req, res) => {
         return res.status(500).json({ error: error });
     }
 };
+const getStoreFollowers = async (req, res) => {
+    const StoreId = req.params.storeId;
+    if (!StoreId) return res.status(409).json({ error: "Messing Data." });
+    try {
+        const Store_in_db = await Stores.findById(StoreId);
+        if (!Store_in_db) {
+            return res.status(404).json({ error: "Store not found." });
+        }
+        const Followers = Store_in_db.Followers;
+        return res.status(200).json(Followers);
+    } catch (error) {
+        return res.status(500).json({ error: error });
+    }
+};
 
 module.exports = {
     EditStore,
