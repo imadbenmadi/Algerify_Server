@@ -53,6 +53,7 @@ const RateProduct = async (req, res) => {
         const userActions = await UserActions.findOne({ userId: userId });
         if (userActions) {
             userActions.Rated_Products.push({
+                rate: rate,
                 productId: req.params.productId,
                 time: new Date(),
             });

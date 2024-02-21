@@ -1,4 +1,4 @@
-const { Users, Stores, Products } = require("../models/Database");
+const { Users, Stores, Products ,UserActions} = require("../models/Database");
 require("dotenv").config();
 const Verify_user = require("../Middleware/Verify_user");
 const Verify_Admin = require("../Middleware/Verify_Admin");
@@ -38,6 +38,15 @@ const CommentProduct = async (req, res) => {
         }
         product_in_db.Comments.push({ user: userId, Comment: Comment });
         await product_in_db.save();
+        const userActions = await UserActions.findOne({ userId: userId });
+        if (userActions) {
+            userActions.Commented_Products.push({
+                Comment: Comment,
+                productId: productId,
+                time: new Date(),
+            });
+            await userActions.save();
+        }
         return res.status(200).json({
             message: "Product Commentd successfully.",
         });
@@ -83,6 +92,16 @@ const Delete_CommentProduct = async (req, res) => {
         );
         product_in_db.Comments.splice(CommentIndex, 1);
         await product_in_db.save();
+        const userActions = await UserActions.findOne({ userId: userId });
+        if (userActions) {
+            const CommentIndex = userActions.Commented_Products.findIndex(
+                (item) => item.productId == productId
+            );
+            if(CommentIndex != -1){
+                userActions.Commented_Products.splice(CommentIndex, 1);
+                await userActions.save();
+            }
+        }
         return res.status(200).json({
             message: "Product Comment deleted successfully.",
         });
@@ -181,6 +200,17 @@ const Etid_Comment = async (req, res) => {
         ) {
             product_in_db.Comments[CommentIndex].Comment = req.body.Comment;
             await product_in_db.save();
+        }
+        const userActions = await UserActions.findOne({ userId: userId });
+        if (userActions) {
+            const CommentIndex = userActions.Commented_Products.findIndex(
+                (item) => item.productId == productId
+            );
+            if(CommentIndex != -1){
+                userActions.Commented_Products[CommentIndex].Comment = req.body.Comment;
+                userActions.Commented_Products[CommentIndex].time = new Date();
+                await userActions.save();
+            }
         }
         return res.status(200).json({
             message: "Product Comment edited successfully.",
