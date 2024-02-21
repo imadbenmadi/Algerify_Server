@@ -143,31 +143,31 @@ const UserActions = mongoose.model(
         Visited_Products: [
             {
                 productId: { type: mongoose.Types.ObjectId, ref: "Products" },
-                time: { type: Number, default: 0 },
+                time: { type: Number, default: Date.now() },
             },
         ],
         Visited_Stores: [
             {
                 storeId: { type: mongoose.Types.ObjectId, ref: "Stores" },
-                time: { type: Number, default: 0 },
+                time: { type: Number, default: Date.now() },
             },
         ],
         Not_interesting_Products: [
             {
                 productId: { type: mongoose.Types.ObjectId, ref: "Products" },
-                time: { type: Number, default: 0 },
+                time: { type: Number, default: Date.now() },
             },
         ],
         interesting_Products: [
             {
                 productId: { type: mongoose.Types.ObjectId, ref: "Products" },
-                time: { type: Number, default: 0 },
+                time: { type: Number, default: Date.now() },
             },
         ],
         Followed_Stores: [
             {
                 storeId: { type: mongoose.Types.ObjectId, ref: "Stores" },
-                time: { type: Number, default: 0 },
+                time: { type: Number, default: Date.now() },
             },
         ],
     })
@@ -184,6 +184,7 @@ const Categories = mongoose.model(
         ],
     })
 );
+
 module.exports = {
     Users,
     Refresh_tokens,
