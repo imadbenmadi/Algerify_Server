@@ -115,12 +115,6 @@ const UserActions = mongoose.model(
                 time: { type: Date, default: Date.now },
             },
         ],
-        Card_Products: [
-            {
-                productId: { type: mongoose.Types.ObjectId, ref: "Products" },
-                time: { type: Date, default: Date.now },
-            },
-        ],
         Rated_Products: [
             {
                 rate: { type: Number },
@@ -138,7 +132,7 @@ const UserActions = mongoose.model(
         Rated_Stores: [
             {
                 rate: { type: Number },
-                productId: { type: mongoose.Types.ObjectId, ref: "Products" },
+                storeId: { type: mongoose.Types.ObjectId, ref: "Stores" },
                 time: { type: Date, default: Date.now },
             },
         ],
@@ -171,7 +165,6 @@ const UserActions = mongoose.model(
                 productId: { type: mongoose.Types.ObjectId, ref: "Products" },
                 time: { type: Number, default: 0 },
             },
-        
         ],
         Followed_Stores: [
             {

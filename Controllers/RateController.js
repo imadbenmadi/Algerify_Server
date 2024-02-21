@@ -49,15 +49,15 @@ const RateProduct = async (req, res) => {
                 .json({ error: "user already rated this product." });
         }
         product_in_db.Ratings.push({ user: userId, rate: rate });
+        await product_in_db.save();
         const userActions = await UserActions.findOne({ userId: userId });
         if (userActions) {
-            userActions.Visited_Products.push({
+            userActions.Rated_Products.push({
                 productId: req.params.productId,
                 time: new Date(),
             });
             await userActions.save();
         }
-        await product_in_db.save();
         return res.status(200).json({
             message: "Product rated successfully.",
         });
@@ -105,11 +105,11 @@ const Delete_RateProduct = async (req, res) => {
         await product_in_db.save();
         const userActions = await UserActions.findOne({ userId: userId });
         if (userActions) {
-            const productIndex = userActions.Visited_Products.findIndex(
+            const productIndex = userActions.Rated_Products.findIndex(
                 (item) => item.productId == productId
             );
             if (productIndex !== -1) {
-                userActions.Visited_Products.splice(productIndex, 1);
+                userActions.Rated_Products.splice(productIndex, 1);
                 await userActions.save();
             }
         }
@@ -214,12 +214,12 @@ const Edit_RateProduct = async (req, res) => {
         await product_in_db.save();
         const userActions = await UserActions.findOne({ userId: userId });
         if (userActions) {
-            const productIndex = userActions.Visited_Products.findIndex(
+            const productIndex = userActions.Rated_Products.findIndex(
                 (item) => item.productId == productId
             );
             if (productIndex !== -1) {
-                userActions.Visited_Products[productIndex].time = new Date();
-                userActions.Visited_Products[productIndex].rate = rate;
+                userActions.Rated_Products[productIndex].time = new Date();
+                userActions.Rated_Products[productIndex].rate = rate;
                 await userActions.save();
             }
         }
@@ -263,10 +263,6 @@ const RateStore = async (req, res) => {
         if (!Store_in_db) {
             return res.status(404).json({ error: "Store not found." });
         }
-        // if (Store_in_db.Owner == userId)
-        //     return res
-        //         .status(409)
-        //         .json({ error: "You can't rate your Store." });
         const Already_Rated = Store_in_db.Ratings.some(
             (item) => item.userId == userId
         );
@@ -277,6 +273,15 @@ const RateStore = async (req, res) => {
         }
         Store_in_db.Ratings.push({ userId: userId, rate: rate });
         await Store_in_db.save();
+        const userActions = await UserActions.findOne({ userId: userId });
+        if (userActions) {
+            userActions.Rated_Stores.push({
+                rate: rate,
+                storeId: StoreId,
+                time: new Date(),
+            });
+            await userActions.save();
+        }
         return res.status(200).json({
             message: "Store rated successfully.",
         });
@@ -322,6 +327,16 @@ const Delete_RateStore = async (req, res) => {
         );
         Store_in_db.Ratings.splice(rateIndex, 1);
         await Store_in_db.save();
+        const userActions = await UserActions.findOne({ userId: userId });
+        if (userActions) {
+            const StoresIndex = userActions.Rated_Stores.findIndex(
+                (item) => item.storeId == StoreId
+            );
+            if (StoresIndex !== -1) {
+                userActions.Rated_Stores.splice(StoresIndex, 1);
+                await userActions.save();
+            }
+        }
         return res.status(200).json({
             message: "Store rate deleted successfully.",
         });
@@ -413,6 +428,17 @@ const Edit_RateStore = async (req, res) => {
         }
         userRate.rate = rate;
         await Store_in_db.save();
+         const userActions = await UserActions.findOne({ userId: userId });
+         if (userActions) {
+             const StoresIndex = userActions.Rated_Stores.findIndex(
+                 (item) => item.storeId == StoreId
+             );
+             if (StoresIndex !== -1) {
+                 userActions.Rated_Stores[StoresIndex].time = new Date();
+                 userActions.Rated_Stores[StoresIndex].rate = rate;
+                 await userActions.save();
+             }
+         }
         return res.status(200).json({
             message: "Store rate edited successfully.",
         });
