@@ -46,6 +46,7 @@ router.put(
     "/:userId/Edit_user_Comments/:productId",
     CommentController.Etid_Comment
 );
+router.put("/:userId/Edit_RateProduct/:productId", RateController.Edit_RateProduct);
 router.get(
     "/:userId/get_user_StoreRate/:storeId",
     RateController.get_Store_userRate
