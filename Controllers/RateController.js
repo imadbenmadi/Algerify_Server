@@ -1,4 +1,4 @@
-const { Users, Stores, Products,UserActions } = require("../models/Database");
+const { Users, Stores, Products, UserActions } = require("../models/Database");
 require("dotenv").config();
 const Verify_user = require("../Middleware/Verify_user");
 const Verify_Admin = require("../Middleware/Verify_Admin");
@@ -19,7 +19,7 @@ const RateProduct = async (req, res) => {
     if (!user_in_db) {
         return res.status(404).json({ error: "User not found." });
     }
-    
+
     try {
         const userId = req.params.userId;
         const productId = req.params.productId;
@@ -103,6 +103,16 @@ const Delete_RateProduct = async (req, res) => {
         );
         product_in_db.Ratings.splice(rateIndex, 1);
         await product_in_db.save();
+        const userActions = await UserActions.findOne({ userId: userId });
+        if (userActions) {
+            const productIndex = userActions.Visited_Products.findIndex(
+                (item) => item.productId == productId
+            );
+            if (productIndex !== -1) {
+                userActions.Visited_Products.splice(productIndex, 1);
+                await userActions.save();
+            }
+        }
         return res.status(200).json({
             message: "Product rate deleted successfully.",
         });
@@ -157,7 +167,6 @@ const get_product_userRate = async (req, res) => {
     }
 };
 const Edit_RateProduct = async (req, res) => {
-    
     const isAuth = await Verify_user(req, res);
     if (isAuth.status == false)
         return res.status(401).json({
@@ -197,18 +206,31 @@ const Edit_RateProduct = async (req, res) => {
             (item) => item.user == userId
         );
         if (!Already_Rated) {
-            return res.status(400).json({ error: "user didn't rate this product." });
+            return res
+                .status(400)
+                .json({ error: "user didn't rate this product." });
         }
         product_in_db.Ratings[userRateindex].rate = rate;
         await product_in_db.save();
+        const userActions = await UserActions.findOne({ userId: userId });
+        if (userActions) {
+            const productIndex = userActions.Visited_Products.findIndex(
+                (item) => item.productId == productId
+            );
+            if (productIndex !== -1) {
+                userActions.Visited_Products[productIndex].time = new Date();
+                userActions.Visited_Products[productIndex].rate = rate;
+                await userActions.save();
+            }
+        }
         return res.status(200).json({
             message: "Product rate edited successfully.",
         });
     } catch (error) {
         return res.status(500).json({ error: error });
     }
-}
-    const RateStore = async (req, res) => {
+};
+const RateStore = async (req, res) => {
     const isAuth = await Verify_user(req, res);
     if (isAuth.status == false)
         return res.status(401).json({ error: "Unauthorized: Invalid token" });
@@ -385,7 +407,9 @@ const Edit_RateStore = async (req, res) => {
             (item) => item.userId == userId
         );
         if (!Already_Rated) {
-            return res.status(400).json({ error: "user didn't rate this Store." });
+            return res
+                .status(400)
+                .json({ error: "user didn't rate this Store." });
         }
         userRate.rate = rate;
         await Store_in_db.save();
