@@ -62,6 +62,7 @@ const Stores = mongoose.model(
         StoreName: { type: String },
         Store_Describtion: { type: String },
         Telephone: { type: String },
+        Location: { type: String },
         Store_Image: { type: String },
         Followers: [{ type: mongoose.Types.ObjectId, ref: "Users" }],
         Ratings: [
