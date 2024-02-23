@@ -86,8 +86,8 @@ const Follow_Store = async (req, res) => {
         if (!store_in_db) {
             return res.status(404).json({ error: "Store not found." });
         }
-        const Already_Followed = user_in_db.Stores.some(
-            (item) => item.StoreId == storeId
+        const Already_Followed = store_in_db.Followers.some(
+            (item) => item == userId
         );
         if (Already_Followed) {
             return res
@@ -95,6 +95,8 @@ const Follow_Store = async (req, res) => {
                 .json({ error: "User already followed this store." });
         }
         store_in_db.Followers.push(userId);
+        console.log(store_in_db.Followers);
+        await store_in_db.save();
         const userActions = await UserActions.findOne({ userId: userId });
         if (userActions) {
             userActions.Followed_Stores.push(storeId);

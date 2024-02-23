@@ -107,27 +107,6 @@ const Products = mongoose.model(
 
     })
 );
-// const most_visited = mongoose.model(
-//     "most_visited",
-//     new mongoose.Schema({
-//         productId: { type: mongoose.Types.ObjectId, ref: "Products" },
-//         visits: { type: Number, default: 0 },
-//     })
-// );
-// const most_rated = mongoose.model(
-//     "most_rated",
-//     new mongoose.Schema({
-//         productId: { type: mongoose.Types.ObjectId, ref: "Products" },
-//         rate: { type: Number, default: 0 },
-//     })
-// );
-// const most_commented = mongoose.model(
-//     "most_commented",
-//     new mongoose.Schema({
-//         productId: { type: mongoose.Types.ObjectId, ref: "Products" },
-//         comments: { type: Number, default: 0 },
-//     })
-// );
 const UserActions = mongoose.model(
 
     "UsersActions",
