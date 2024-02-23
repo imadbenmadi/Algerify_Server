@@ -321,19 +321,30 @@ const CreateProduct = async (req, res) => {
     }
 };
 const getStoreFollowers = async (req, res) => {
-    const StoreId = req.params.storeId;
-    if (!StoreId) return res.status(409).json({ error: "Messing Data." });
+    const storeId = req.params.storeId;
+    if (!storeId) return res.status(409).json({ error: "Missing Data." });
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+
     try {
-        const Store_in_db = await Stores.findById(StoreId);
-        if (!Store_in_db) {
+        const store = await Stores.findById(storeId);
+        if (!store) {
             return res.status(404).json({ error: "Store not found." });
         }
-        const Followers = Store_in_db.Followers;
-        return res.status(200).json(Followers);
+
+        const totalCount = store.Followers.length;
+        const totalPages = Math.ceil(totalCount / limit);
+        const startIndex = (page - 1) * limit;
+        const endIndex = Math.min(startIndex + limit, totalCount);
+
+        const followers = store.Followers.slice(startIndex, endIndex);
+        return res.status(200).json({ totalPages, followers });
     } catch (error) {
-        return res.status(500).json({ error: error });
+        return res.status(500).json({ error });
     }
 };
+
 
 module.exports = {
     EditStore,
