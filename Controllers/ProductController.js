@@ -7,16 +7,25 @@ const {
 require("dotenv").config();
 
 const getAllProducts = async (req, res) => {
-    try {
-        const allProducts = await Products.find().select(
-            "Title Describtion Category Price Product_RatingAverage"
-        );
+    const page = parseInt(req.query.page) || 1;
+    let limit = parseInt(req.query.limit) || 20;
 
-        return res.status(200).json(allProducts);
+    try {
+        const totalCount = await Products.countDocuments();
+        const totalPages = Math.ceil(totalCount / limit);
+        const skip = (page - 1) * limit;
+
+        const allProducts = await Products.find()
+            .select("Title Describtion Category Price Product_RatingAverage")
+            .skip(skip)
+            .limit(limit);
+
+        return res.status(200).json({ totalPages, products: allProducts });
     } catch (error) {
-        return res.status(500).json({ error: error });
+        return res.status(500).json({ error });
     }
 };
+
 const getProduct = async (req, res) => {
     const productId = req.params.productId;
     if (!productId) return res.status(409).json({ error: "Messing Data" });
