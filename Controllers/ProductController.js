@@ -99,11 +99,9 @@ const searchProduct = async (req, res) => {
             .limit(limit);
 
         if (products.length === 0) {
-            return res
-                .status(404)
-                .json({
-                    error: "No products found matching the search query.",
-                });
+            return res.status(404).json({
+                error: "No products found matching the search query.",
+            });
         }
 
         return res.status(200).json({ totalPages, products });
@@ -112,9 +110,11 @@ const searchProduct = async (req, res) => {
     }
 };
 
-
 const FilterProducts = async (req, res) => {
     const { category, price, rate, sortBy, location } = req.body;
+    const page = parseInt(req.query.page) || 1; // default to page 1 if not provided
+    let limit = parseInt(req.query.limit) || 20; // default to limit of 20 if not provided
+
     try {
         let query = {};
 
@@ -132,7 +132,16 @@ const FilterProducts = async (req, res) => {
             query.Location = location;
         }
 
-        // Define default sorting criteria as an empty object
+        // Find total count of products matching the specified criteria
+        const totalCount = await Products.countDocuments(query);
+
+        // Calculate total number of pages
+        const totalPages = Math.ceil(totalCount / limit);
+
+        // Calculate skip based on pagination
+        const skip = (page - 1) * limit;
+
+        // Define default sorting criteria
         let sortCriteria = {};
 
         // Update sorting criteria if sortBy parameter is provided
@@ -151,9 +160,11 @@ const FilterProducts = async (req, res) => {
             }
         }
 
-        // Find products matching the specified criteria and sort them
+        // Find products matching the specified criteria, sort them, and paginate the results
         const filteredProducts = await Products.find(query)
             .sort(sortCriteria)
+            .skip(skip)
+            .limit(limit)
             .select(
                 "Title Description Category Price Product_RatingAverage Visits Basket_Counter Location"
             );
@@ -165,13 +176,16 @@ const FilterProducts = async (req, res) => {
             });
         }
 
-        // Return the filtered products
-        return res.status(200).json(filteredProducts);
+        // Return the filtered products and total number of pages
+        return res.status(200).json({ totalPages, filteredProducts });
     } catch (error) {
         // If an error occurs, return a 500 error
-        return res.status(500).json({ error: error.message });
+        console.error(error);
+        return res.status(500).json({ error: "Internal Server Error" });
     }
 };
+
+
 module.exports = {
     getAllProducts,
     getProduct,
