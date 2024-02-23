@@ -103,15 +103,33 @@ const EditProduct = async (req, res) => {
     }
 };
 const getAllStores = async (req, res) => {
+    const page = parseInt(req.query.page) || 1; // default to page 1 if not provided
+    const limit = parseInt(req.query.limit) || 20; // default to limit of 20 if not provided
+
     try {
-        const allStores = await Stores.find().select(
-            "StoreName Store_Describtion Telephone Store_Image Store_RatingAverage"
-        );
-        return res.status(200).json(allStores);
+        // Count total number of stores
+        const totalCount = await Stores.countDocuments();
+
+        // Calculate total number of pages
+        const totalPages = Math.ceil(totalCount / limit);
+
+        // Calculate skip based on pagination
+        const skip = (page - 1) * limit;
+
+        // Fetch stores for the current page
+        const stores = await Stores.find()
+            .select(
+                "StoreName Store_Describtion Telephone Store_Image Store_RatingAverage"
+            )
+            .skip(skip)
+            .limit(limit);
+
+        return res.status(200).json({ totalPages, stores });
     } catch (error) {
-        return res.status(500).json({ error: error });
+        return res.status(500).json({ error });
     }
 };
+
 
 const getStore = async (req, res) => {
     const StoreId = req.params.storeId;
