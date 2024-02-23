@@ -25,7 +25,6 @@ const getAllProducts = async (req, res) => {
         return res.status(500).json({ error });
     }
 };
-
 const getProduct = async (req, res) => {
     const productId = req.params.productId;
     if (!productId) return res.status(409).json({ error: "Messing Data" });
@@ -63,21 +62,35 @@ const getAllCategorys = async (req, res) => {
 };
 const getProductByCategory = async (req, res) => {
     const category = req.params.category;
-    if (!category) return res.status(409).json({ error: "Messing Data" });
+    if (!category) return res.status(409).json({ error: "Missing Data" });
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+
     try {
-        const Product_in_db = await Products.find({
+        const totalCount = await Products.countDocuments({
             Category: category,
-        }).select("Title Describtion Category Price Product_RatingAverage");
-        if (!Product_in_db) {
+        });
+        const totalPages = Math.ceil(totalCount / limit);
+        const skip = (page - 1) * limit;
+
+        const products = await Products.find({ Category: category })
+            .select("Title Describtion Category Price Product_RatingAverage")
+            .skip(skip)
+            .limit(limit);
+
+        if (!products || products.length === 0) {
             return res
                 .status(404)
-                .json({ error: " Could not find products with that category" });
+                .json({ error: "Could not find products with that category" });
         }
-        return res.status(200).json(Product_in_db);
+
+        return res.status(200).json({ totalPages, products });
     } catch (error) {
-        return res.status(500).json({ error: error });
+        return res.status(500).json({ error });
     }
 };
+
 const searchProduct = async (req, res) => {
     const search = req.params.search;
     const page = parseInt(req.query.page) || 1; // default to page 1 if not provided
