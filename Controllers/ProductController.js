@@ -71,14 +71,32 @@ const getProductByCategory = async (req, res) => {
 };
 const searchProduct = async (req, res) => {
     const search = req.params.search;
+    const page = parseInt(req.query.page) || 1; // default to page 1 if not provided
+    let limit = parseInt(req.query.limit) || 20; // default to limit of 20 if not provided
+
     try {
         if (!search) {
             return res.status(400).json({ error: "Missing Data" });
         }
 
+        const count = await Products.countDocuments({
+            Title: { $regex: `.*${search}.*`, $options: "i" },
+        });
+
+        const totalPages = Math.ceil(count / limit);
+        const skip = (page - 1) * limit;
+
+        // Adjust limit if total documents are less than requested limit
+        if (count < limit) {
+            limit = count;
+        }
+
         const products = await Products.find({
-            Title: { $regex: search, $options: "i" },
-        }).select("Title Description Category Price Product_RatingAverage");
+            Title: { $regex: `.*${search}.*`, $options: "i" },
+        })
+            .select("Title Description Category Price Product_RatingAverage")
+            .skip(skip)
+            .limit(limit);
 
         if (products.length === 0) {
             return res
@@ -88,11 +106,13 @@ const searchProduct = async (req, res) => {
                 });
         }
 
-        return res.status(200).json(products);
+        return res.status(200).json({ totalPages, products });
     } catch (error) {
         return res.status(500).json({ error: "Internal Server Error" });
     }
 };
+
+
 const FilterProducts = async (req, res) => {
     const { category, price, rate, sortBy, location } = req.body;
     try {

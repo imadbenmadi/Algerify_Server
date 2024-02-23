@@ -316,5 +316,6 @@ module.exports = {
     getStore_Profile,
     DeleteProduct,
     DeleteStore,
+    getStoreFollowers,
     CreateProduct,
 };
