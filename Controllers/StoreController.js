@@ -131,21 +131,31 @@ const getAllStores = async (req, res) => {
 };
 const getStore = async (req, res) => {
     const StoreId = req.params.storeId;
-    if (!StoreId) return res.status(409).json({ error: "Messing Data." });
-    if (req.body.userId) {
-        const user_in_db = await Users.findById(req.body.userId);
-        if (user_in_db) {
-            const userActions = await UserActions.findOne({ userId: userId });
+    if (!StoreId) return res.status(409).json({ error: "Missing Data." });
+
+    try {
+        if (req.body.userId) {
+            const userActions = await UserActions.findOne({
+                userId: req.body.userId,
+            });
             if (userActions) {
-                userActions.Visited_Products.push({
-                    productId: productId,
-                    time: new Date(),
-                });
-                await userActions.save();
+                const alreadyVisited = userActions.Visited_Stores.some(
+                    (visit) => visit.storeId && visit.storeId.equals(StoreId)
+                );
+
+                if (!alreadyVisited) {
+                    userActions.Visited_Stores.push({
+                        storeId: StoreId,
+                        time: new Date(),
+                    });
+                    await userActions.save();
+                    await Stores.findByIdAndUpdate(StoreId, {
+                        $inc: { Visits: 1 },
+                    });
+                }
             }
         }
-    }
-    try {
+
         const Store_in_db = await Stores.findById(StoreId).select(
             "StoreName Store_Describtion Telephone Store_RatingAverage Email Telephone storeProducts"
         );
@@ -154,9 +164,11 @@ const getStore = async (req, res) => {
         }
         return res.status(200).json(Store_in_db);
     } catch (error) {
+        console.log(error);
         return res.status(500).json({ error: error });
     }
 };
+
 const getStore_Profile = async (req, res) => {
     const StoreId = req.params.storeId;
     if (!StoreId) return res.status(409).json({ error: "Messing Data." });

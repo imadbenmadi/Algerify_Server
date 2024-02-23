@@ -76,6 +76,7 @@ const Stores = mongoose.model(
         ],
         Store_RatingAverage: { type: Number, default: 0 },
         storeProducts: [{ type: mongoose.Types.ObjectId, ref: "Products" }],
+        Visits: { type: Number, default: 0 },
     })
 );
 const Products = mongoose.model(
