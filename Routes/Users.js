@@ -26,6 +26,11 @@ router.delete(
     "/:userId/RateProduct/:productId",
     RateController.Delete_RateProduct
 );
+router.put("/:userId/RateProduct/:productId", RateController.Edit_RateProduct);
+router.get(
+    "/:userId/RateProduct/:productId",
+    RateController.get_product_userRate
+);
 router.post(
     "/:userId/CommentProduct/:productId",
     CommentController.CommentProduct
@@ -34,26 +39,19 @@ router.delete(
     "/:userId/CommentProduct/:productId",
     CommentController.Delete_CommentProduct
 );
+
 router.get(
-    "/:userId/get_user_Rate/:productId",
-    RateController.get_product_userRate
-);
-router.get(
-    "/:userId/get_user_Comments/:productId",
+    "/:userId/CommentProduct/:productId",
     CommentController.get_product_userComment
 );
 router.put(
-    "/:userId/Edit_user_Comments/:productId",
+    "/:userId/CommentProduct/:productId",
     CommentController.Etid_Comment
-);
-router.put("/:userId/Edit_RateProduct/:productId", RateController.Edit_RateProduct);
-router.get(
-    "/:userId/get_user_StoreRate/:storeId",
-    RateController.get_Store_userRate
 );
 router.post("/:userId/RateStore/:storeId", RateController.RateStore);
 router.delete("/:userId/RateStore/:storeId", RateController.Delete_RateStore);
-router.put("/:userId/Edit_RateStore/:storeId", RateController.Edit_RateStore);
+router.put("/:userId/RateStore/:storeId", RateController.Edit_RateStore);
+router.get("/:userId/RateStore/:storeId", RateController.get_Store_userRate);
 
 router.post(
     "/:userId/Intrested/:productId",
