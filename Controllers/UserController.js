@@ -110,14 +110,25 @@ const Follow_Store = async (req, res) => {
 };
 // Only Dashboard can get all users
 const getAllUsers = async (req, res) => {
-    try {
-        const allUsers = await Users.find().select("FirstName LastName ");
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
 
-        return res.status(200).json(allUsers);
+    try {
+        const totalCount = await Users.countDocuments();
+        const totalPages = Math.ceil(totalCount / limit);
+        const skip = (page - 1) * limit;
+
+        const allUsers = await Users.find()
+            .select("FirstName LastName")
+            .skip(skip)
+            .limit(limit);
+
+        return res.status(200).json({ totalPages, allUsers });
     } catch (error) {
-        return res.status(500).json({ error: error });
+        return res.status(500).json({ error });
     }
 };
+
 const getUser = async (req, res) => {
     const userId = req.params.userId;
     if (!userId) return res.status(409).json({ error: "Messing Data" });
