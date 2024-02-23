@@ -129,8 +129,6 @@ const getAllStores = async (req, res) => {
         return res.status(500).json({ error });
     }
 };
-
-
 const getStore = async (req, res) => {
     const StoreId = req.params.storeId;
     if (!StoreId) return res.status(409).json({ error: "Messing Data." });
@@ -184,21 +182,33 @@ const getStore_Profile = async (req, res) => {
     }
 };
 const getStoreProducts = async (req, res) => {
-    const StoreId = req.params.storeId;
-    if (!StoreId) return res.status(409).json({ error: "Messing Data." });
+    const storeId = req.params.storeId;
+    if (!storeId) return res.status(409).json({ error: "Missing Data." });
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+
     try {
-        const Store_in_db = await Stores.findById(StoreId);
-        if (!Store_in_db) {
+        const store = await Stores.findById(storeId);
+        if (!store) {
             return res.status(404).json({ error: "Store not found." });
         }
-        const Products_in_db = await Products.find({ Owner: StoreId }).select(
-            "Title Describtion Price Product_RatingAverage"
-        );
-        return res.status(200).json(Products_in_db);
+
+        const totalCount = await Products.countDocuments({ Owner: storeId });
+        const totalPages = Math.ceil(totalCount / limit);
+        const skip = (page - 1) * limit;
+
+        const products = await Products.find({ Owner: storeId })
+            .select("Title Describtion Price Product_RatingAverage")
+            .skip(skip)
+            .limit(limit);
+
+        return res.status(200).json({ totalPages, products });
     } catch (error) {
-        return res.status(500).json({ error: error });
+        return res.status(500).json({ error });
     }
 };
+
 const DeleteStore = async (req, res) => {
     const isAdmin = await Verify_Admin(req, res);
     if (isAdmin.status == true && isAdmin.Refresh == true) {
