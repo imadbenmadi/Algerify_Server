@@ -227,8 +227,12 @@ const add_to_Basket = async (req, res) => {
         if (!user_in_db) {
             return res.status(404).json({ error: "User not found." });
         }
+        const product_in_db = await Products.findById(productId);
+        if (!product_in_db) {
+            return res.status(404).json({ error: "Product not found." });
+        }
         const productExists = user_in_db.basket.some(
-            (item) => item.ProductId === productId
+            (item) => item.ProductId == productId
         );
         if (productExists) {
             return res
@@ -236,6 +240,8 @@ const add_to_Basket = async (req, res) => {
                 .json({ error: "Product already in basket." });
         }
         user_in_db.basket.push({ ProductId: productId });
+        product_in_db.Basket_Counter += 1; // Incrementing Basket_Counter
+        await product_in_db.save(); // Saving the updated product
         await user_in_db.save();
         const userActions = await UserActions.findOne({ userId: userId });
         if (userActions) {
@@ -252,6 +258,7 @@ const add_to_Basket = async (req, res) => {
         return res.status(500).json({ error: error });
     }
 };
+
 const delete_from_Basket = async (req, res) => {
     const isAuth = await Verify_user(req, res);
     if (isAuth.status == false)
@@ -273,6 +280,10 @@ const delete_from_Basket = async (req, res) => {
         if (!user_in_db) {
             return res.status(404).json({ error: "User not found." });
         }
+        const product_in_db = await Products.findById(productId);
+        if (!product_in_db) {
+            return res.status(404).json({ error: "Product not found." });
+        }
         // Find the index of the product in the basket array
         const productIndex = user_in_db.basket.findIndex((item) => {
             return item.ProductId == productId;
@@ -285,6 +296,8 @@ const delete_from_Basket = async (req, res) => {
 
         // Remove the product from the basket array
         user_in_db.basket.splice(productIndex, 1);
+        product_in_db.Basket_Counter = product_in_db.Basket_Counter - 1;
+        await product_in_db.save();
         await user_in_db.save();
         return res.status(200).json({
             message: "Product deleted from basket successfully.",
