@@ -28,27 +28,35 @@ const getAllProducts = async (req, res) => {
 const getProduct = async (req, res) => {
     const productId = req.params.productId;
     if (!productId) return res.status(409).json({ error: "Messing Data" });
-    if (req.body.userId) {
-        const user_in_db = await Users.findById(req.body.userId);
-        if (user_in_db) {
-            const userActions = await UserActions.findOne({ userId: userId });
-            if (userActions) {
-                userActions.Visited_Products.push({
-                    productId: productId,
-                    time: new Date(),
-                });
-                await userActions.save();
-            }
-        }
-    }
+
     try {
         const Product_in_db = await Products.findById(productId);
         if (!Product_in_db) {
             return res.status(404).json({ error: "Product not found." });
         }
+        if (req.body.userId) {
+            const userActions = await UserActions.findOne({
+                userId: req.body.userId,
+            });
+            if (userActions) {
+                const alreadyVisited = userActions.Visited_Products.some(visit => visit.productId.equals(productId));
+                if (!alreadyVisited) {
+                    userActions.Visited_Products.push({
+                        productId: productId,
+                        time: new Date(),
+                    });
+                    await userActions.save();
+                    await Products.findByIdAndUpdate(productId, {
+                        $inc: { Visits: 1 },
+                    });
+                }
+            }
+            
+        }
 
         return res.status(200).json(Product_in_db);
     } catch (error) {
+        console.log(error);
         return res.status(500).json({ error: error });
     }
 };
@@ -206,7 +214,6 @@ const FilterProducts = async (req, res) => {
         return res.status(500).json({ error: "Internal Server Error" });
     }
 };
-
 
 module.exports = {
     getAllProducts,
