@@ -105,9 +105,8 @@ const Products = mongoose.model(
         Product_RatingAverage: { type: Number, default: 0 },
         Favorite_Counter: { type: Number, default: 0 },
         Basket_Counter: { type: Number, default: 0 },
+        bought_Counter: { type: Number, default: 0 },
         Visits: { type: Number, default: 0 },
-
-
     })
 );
 const UserActions = mongoose.model(
