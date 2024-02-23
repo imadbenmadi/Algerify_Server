@@ -331,8 +331,17 @@ const get_Basket = async (req, res) => {
     }
     try {
         const userId = req.params.userId;
+        const page = parseInt(req.query.page) || 1; // default to page 1 if not provided
+        const limit = parseInt(req.query.limit) || 20; // default to limit of 20 if not provided
         if (!userId) return res.status(409).json({ error: "Messing Data" });
-        const user_in_db = await Users.findById(userId).populate("basket");
+        const user_in_db = await Users.findById(userId).populate({
+            path: "basket",
+            options: {
+                skip: (page - 1) * limit,
+                limit: limit,
+            },
+        });
+
         if (!user_in_db) {
             return res.status(404).json({ error: "User not found." });
         }
@@ -341,6 +350,7 @@ const get_Basket = async (req, res) => {
         return res.status(500).json({ error: error });
     }
 };
+
 const add_to_Favorit = async (req, res) => {
     const isAuth = await Verify_user(req, res);
     if (isAuth.status == false)
@@ -468,8 +478,17 @@ const get_Favorite = async (req, res) => {
     }
     try {
         const userId = req.params.userId;
+        const page = parseInt(req.query.page) || 1; // default to page 1 if not provided
+        const limit = parseInt(req.query.limit) || 20; // default to limit of 20 if not provided
         if (!userId) return res.status(409).json({ error: "Messing Data" });
-        const user_in_db = await Users.findById(userId).populate("Favorite");
+        const user_in_db = await Users.findById(userId).populate({
+            path: "Favorite",
+            options: {
+                skip: (page - 1) * limit,
+                limit: limit,
+            },
+        });
+
         if (!user_in_db) {
             return res.status(404).json({ error: "User not found." });
         }
@@ -478,6 +497,7 @@ const get_Favorite = async (req, res) => {
         return res.status(500).json({ error: error });
     }
 };
+
 const CreateStore = async (req, res) => {
     const isAuth = await Verify_user(req, res);
     if (isAuth.status == true && isAuth.Refresh == true) {
