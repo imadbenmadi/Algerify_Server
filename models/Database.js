@@ -33,6 +33,9 @@ const Users = mongoose.model(
         intrested_products: [
             { ProductId: { type: mongoose.Types.ObjectId, ref: "Products" } },
         ],
+        not_intrested_products: [
+            { ProductId: { type: mongoose.Types.ObjectId, ref: "Products" } },
+        ],
         Stores: [{ StoreId: { type: mongoose.Types.ObjectId, ref: "Stores" } }],
     })
 );

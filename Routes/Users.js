@@ -3,6 +3,7 @@ const router = express.Router();
 const UserController = require("../Controllers/UserController");
 const RateController = require("../Controllers/RateController");
 const CommentController = require("../Controllers/CommentController");
+const IntresteController = require("../Controllers/IntresteController");
 router.get("/", UserController.getAllUsers); // Only Admin
 router.get("/:userId/Profile", UserController.getProfile); // Only Admin
 router.get("/:userId", UserController.getUser);
@@ -55,10 +56,12 @@ router.get("/:userId/RateStore/:storeId", RateController.get_Store_userRate);
 
 router.post(
     "/:userId/Intrested/:productId",
-    UserController.add_to_intrested_products
+    IntresteController.add_to_intrested_products
 );
 router.delete(
     "/:userId/Intrested/:productId",
-    UserController.delete_from_intrested_products
+    IntresteController.delete_from_intrested_products
 );
+router.post("/:userId/Not_Intrested/:productId", IntresteController.add_to_not_intrested_products);
+router.delete("/:userId/Not_Intrested/:productId", IntresteController.delete_from_not_intrested_products);
 module.exports = router;
