@@ -30,6 +30,11 @@ const handleVerifyAccount = async (req, res) => {
         if (!user) {
             return res.status(404).json({ error: "User not found" });
         }
+        if (user.IsEmailVerified === true) {
+            return res
+                .status(200)
+                .json({ message: "Account Already Verified" });
+        }
         user.IsEmailVerified = true;
         await user.save();
         await email_verification_tokens.deleteOne({

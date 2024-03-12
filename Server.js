@@ -30,7 +30,9 @@ async function connect_to_db() {
     });
 }
 connect_to_db().catch((err) => console.log(err));
-
+app.get("/", (req, res) => {
+    res.send("Hello From Aos");
+});
 // ----------------- Auth Routes -----------------
 app.use("/check_Auth", require("./Routes/Auth/check_Auth"));
 app.use("/Storecheck_Auth", require("./Routes/Auth/Store/Store_check_Auth"));

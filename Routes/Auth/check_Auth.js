@@ -87,7 +87,7 @@ router.get("/", async (req, res) => {
                     } catch (refreshErr) {
                         return res
                             .status(500)
-                            .json({ error: "Internal Server Error" });
+                            .json({ error: refreshErr });
                     }
                 } else {
                     return res.status(401).json({

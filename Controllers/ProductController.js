@@ -136,7 +136,7 @@ const searchProduct = async (req, res) => {
 
         return res.status(200).json({ totalPages, products });
     } catch (error) {
-        return res.status(500).json({ error: "Internal Server Error" });
+        return res.status(500).json({ error: error});
     }
 };
 
@@ -211,7 +211,7 @@ const FilterProducts = async (req, res) => {
     } catch (error) {
         // If an error occurs, return a 500 error
         console.error(error);
-        return res.status(500).json({ error: "Internal Server Error" });
+        return res.status(500).json({ error: error });
     }
 };
 
