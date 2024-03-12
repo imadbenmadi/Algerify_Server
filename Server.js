@@ -7,6 +7,7 @@ const cookieParser = require("cookie-parser");
 const credentials = require("./Middleware/credentials");
 const corsOptions = require("./config/corsOptions");
 const path = require("path");
+require("dotenv").config();
 const limiter = rateLimit({
     windowMs: 60 * 1000, // 15 minutes
     max: 200, // limit each IP to 100 requests per windowMs
@@ -22,14 +23,18 @@ app.use(express.urlencoded({ extended: false }));
 app.use("/", express.static(path.join(__dirname, "/Public")));
 
 mongoose.set("strictQuery", false);
-const mongoDB = "mongodb://127.0.0.1:27017/AOS";
+const mongoDB = process.env.MongoDB_URI;
 async function connect_to_db() {
     await mongoose.connect(mongoDB, {
         // useNewUrlParser: true,
         // useUnifiedTopology: true,
     });
 }
-connect_to_db().catch((err) => console.log(err));
+connect_to_db()
+    .then(() => console.log("connected Successfully "))
+    .catch((err) => console.log(err));
+
+    
 app.get("/", (req, res) => {
     res.send("Hello From Aos");
 });
@@ -44,14 +49,19 @@ app.use("/VerifyAccount", require("./Routes/Auth/verifyAccount"));
 app.use("/StoreLogin", require("./Routes/Auth/Store/StoreLogin"));
 app.use("/StoreLogout", require("./Routes/Auth/Store/StoreLogout"));
 
-app.use("/Send_Verification_Email", require("./Routes/Emails/Send_Verification_Email"));
-app.use("/ReSend_Verification_Email",require("./Routes/Emails/Resend_verification"));
+app.use(
+    "/Send_Verification_Email",
+    require("./Routes/Emails/Send_Verification_Email")
+);
+app.use(
+    "/ReSend_Verification_Email",
+    require("./Routes/Emails/Resend_verification")
+);
 app.use("/is_email_verified", require("./Routes/Emails/is_email_verified"));
 
 // app.use("/ForgotPassword", require("./Routes/Auth/Password/ForgotPassword"));
 // app.use("/ResetPassword", require("./Routes/Auth/Password/ResetPassword"));
 // app.use("/ChangePassword", require("./Routes/Auth/Password/ChangePassword"));
-
 
 // ----------------- App Routes -----------------
 app.use("/Users", require("./Routes/Users"));
