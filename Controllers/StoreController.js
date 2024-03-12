@@ -168,13 +168,13 @@ const getStore = async (req, res) => {
         return res.status(500).json({ error: error });
     }
 };
-
+// Only admin
 const getStore_Profile = async (req, res) => {
     const StoreId = req.params.storeId;
     if (!StoreId) return res.status(409).json({ error: "Messing Data." });
     const isAuth = await Verify_Admin(req, res);
     if (isAuth.status == true && isAuth.Refresh == true) {
-        res.cookie("accessToken", isAuth.newAccessToken, {
+        res.cookie("admin_accessToken", isAuth.newAccessToken, {
             httpOnly: true,
             sameSite: "None",
             secure: true,

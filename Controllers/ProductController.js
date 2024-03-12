@@ -141,7 +141,7 @@ const searchProduct = async (req, res) => {
 };
 
 const FilterProducts = async (req, res) => {
-    const { category, price, rate, sortBy, location } = req.body;
+    const { category, price, rate, sortBy, location } = req.query;
     const page = parseInt(req.query.page) || 1; // default to page 1 if not provided
     let limit = parseInt(req.query.limit) || 20; // default to limit of 20 if not provided
 
@@ -214,7 +214,6 @@ const FilterProducts = async (req, res) => {
         return res.status(500).json({ error: error });
     }
 };
-
 module.exports = {
     getAllProducts,
     getProduct,
