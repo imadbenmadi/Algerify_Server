@@ -50,13 +50,13 @@ const handleLogin_byStorId = async (req, res) => {
                 error: err,
             });
         }
-        res.cookie("admin_accessToken", accessToken, {
+        res.cookie("accessToken", accessToken, {
             httpOnly: true,
             sameSite: "None",
             secure: true,
             maxAge: 60 * 60 * 1000,
         });
-        res.cookie("admin_refreshToken", refreshToken, {
+        res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
             sameSite: "None",
             secure: true,
@@ -127,13 +127,13 @@ const handleLogin = async (req, res) => {
                     error: err,
                 });
             }
-            res.cookie("admin_accessToken", accessToken, {
+            res.cookie("accessToken", accessToken, {
                 httpOnly: true,
                 sameSite: "None",
                 secure: true,
                 maxAge: 60 * 60 * 1000,
             });
-            res.cookie("admin_refreshToken", refreshToken, {
+            res.cookie("refreshToken", refreshToken, {
                 httpOnly: true,
                 sameSite: "None",
                 secure: true,

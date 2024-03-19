@@ -3,9 +3,9 @@ const jwt = require("jsonwebtoken");
 const { Refresh_tokens } = require("../models/Database");
 
 const Verify_Admin = async (req, res) => {
-    const secretKey = process.env.ADMIN_ACCESS_TOKEN_SECRET;
-    const accessToken = req.cookies.admin_accessToken;
-    const refreshToken = req.cookies.admin_refreshToken;
+    const secretKey = process.env.ACCESS_TOKEN_SECRET;
+    const accessToken = req.cookies.accessToken;
+    const refreshToken = req.cookies.refreshToken;
 
     try {
         const decoded = jwt.verify(accessToken, secretKey);
@@ -29,7 +29,7 @@ const Verify_Admin = async (req, res) => {
                 return new Promise((resolve, reject) => {
                     jwt.verify(
                         refreshToken,
-                        process.env.ADMIN_REFRESH_TOKEN_SECRET,
+                        process.env.REFRESH_TOKEN_SECRET,
                         async (err, decoded) => {
                             if (err) {
                                 resolve({
@@ -47,7 +47,7 @@ const Verify_Admin = async (req, res) => {
                                 // Generate new access token
                                 const newAccessToken = jwt.sign(
                                     { userId: decoded.userId },
-                                    process.env.ADMIN_ACCESS_TOKEN_SECRET,
+                                    process.env.ACCESS_TOKEN_SECRET,
                                     { expiresIn: "5m" }
                                 );
 

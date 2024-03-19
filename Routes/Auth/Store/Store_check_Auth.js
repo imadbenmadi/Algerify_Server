@@ -5,8 +5,8 @@ require("dotenv").config();
 const { Stores, Refresh_tokens } = require("../../../models/Database");
 
 router.get("/", async (req, res) => {
-    const accessToken = req.cookies.admin_accessToken;
-    const refreshToken = req.cookies.admin_refreshToken;
+    const accessToken = req.cookies.accessToken;
+    const refreshToken = req.cookies.refreshToken;
 
     try {
         // Verify the access token
@@ -56,16 +56,12 @@ router.get("/", async (req, res) => {
                                         process.env.ACCESS_TOKEN_SECRET,
                                         { expiresIn: "1h" }
                                     );
-                                    res.cookie(
-                                        "admin_accessToken",
-                                        newAccessToken,
-                                        {
-                                            httpOnly: true,
-                                            sameSite: "None",
-                                            secure: true,
-                                            maxAge: 60 * 60 * 1000,
-                                        }
-                                    );
+                                    res.cookie("accessToken", newAccessToken, {
+                                        httpOnly: true,
+                                        sameSite: "None",
+                                        secure: true,
+                                        maxAge: 60 * 60 * 1000,
+                                    });
                                     const user = await Stores.findOne({
                                         _id: decoded.userId,
                                     });

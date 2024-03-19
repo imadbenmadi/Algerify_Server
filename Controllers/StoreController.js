@@ -12,7 +12,7 @@ const Verify_Admin = require("../Middleware/Verify_Admin");
 const EditStore = async (req, res) => {
     const isAdmin = await Verify_Admin(req, res);
     if (isAdmin.status == true && isAdmin.Refresh == true) {
-        res.cookie("admin_accessToken", isAdmin.newAccessToken, {
+        res.cookie("accessToken", isAdmin.newAccessToken, {
             httpOnly: true,
             sameSite: "None",
             secure: true,
@@ -54,7 +54,7 @@ const EditStore = async (req, res) => {
 const EditProduct = async (req, res) => {
     const isAdmin = await Verify_Admin(req, res);
     if (isAdmin.status == true && isAdmin.Refresh == true) {
-        res.cookie("admin_accessToken", isAdmin.newAccessToken, {
+        res.cookie("accessToken", isAdmin.newAccessToken, {
             httpOnly: true,
             sameSite: "None",
             secure: true,
@@ -174,7 +174,7 @@ const getStore_Profile = async (req, res) => {
     if (!StoreId) return res.status(409).json({ error: "Messing Data." });
     const isAuth = await Verify_Admin(req, res);
     if (isAuth.status == true && isAuth.Refresh == true) {
-        res.cookie("admin_accessToken", isAuth.newAccessToken, {
+        res.cookie("accessToken", isAuth.newAccessToken, {
             httpOnly: true,
             sameSite: "None",
             secure: true,
@@ -224,7 +224,7 @@ const getStoreProducts = async (req, res) => {
 const DeleteStore = async (req, res) => {
     const isAdmin = await Verify_Admin(req, res);
     if (isAdmin.status == true && isAdmin.Refresh == true) {
-        res.cookie("admin_accessToken", isAdmin.newAccessToken, {
+        res.cookie("accessToken", isAdmin.newAccessToken, {
             httpOnly: true,
             sameSite: "None",
             secure: true,
@@ -248,8 +248,8 @@ const DeleteStore = async (req, res) => {
 
         await Products.deleteMany({ Owner: StoreId });
         await Stores.findByIdAndDelete(StoreId);
-        res.clearCookie("admin_accessToken");
-        res.clearCookie("admin_refreshToken");
+        res.clearCookie("accessToken");
+        res.clearCookie("refreshToken");
 
         return res
             .status(200)
@@ -261,7 +261,7 @@ const DeleteStore = async (req, res) => {
 const DeleteProduct = async (req, res) => {
     const isAdmin = await Verify_Admin(req, res);
     if (isAdmin.status == true && isAdmin.Refresh == true) {
-        res.cookie("admin_accessToken", isAdmin.newAccessToken, {
+        res.cookie("accessToken", isAdmin.newAccessToken, {
             httpOnly: true,
             sameSite: "None",
             secure: true,
@@ -303,7 +303,7 @@ const DeleteProduct = async (req, res) => {
 const CreateProduct = async (req, res) => {
     const isAdmin = await Verify_Admin(req, res);
     if (isAdmin.status == true && isAdmin.Refresh == true) {
-        res.cookie("admin_accessToken", isAdmin.newAccessToken, {
+        res.cookie("accessToken", isAdmin.newAccessToken, {
             httpOnly: true,
             sameSite: "None",
             secure: true,

@@ -24,19 +24,17 @@ const handleLogout = async (req, res) => {
         sameSite: "None",
         secure: true,
     });
-    res.clearCookie("admin_refreshToken", {
+    res.clearCookie("refreshToken", {
         httpOnly: true,
         sameSite: "None",
         secure: true,
     });
-    res.clearCookie("admin_accessToken", {
+    res.clearCookie("accessToken", {
         httpOnly: true,
         sameSite: "None",
         secure: true,
     });
-    return res
-        .status(204)
-        .json({ message: "Logged out successfully" });
+    return res.status(204).json({ message: "Logged out successfully" });
 };
 
 module.exports = { handleLogout };

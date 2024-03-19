@@ -1,8 +1,8 @@
 require("dotenv").config();
 const { Refresh_tokens } = require("../../../models/Database");
 const handleLogout = async (req, res) => {
-    const refreshToken = req.cookies.admin_refreshToken;
-    const accessToken = req.cookies.admin_accessToken;
+    const refreshToken = req.cookies.refreshToken;
+    const accessToken = req.cookies.accessToken;
     if (!refreshToken && !accessToken) {
         return res.status(204).json({ message: "No cookie found" });
     }
@@ -14,12 +14,12 @@ const handleLogout = async (req, res) => {
             return res.status(500).json({ error });
         }
     }
-    res.clearCookie("admin_refreshToken", {
+    res.clearCookie("refreshToken", {
         httpOnly: true,
         sameSite: "None",
         secure: true,
     });
-    res.clearCookie("admin_accessToken", {
+    res.clearCookie("accessToken", {
         httpOnly: true,
         sameSite: "None",
         secure: true,

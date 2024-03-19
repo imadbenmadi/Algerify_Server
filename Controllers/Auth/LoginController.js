@@ -49,10 +49,7 @@ const handleLogin = async (req, res) => {
                 secure: true,
                 maxAge: 24 * 60 * 60 * 1000,
             });
-            if (req.cookies.admin_accessToken != undefined)
-                res.clearCookie("admin_accessToken");
-            if (req.cookies.admin_refreshToken != undefined)
-                res.clearCookie("admin_refreshToken");
+            
             const today = new Date();
             const lastMonth = new Date(
                 today.getFullYear(),
@@ -77,7 +74,7 @@ const handleLogin = async (req, res) => {
                 ProfilePic: user.ProfilePic,
                 Address: user.Address,
                 basket: user.basket,
-                Favorite : user.Favorite,
+                Favorite: user.Favorite,
                 IsEmailVerified: user.IsEmailVerified,
             };
             return res.status(200).json({
