@@ -90,6 +90,9 @@ const handle_send_Email = async (req, res) => {
     }
 
     try {
+        if (req.params.userId !== isAuth.decoded.userId) {
+            return res.status(401).json({ error: "Unauthorised" });
+        }
         const userId = req.params.userId;
         if (!userId) {
             return res.status(409).json({ message: "Missing Data" });

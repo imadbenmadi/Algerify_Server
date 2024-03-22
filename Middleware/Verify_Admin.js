@@ -8,7 +8,7 @@ const Verify_Admin = async (req, res) => {
     const refreshToken = req.cookies.refreshToken;
 
     try {
-        const decoded = jwt.verify(accessToken, secretKey);
+        const decoded = jwt.verify(accessToken, secretKey);            
         return { status: true, Refresh: false, decoded };
     } catch (err) {
         if (err.name === "TokenExpiredError") {

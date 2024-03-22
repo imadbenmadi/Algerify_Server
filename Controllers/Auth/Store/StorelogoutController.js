@@ -14,16 +14,21 @@ const handleLogout = async (req, res) => {
             return res.status(500).json({ error });
         }
     }
-    res.clearCookie("refreshToken", {
-        httpOnly: true,
-        sameSite: "None",
-        secure: true,
-    });
-    res.clearCookie("accessToken", {
-        httpOnly: true,
-        sameSite: "None",
-        secure: true,
-    });
+
+    if (req.cookies.accessToken) {
+        res.clearCookie("accessToken", {
+            httpOnly: true,
+            sameSite: "None",
+            secure: true,
+        });
+    }
+    if (req.cookies.refreshToken) {
+        res.clearCookie("refreshToken", {
+            httpOnly: true,
+            sameSite: "None",
+            secure: true,
+        });
+    }
     return res.status(204).json({ message: "Logged out successfully" });
 };
 

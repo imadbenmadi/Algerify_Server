@@ -6,6 +6,7 @@ const {
     email_verification_tokens,
     UserActions,
 } = require("../models/Database");
+const mongoose = require("mongoose");
 
 require("dotenv").config();
 const Verify_Admin = require("../Middleware/Verify_Admin");
@@ -27,14 +28,14 @@ const EditStore = async (req, res) => {
         if (!StoreId) {
             return res.status(409).json({ error: "Messing Data" });
         }
-        if (StoreId != isAdmin.decoded.StoreId) {
-            return res.status(401).json({ error: "Unauthorized" });
-        }
+
         const StoreToUpdate = await Stores.findById(StoreId);
         if (!StoreToUpdate) {
             return res.status(404).json({ error: "Store not found." });
         }
-
+        if (StoreToUpdate.Owner != isAdmin.decoded.userId) {
+            return res.status(401).json({ error: "Unauthorized" });
+        }
         const { StoreName, Store_Describtion, Telephone } = req.body;
         if (StoreName) {
             StoreToUpdate.StoreName = StoreName;
@@ -69,7 +70,7 @@ const EditProduct = async (req, res) => {
         if (!productId || !storeId) {
             return res.status(409).json({ error: "Messing Data" });
         }
-        if (storeId != isAdmin.decoded.StoreId) {
+        if (storeId != isAdmin.decoded.userId) {
             return res.status(401).json({ error: "Unauthorized" });
         }
         const Store_in_db = await Stores.findById(storeId);
@@ -188,6 +189,9 @@ const getStore_Profile = async (req, res) => {
         if (!Store_in_db) {
             return res.status(404).json({ error: "Store not found." });
         }
+        if (Store_in_db.Owner != isAuth.decoded.userId) {
+            return res.status(401).json({ error: "Unauthorized" });
+        }
         return res.status(200).json(Store_in_db);
     } catch (error) {
         return res.status(500).json({ error: error });
@@ -236,25 +240,27 @@ const DeleteStore = async (req, res) => {
     const StoreId = req.params.storeId;
     if (!StoreId) return res.status(409).json({ error: "Messing Data" });
     try {
-        if (StoreId != isAdmin.decoded.StoreId) {
-            console.log("here");
-            return res.status(401).json({ error: "Unauthorized" });
-        }
-
         const Store_in_db = await Stores.findById(StoreId);
         if (!Store_in_db) {
             return res.status(404).json({ error: "Store not found." });
         }
+        if (Store_in_db.Owner != isAdmin.decoded.userId) {
+            return res.status(401).json({ error: "Unauthorized" });
+        }
 
         await Products.deleteMany({ Owner: StoreId });
+        const user = await Users.findById(isAdmin.decoded.userId);
+        if (user) {
+            user.Stores = user.Stores.filter((store) => store._id != StoreId);
+            await user.save();
+        }
         await Stores.findByIdAndDelete(StoreId);
-        res.clearCookie("accessToken");
-        res.clearCookie("refreshToken");
 
         return res
             .status(200)
             .json({ message: " Store deleted successfully." });
     } catch (error) {
+        console.log(error);
         return res.status(500).json({ error: error });
     }
 };
@@ -276,18 +282,19 @@ const DeleteProduct = async (req, res) => {
         if (!productId || !storeId) {
             return res.status(409).json({ error: "Messing Data" });
         }
-        if (storeId != isAdmin.decoded.StoreId) {
+        if (storeId != isAdmin.decoded.userId) {
             return res.status(401).json({ error: "Unauthorized" });
         }
         const Store_in_db = await Stores.findById(storeId);
         if (!Store_in_db) {
             return res.status(404).json({ error: "Store not found." });
         }
-        const ProductToUpdate = await Products.findById(productId);
-        if (!ProductToUpdate) {
+        const ProductToDelete = await Products.findById(productId);
+        if (!ProductToDelete) {
             return res.status(404).json({ error: "Product not found." });
         }
-        if (ProductToUpdate.Owner != storeId) {
+        // console.log(ProductToDelete.Owner, storeId);
+        if (ProductToDelete.Owner != storeId) {
             return res.status(401).json({ error: "Unauthorized" });
         }
         await Products.findByIdAndDelete(productId);
@@ -302,6 +309,7 @@ const DeleteProduct = async (req, res) => {
 // Only Admin can create a new Product
 const CreateProduct = async (req, res) => {
     const isAdmin = await Verify_Admin(req, res);
+
     if (isAdmin.status == true && isAdmin.Refresh == true) {
         res.cookie("accessToken", isAdmin.newAccessToken, {
             httpOnly: true,
@@ -313,9 +321,17 @@ const CreateProduct = async (req, res) => {
         return res.status(401).json({ error: "Unauthorized: Invalid token" });
     }
     try {
+        console.log("passed");
         const { Title, Describtion, Category, Price } = req.body;
         if (!Title || !Describtion || !Category || !Price) {
             return res.status(409).json({ error: "Messing Data" });
+        }
+        const store_in_db = await Stores.findById(req.params.storeId);
+        if (!store_in_db)
+            return res.status(404).json({ error: "Store Not Found" });
+        console.log(store_in_db.Owner, isAdmin.decoded.userId);
+        if (store_in_db.Owner != isAdmin.decoded.userId) {
+            return res.status(401).json({ error: "Unauthorized" });
         }
         const newProduct = new Products({
             Owner: req.params.storeId,
@@ -325,10 +341,13 @@ const CreateProduct = async (req, res) => {
             Price,
         });
         await newProduct.save();
+        store_in_db.storeProducts.push(newProduct._id);
+        await store_in_db.save();
         return res
             .status(200)
             .json({ message: "Product Created successfully." });
     } catch (error) {
+        console.log(error);
         return res.status(500).json({ error: error });
     }
 };
@@ -336,26 +355,34 @@ const getStoreFollowers = async (req, res) => {
     const storeId = req.params.storeId;
     if (!storeId) return res.status(409).json({ error: "Missing Data." });
 
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 20;
-
     try {
         const store = await Stores.findById(storeId);
         if (!store) {
             return res.status(404).json({ error: "Store not found." });
         }
 
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 20;
+
         const totalCount = store.Followers.length;
         const totalPages = Math.ceil(totalCount / limit);
         const startIndex = (page - 1) * limit;
         const endIndex = Math.min(startIndex + limit, totalCount);
 
-        const followers = store.Followers.slice(startIndex, endIndex);
+        const followerIds = store.Followers.slice(startIndex, endIndex);
+
+        // Fetch user objects corresponding to followerIds
+        const followers = await Users.find({
+            _id: { $in: followerIds },
+        }).select("FirstName LastName Email Gender ProfilePic");
+
         return res.status(200).json({ totalPages, followers });
     } catch (error) {
+        console.log(error);
         return res.status(500).json({ error });
     }
 };
+
 module.exports = {
     EditStore,
     EditProduct,

@@ -37,6 +37,9 @@ const Users = mongoose.model(
             { ProductId: { type: mongoose.Types.ObjectId, ref: "Products" } },
         ],
         Stores: [{ StoreId: { type: mongoose.Types.ObjectId, ref: "Stores" } }],
+        Followed_Stores: [
+            { StoreId: { type: mongoose.Types.ObjectId, ref: "Stores" } },
+        ],
     })
 );
 const Refresh_tokens = mongoose.model(

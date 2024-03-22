@@ -7,11 +7,12 @@ const IntresteController = require("../Controllers/IntresteController");
 router.get("/", UserController.getAllUsers); // Only Admin
 router.get("/:userId/Profile", UserController.getProfile); // Only Admin
 router.get("/:userId", UserController.getUser);
-router.post("/:userId/CreateStore", UserController.CreateStore);
-router.post("/:userId/Follow/:storeId", UserController.Follow_Store);
 router.put("/:userId", UserController.EditProfile);
 router.delete("/:userId", UserController.DeleteProfile); // both Admin and User
 
+router.post("/:userId/CreateStore", UserController.CreateStore);
+router.post("/:userId/Follow/:storeId", UserController.Follow_Store);
+// --------------------------------------
 router.post("/:userId/Basket/:productId", UserController.add_to_Basket);
 router.delete("/:userId/Basket/:productId", UserController.delete_from_Basket);
 router.get("/:userId/Basket", UserController.get_Basket);

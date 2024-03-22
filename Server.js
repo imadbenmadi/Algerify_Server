@@ -29,10 +29,12 @@ async function connect_to_db() {
         // useNewUrlParser: true,
         // useUnifiedTopology: true,
     });
+    
 }
 connect_to_db()
     .then(() => console.log("connected Successfully "))
     .catch((err) => console.log(err));
+
 
     
 app.get("/", (req, res) => {

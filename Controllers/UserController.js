@@ -23,6 +23,9 @@ const EditProfile = async (req, res) => {
     }
 
     try {
+        if (req.params.userId !== isAuth.decoded.userId) {
+            return res.status(401).json({ error: "Unauthorised" });
+        }
         const userId = req.params.userId;
         if (!userId) {
             return res.status(409).json({ error: "Messing Data" });
@@ -74,6 +77,9 @@ const Follow_Store = async (req, res) => {
         });
     }
     try {
+        if (req.params.userId !== isAuth.decoded.userId) {
+            return res.status(401).json({ error: "Unauthorised" });
+        }
         const userId = req.params.userId;
         const storeId = req.params.storeId;
         if (!userId || !storeId)
@@ -95,18 +101,19 @@ const Follow_Store = async (req, res) => {
                 .json({ error: "User already followed this store." });
         }
         store_in_db.Followers.push(userId);
-        console.log(store_in_db.Followers);
         await store_in_db.save();
         const userActions = await UserActions.findOne({ userId: userId });
         if (userActions) {
             userActions.Followed_Stores.push(storeId);
             await userActions.save();
         }
+        user_in_db.Followed_Stores.push(storeId);
         await user_in_db.save();
         return res.status(200).json({
             message: "Store followed successfully.",
         });
     } catch (error) {
+        console.log(error);
         return res.status(500).json({ error: error });
     }
 };
@@ -158,6 +165,10 @@ const getProfile = async (req, res) => {
             maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
         });
     }
+    if (req.params.userId !== isAuth.decoded.userId) { 
+        return res.status(401).json({error : "Unauthorised"})
+    }
+        
     const userId = req.params.userId;
     if (!userId) return res.status(409).json({ error: "Messing Data" });
     try {
@@ -184,6 +195,9 @@ const DeleteProfile = async (req, res) => {
     }
 
     try {
+        if (req.params.userId !== isAuth.decoded.userId) {
+            return res.status(401).json({ error: "Unauthorised" });
+        }
         const userId = req.params.userId;
         if (!userId) return res.status(409).json({ error: "Messing Data" });
         const user_in_db = await Users.findById(userId);
@@ -196,8 +210,12 @@ const DeleteProfile = async (req, res) => {
         await Refresh_tokens.deleteMany({ userId: userId });
         await email_verification_tokens.deleteMany({ userId: userId });
         await UserActions.deleteMany({ userId: userId });
-        res.clearCookie("accessToken");
-        res.clearCookie("refreshToken");
+        if (req.cookies.accessToken) {
+            res.clearCookie("accessToken");
+        }
+        if (req.cookies.refreshToken) {
+            res.clearCookie("refreshToken");
+        }
         return res
             .status(200)
             .json({ message: "Profile deleted successfully." });
@@ -489,11 +507,17 @@ const CreateStore = async (req, res) => {
     if (isAuth.status == false)
         return res.status(401).json({ error: "Unauthorized: Invalid token" });
     try {
-        const { Email, Password, StoreName, Store_Describtion, Telephone } =
+        if (req.params.userId !== isAuth.decoded.userId) {
+            return res.status(401).json({ error: "Unauthorised" });
+        }
+        // const { Email, Password, StoreName, Store_Describtion, Telephone } =
+        //     req.body;
+        let { Email,  StoreName, Store_Describtion, Telephone } =
             req.body;
+        StoreName = StoreName.trim();
         if (
             !Email ||
-            !Password ||
+            // !Password ||
             !StoreName ||
             !Store_Describtion ||
             !Telephone
@@ -506,11 +530,13 @@ const CreateStore = async (req, res) => {
             });
         } else if (Telephone.length < 9 || Telephone.length > 11) {
             return res.status(409).json({ error: "Invalid Telephone number" });
-        } else if (Password.length < 8) {
-            return res
-                .status(409)
-                .json({ error: "Password must be at least 8 characters" });
-        } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(Email)) {
+        }
+        // else if (Password.length < 8) {
+        //     return res
+        //         .status(409)
+        //         .json({ error: "Password must be at least 8 characters" });
+        // }
+        else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(Email)) {
             return res.status(409).json({ error: "Invalid Email" });
         }
         const Store_Name_Exist = await Stores.findOne({ StoreName: StoreName });
@@ -522,12 +548,15 @@ const CreateStore = async (req, res) => {
         const newStore = new Stores({
             Owner: req.params.userId,
             Email,
-            Password,
+            // Password,
             StoreName,
             Store_Describtion,
             Telephone,
         });
         await newStore.save();
+        const user_in_db = await Users.findById(req.params.userId);
+        user_in_db.Stores.push(newStore._id);
+        await user_in_db.save()
         return res.status(200).json({ message: "Store Created successfully." });
     } catch (error) {
         return res.status(500).json({ error: error });
