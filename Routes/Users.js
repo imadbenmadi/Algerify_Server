@@ -12,6 +12,7 @@ router.delete("/:userId", UserController.DeleteProfile); // both Admin and User
 
 router.post("/:userId/CreateStore", UserController.CreateStore);
 router.post("/:userId/Follow/:storeId", UserController.Follow_Store);
+router.post("/:userId/Unfollow/:storeId", UserController.Unfollow_Store);
 // --------------------------------------
 router.post("/:userId/Basket/:productId", UserController.add_to_Basket);
 router.delete("/:userId/Basket/:productId", UserController.delete_from_Basket);

@@ -23,14 +23,13 @@ const EditProfile = async (req, res) => {
     }
 
     try {
-        if (req.params.userId !== isAuth.decoded.userId) {
-            return res.status(401).json({ error: "Unauthorised" });
-        }
         const userId = req.params.userId;
         if (!userId) {
             return res.status(409).json({ error: "Messing Data" });
         }
-
+        if (req.params.userId !== isAuth.decoded.userId) {
+            return res.status(401).json({ error: "Unauthorised" });
+        }
         const userToUpdate = await Users.findById(userId);
         if (!userToUpdate) {
             return res.status(404).json({ error: "User not found." });
@@ -77,13 +76,13 @@ const Follow_Store = async (req, res) => {
         });
     }
     try {
-        if (req.params.userId !== isAuth.decoded.userId) {
-            return res.status(401).json({ error: "Unauthorised" });
-        }
         const userId = req.params.userId;
         const storeId = req.params.storeId;
         if (!userId || !storeId)
             return res.status(409).json({ error: "Messing Data" });
+        if (req.params.userId !== isAuth.decoded.userId) {
+            return res.status(401).json({ error: "Unauthorised" });
+        }
         const user_in_db = await Users.findById(userId);
         if (!user_in_db) {
             return res.status(404).json({ error: "User not found." });
@@ -101,13 +100,13 @@ const Follow_Store = async (req, res) => {
                 .json({ error: "User already followed this store." });
         }
         store_in_db.Followers.push(userId);
-        
+
         // const userActions = await UserActions.findOne({ userId: userId });
         // if (userActions) {
         //     userActions.Followed_Stores.push(storeId);
         //     await userActions.save();
         // }
-        
+
         await UserActions.findOneAndUpdate(
             { userId: user_in_db._id },
             {
@@ -127,6 +126,63 @@ const Follow_Store = async (req, res) => {
         await store_in_db.save();
         return res.status(200).json({
             message: "Store followed successfully.",
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ error: error });
+    }
+};
+const Unfollow_Store = async (req, res) => {
+    const isAuth = await Verify_user(req, res);
+    if (isAuth.status == false)
+        return res.status(401).json({ error: "Unauthorized: Invalid token" });
+    if (isAuth.status == true && isAuth.Refresh == true) {
+        res.cookie("accessToken", isAuth.newAccessToken, {
+            httpOnly: true,
+            sameSite: "None",
+            secure: true,
+            maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
+        });
+    }
+    try {
+        const userId = req.params.userId;
+        const storeId = req.params.storeId;
+        if (!userId || !storeId)
+            return res.status(409).json({ error: "Messing Data" });
+        if (req.params.userId !== isAuth.decoded.userId) {
+            return res.status(401).json({ error: "Unauthorised" });
+        }
+        const user_in_db = await Users.findById(userId);
+        if (!user_in_db) {
+            return res.status(404).json({ error: "User not found." });
+        }
+        const store_in_db = await Stores.findById(storeId);
+        if (!store_in_db) {
+            return res.status(404).json({ error: "Store not found." });
+        }
+        const Already_Followed = store_in_db.Followers.some(
+            (item) => item == userId
+        );
+        if (!Already_Followed) {
+            return res
+                .status(400)
+                .json({ error: "User not followed this store." });
+        }
+        store_in_db.Followers = store_in_db.Followers.filter(
+            (item) => item != userId
+        );
+
+        user_in_db.Followed_Stores = user_in_db.Followed_Stores.filter(
+            (item) => {
+                console.log(item);
+                item._id != storeId
+            }
+        );
+        await user_in_db.save();
+        await store_in_db.save();
+
+        return res.status(200).json({
+            message: "Store unfollowed successfully.",
         });
     } catch (error) {
         console.log(error);
@@ -181,10 +237,10 @@ const getProfile = async (req, res) => {
             maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
         });
     }
-    if (req.params.userId !== isAuth.decoded.userId) { 
-        return res.status(401).json({error : "Unauthorised"})
+    if (req.params.userId !== isAuth.decoded.userId) {
+        return res.status(401).json({ error: "Unauthorised" });
     }
-        
+
     const userId = req.params.userId;
     if (!userId) return res.status(409).json({ error: "Messing Data" });
     try {
@@ -528,8 +584,7 @@ const CreateStore = async (req, res) => {
         }
         // const { Email, Password, StoreName, Store_Describtion, Telephone } =
         //     req.body;
-        let { Email,  StoreName, Store_Describtion, Telephone } =
-            req.body;
+        let { Email, StoreName, Store_Describtion, Telephone } = req.body;
         StoreName = StoreName.trim();
         if (
             !Email ||
@@ -572,7 +627,7 @@ const CreateStore = async (req, res) => {
         await newStore.save();
         const user_in_db = await Users.findById(req.params.userId);
         user_in_db.Stores.push(newStore._id);
-        await user_in_db.save()
+        await user_in_db.save();
         return res.status(200).json({ message: "Store Created successfully." });
     } catch (error) {
         return res.status(500).json({ error: error });
@@ -592,4 +647,5 @@ module.exports = {
     add_to_Favorit,
     delete_from_Favorit,
     get_Favorite,
+    Unfollow_Store,
 };
