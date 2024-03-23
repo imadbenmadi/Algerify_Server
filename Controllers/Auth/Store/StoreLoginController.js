@@ -15,7 +15,7 @@ const handleLogin_byStorId = async (req, res) => {
             maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
         });
     }
-    if (isAuth.decoded._id != req.body.userId) {
+    if (isAuth.decoded.userId != req.body.userId) {
         return res.status(401).json({
             error: "Unauthorized",
         });

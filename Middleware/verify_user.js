@@ -31,12 +31,14 @@ const Verify_user = async (req, res) => {
                         process.env.REFRESH_TOKEN_SECRET,
                         async (err, decoded) => {
                             if (err) {
+                                console.log(err);
                                 resolve({
                                     status: false,
                                     Refresh: false,
                                     decoded: null,
                                 });
-                            } else if (found_in_DB.userId != decoded._id) {
+                            }
+                            else if (found_in_DB.userId != decoded.userId) {
                                 resolve({
                                     status: false,
                                     Refresh: false,
@@ -46,7 +48,7 @@ const Verify_user = async (req, res) => {
                                 const newAccessToken = jwt.sign(
                                     { userId: decoded.userId },
                                     process.env.ACCESS_TOKEN_SECRET,
-                                    { expiresIn: "5m" }
+                                    { expiresIn: "1h" }
                                 );
                                 resolve({
                                     status: true,
