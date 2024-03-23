@@ -114,102 +114,105 @@ const Products = mongoose.model(
         Visits: { type: Number, default: 0 },
     })
 );
-const UserActions = new mongoose.Schema({
-    userId: { type: mongoose.Types.ObjectId, ref: "Users" },
-    Added_To_Favorite: [
-        {
-            productId: { type: mongoose.Types.ObjectId, ref: "Products" },
-            productTitle: String,
-            productCategory: String,
-            productPrice: Number,
-            time: { type: Date, default: Date.now },
-        },
-    ],
-    Added_To_Basket: [
-        {
-            productId: { type: mongoose.Types.ObjectId, ref: "Products" },
-            productTitle: String,
-            productCategory: String,
-            productPrice: Number,
-            time: { type: Date, default: Date.now },
-        },
-    ],
-    Rated_Products: [
-        {
-            rate: { type: Number },
-            productId: { type: mongoose.Types.ObjectId, ref: "Products" },
-            productTitle: String,
-            productCategory: String,
-            productPrice: Number,
-            time: { type: Date, default: Date.now },
-        },
-    ],
-    Commented_Products: [
-        {
-            Comment: { type: String },
-            productId: { type: mongoose.Types.ObjectId, ref: "Products" },
-            productTitle: String,
-            productCategory: String,
-            productPrice: Number,
-            time: { type: Date, default: Date.now },
-        },
-    ],
-    Rated_Stores: [
-        {
-            rate: { type: Number },
-            storeId: { type: mongoose.Types.ObjectId, ref: "Stores" },
-            storeName: String,
-            storeLocation: String,
-            StoreCategory: String,
-            time: { type: Date, default: Date.now },
-        },
-    ],
-    Visited_Products: [
-        {
-            productId: { type: mongoose.Types.ObjectId, ref: "Products" },
-            productTitle: String,
-            productCategory: String,
-            productPrice: Number,
-            time: { type: Number, default: Date.now() },
-        },
-    ],
-    Visited_Stores: [
-        {
-            storeId: { type: mongoose.Types.ObjectId, ref: "Stores" },
-            storeName: String,
-            storeLocation: String,
-            StoreCategory: String,
-            time: { type: Number, default: Date.now() },
-        },
-    ],
-    Not_interesting_Products: [
-        {
-            productId: { type: mongoose.Types.ObjectId, ref: "Products" },
-            productTitle: String,
-            productCategory: String,
-            productPrice: Number,
-            time: { type: Number, default: Date.now() },
-        },
-    ],
-    interesting_Products: [
-        {
-            productId: { type: mongoose.Types.ObjectId, ref: "Products" },
-            productTitle: String,
-            productCategory: String,
-            productPrice: Number,
-            time: { type: Number, default: Date.now() },
-        },
-    ],
-    Followed_Stores: [
-        {
-            storeId: { type: mongoose.Types.ObjectId, ref: "Stores" },
-            storeName: String,
-            storeLocation: String,
-            StoreCategory: String,
-            time: { type: Number, default: Date.now() },
-        },
-    ],
-});
+const UserActions = mongoose.model(
+    "UserActions",
+    new mongoose.Schema({
+        userId: { type: mongoose.Types.ObjectId, ref: "Users" },
+        Added_To_Favorite: [
+            {
+                productId: { type: mongoose.Types.ObjectId, ref: "Products" },
+                productTitle: String,
+                productCategory: String,
+                productPrice: Number,
+                time: { type: Date, default: Date.now },
+            },
+        ],
+        Added_To_Basket: [
+            {
+                productId: { type: mongoose.Types.ObjectId, ref: "Products" },
+                productTitle: String,
+                productCategory: String,
+                productPrice: Number,
+                time: { type: Date, default: Date.now },
+            },
+        ],
+        Rated_Products: [
+            {
+                rate: { type: Number },
+                productId: { type: mongoose.Types.ObjectId, ref: "Products" },
+                productTitle: String,
+                productCategory: String,
+                productPrice: Number,
+                time: { type: Date, default: Date.now },
+            },
+        ],
+        Commented_Products: [
+            {
+                Comment: { type: String },
+                productId: { type: mongoose.Types.ObjectId, ref: "Products" },
+                productTitle: String,
+                productCategory: String,
+                productPrice: Number,
+                time: { type: Date, default: Date.now },
+            },
+        ],
+        Rated_Stores: [
+            {
+                rate: { type: Number },
+                storeId: { type: mongoose.Types.ObjectId, ref: "Stores" },
+                storeName: String,
+                storeLocation: String,
+                StoreCategory: String,
+                time: { type: Date, default: Date.now },
+            },
+        ],
+        Visited_Products: [
+            {
+                productId: { type: mongoose.Types.ObjectId, ref: "Products" },
+                productTitle: String,
+                productCategory: String,
+                productPrice: Number,
+                time: { type: Number, default: Date.now() },
+            },
+        ],
+        Visited_Stores: [
+            {
+                storeId: { type: mongoose.Types.ObjectId, ref: "Stores" },
+                storeName: String,
+                storeLocation: String,
+                StoreCategory: String,
+                time: { type: Number, default: Date.now() },
+            },
+        ],
+        Not_interesting_Products: [
+            {
+                productId: { type: mongoose.Types.ObjectId, ref: "Products" },
+                productTitle: String,
+                productCategory: String,
+                productPrice: Number,
+                time: { type: Number, default: Date.now() },
+            },
+        ],
+        interesting_Products: [
+            {
+                productId: { type: mongoose.Types.ObjectId, ref: "Products" },
+                productTitle: String,
+                productCategory: String,
+                productPrice: Number,
+                time: { type: Number, default: Date.now() },
+            },
+        ],
+        Followed_Stores: [
+            {
+                storeId: { type: mongoose.Types.ObjectId, ref: "Stores" },
+                storeName: String,
+                storeLocation: String,
+                StoreCategory: String,
+                time: { type: Number, default: Date.now() },
+            },
+        ],
+    })
+);
 const Categories = mongoose.model(
     "Categories",
     new mongoose.Schema({

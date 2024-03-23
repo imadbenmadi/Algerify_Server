@@ -101,14 +101,30 @@ const Follow_Store = async (req, res) => {
                 .json({ error: "User already followed this store." });
         }
         store_in_db.Followers.push(userId);
-        await store_in_db.save();
-        const userActions = await UserActions.findOne({ userId: userId });
-        if (userActions) {
-            userActions.Followed_Stores.push(storeId);
-            await userActions.save();
-        }
+        
+        // const userActions = await UserActions.findOne({ userId: userId });
+        // if (userActions) {
+        //     userActions.Followed_Stores.push(storeId);
+        //     await userActions.save();
+        // }
+        
+        await UserActions.findOneAndUpdate(
+            { userId: user_in_db._id },
+            {
+                $push: {
+                    Followed_Stores: {
+                        storeId: store_in_db._id,
+                        storeName: store_in_db.StoreName,
+                        storeLocation: store_in_db.Location,
+                        StoreCategory: store_in_db.Category,
+                    },
+                },
+            },
+            { new: true, upsert: true }
+        );
         user_in_db.Followed_Stores.push(storeId);
         await user_in_db.save();
+        await store_in_db.save();
         return res.status(200).json({
             message: "Store followed successfully.",
         });
