@@ -70,20 +70,21 @@ const EditProduct = async (req, res) => {
         if (!productId || !storeId) {
             return res.status(409).json({ error: "Messing Data" });
         }
-        if (storeId != isAdmin.decoded.userId) {
-            return res.status(401).json({ error: "Unauthorized" });
-        }
         const Store_in_db = await Stores.findById(storeId);
         if (!Store_in_db) {
             return res.status(404).json({ error: "Store not found." });
         }
+        
         const ProductToUpdate = await Products.findById(productId);
         if (!ProductToUpdate) {
             return res.status(404).json({ error: "Product not found." });
         }
-        if (ProductToUpdate.Owner != storeId) {
-            return res.status(401).json({ error: "Unauthorized" });
-        }
+         if (Store_in_db.Owner.toString() != isAdmin.decoded.userId) {
+             return res.status(401).json({ error: "Unauthorized" });
+         }
+         if (ProductToUpdate.Owner.toString() != Store_in_db._id.toString()) {
+             return res.status(401).json({ error: "Unauthorized" });
+         }
         const { Title, Describtion, Price } = req.body;
         // Update individual fields
         if (Title) {
@@ -100,6 +101,7 @@ const EditProduct = async (req, res) => {
             .status(200)
             .json({ message: "Product updated successfully" });
     } catch (error) {
+        console.log(error);
         return res.status(500).json({ error: error });
     }
 };
@@ -282,9 +284,7 @@ const DeleteProduct = async (req, res) => {
         if (!productId || !storeId) {
             return res.status(409).json({ error: "Messing Data" });
         }
-        if (storeId != isAdmin.decoded.userId) {
-            return res.status(401).json({ error: "Unauthorized" });
-        }
+
         const Store_in_db = await Stores.findById(storeId);
         if (!Store_in_db) {
             return res.status(404).json({ error: "Store not found." });
@@ -293,15 +293,21 @@ const DeleteProduct = async (req, res) => {
         if (!ProductToDelete) {
             return res.status(404).json({ error: "Product not found." });
         }
-        // console.log(ProductToDelete.Owner, storeId);
-        if (ProductToDelete.Owner != storeId) {
+        if (Store_in_db.Owner.toString() != isAdmin.decoded.userId) {
             return res.status(401).json({ error: "Unauthorized" });
         }
+        if (ProductToDelete.Owner.toString() != Store_in_db._id.toString()) {
+            return res.status(401).json({ error: "Unauthorized" });
+        }
+        await Stores.findByIdAndUpdate(storeId, {
+            $pull: { storeProducts: productId },
+        });
         await Products.findByIdAndDelete(productId);
         return res
             .status(200)
             .json({ message: "Product deleted successfully." });
     } catch (error) {
+        console.log(error);
         return res.status(500).json({ error: error });
     }
 };
