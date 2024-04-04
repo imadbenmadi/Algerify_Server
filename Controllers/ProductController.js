@@ -34,24 +34,27 @@ const getProduct = async (req, res) => {
         if (!Product_in_db) {
             return res.status(404).json({ error: "Product not found." });
         }
-        if (req.body.userId) {
+        if (req.query.userId) {
             const userActions = await UserActions.findOne({
-                userId: req.body.userId,
+                userId: req.query.userId,
             });
             if (userActions) {
-                const alreadyVisited = userActions.Visited_Products.some(visit => visit.productId.equals(productId));
+                const alreadyVisited = userActions.Visited_Products.some(
+                    (visit) => visit.productId.equals(productId)
+                );
                 if (!alreadyVisited) {
                     userActions.Visited_Products.push({
                         productId: productId,
                         time: new Date(),
                     });
                     await userActions.save();
-                    await Products.findByIdAndUpdate(productId, {
-                        $inc: { Visits: 1 },
-                    });
+                    const pruduct_in_db = await Products.findById(productId);
+                    if (pruduct_in_db){
+                        pruduct_in_db.Visits = pruduct_in_db.Visits + 1;
+                        await pruduct_in_db.save();
+                    }
                 }
             }
-            
         }
 
         return res.status(200).json(Product_in_db);
@@ -136,7 +139,7 @@ const searchProduct = async (req, res) => {
 
         return res.status(200).json({ totalPages, products });
     } catch (error) {
-        return res.status(500).json({ error: error});
+        return res.status(500).json({ error: error });
     }
 };
 

@@ -16,7 +16,6 @@ router.post("/:userId/Unfollow/:storeId", UserController.Unfollow_Store);
 router.post("/:userId/Basket/:productId", UserController.add_to_Basket);
 router.delete("/:userId/Basket/:productId", UserController.delete_from_Basket);
 router.get("/:userId/Basket", UserController.get_Basket);
-// --------------------------------------
 
 router.post("/:userId/Favorite/:productId", UserController.add_to_Favorit);
 router.delete(
@@ -24,7 +23,7 @@ router.delete(
     UserController.delete_from_Favorit
 );
 router.get("/:userId/Favorite", UserController.get_Favorite);
-
+// -------------------------------------
 router.post("/:userId/RateProduct/:productId", RateController.RateProduct);
 router.delete(
     "/:userId/RateProduct/:productId",
