@@ -1,0 +1,3 @@
+ if (req.params.userId !== isAuth.decoded.userId) {
+    return res.status(401).json({ error: "Unauthorised" });
+}

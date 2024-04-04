@@ -175,7 +175,7 @@ const Unfollow_Store = async (req, res) => {
         user_in_db.Followed_Stores = user_in_db.Followed_Stores.filter(
             (item) => {
                 console.log(item);
-                item._id != storeId
+                item._id != storeId;
             }
         );
         await user_in_db.save();
@@ -309,6 +309,9 @@ const add_to_Basket = async (req, res) => {
         });
     }
     try {
+        if (req.params.userId !== isAuth.decoded.userId) {
+            return res.status(401).json({ error: "Unauthorised" });
+        }
         const userId = req.params.userId;
         const productId = req.params.productId;
         if (!userId || !productId)
@@ -321,6 +324,15 @@ const add_to_Basket = async (req, res) => {
         if (!product_in_db) {
             return res.status(404).json({ error: "Product not found." });
         }
+        console.log(product_in_db.Owner);
+        const Store_Owner = await Stores.findOne({ _id: product_in_db.Owner });
+        if (!Store_Owner)
+            return res.status(404).json({ error: "could not find the Store " });
+        
+        if (userId == Store_Owner.Owner) {
+            return res.status(409).json({ error: "User Own this Product" });
+        }
+
         const productExists = user_in_db.basket.some(
             (item) => item.ProductId == productId
         );
@@ -362,6 +374,9 @@ const delete_from_Basket = async (req, res) => {
         });
     }
     try {
+        if (req.params.userId !== isAuth.decoded.userId) {
+            return res.status(401).json({ error: "Unauthorised" });
+        }
         const userId = req.params.userId;
         const productId = req.params.productId;
         if (!userId || !productId)
@@ -410,6 +425,9 @@ const get_Basket = async (req, res) => {
     }
 
     try {
+        if (req.params.userId !== isAuth.decoded.userId) {
+            return res.status(401).json({ error: "Unauthorised" });
+        }
         const userId = req.params.userId;
         const page = parseInt(req.query.page) || 1; // default to page 1 if not provided
         const limit = parseInt(req.query.limit) || 20; // default to limit of 20 if not provided
