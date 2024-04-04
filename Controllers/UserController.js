@@ -324,11 +324,10 @@ const add_to_Basket = async (req, res) => {
         if (!product_in_db) {
             return res.status(404).json({ error: "Product not found." });
         }
-        console.log(product_in_db.Owner);
         const Store_Owner = await Stores.findOne({ _id: product_in_db.Owner });
         if (!Store_Owner)
             return res.status(404).json({ error: "could not find the Store " });
-        
+
         if (userId == Store_Owner.Owner) {
             return res.status(409).json({ error: "User Own this Product" });
         }
@@ -434,9 +433,9 @@ const get_Basket = async (req, res) => {
         if (!userId) return res.status(409).json({ error: "Messing Data" });
         const user_in_db = await Users.findById(userId).populate({
             path: "basket",
-            options: {
-                skip: (page - 1) * limit,
-                limit: limit,
+            populate: {
+                path: "ProductId",
+                model: "Products",
             },
         });
 
