@@ -13,16 +13,17 @@ router.delete("/:userId", UserController.DeleteProfile); // both Admin and User
 router.post("/:userId/CreateStore", UserController.CreateStore);
 router.post("/:userId/Follow/:storeId", UserController.Follow_Store);
 router.post("/:userId/Unfollow/:storeId", UserController.Unfollow_Store);
-// --------------------------------------
 router.post("/:userId/Basket/:productId", UserController.add_to_Basket);
 router.delete("/:userId/Basket/:productId", UserController.delete_from_Basket);
 router.get("/:userId/Basket", UserController.get_Basket);
-router.post("/:userId/Favorit/:productId", UserController.add_to_Favorit);
+// --------------------------------------
+
+router.post("/:userId/Favorite/:productId", UserController.add_to_Favorit);
 router.delete(
-    "/:userId/Favorit/:productId",
+    "/:userId/Favorite/:productId",
     UserController.delete_from_Favorit
 );
-router.get("/:userId/Favorit", UserController.get_Favorite);
+router.get("/:userId/Favorite", UserController.get_Favorite);
 
 router.post("/:userId/RateProduct/:productId", RateController.RateProduct);
 router.delete(

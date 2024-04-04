@@ -400,9 +400,9 @@ const delete_from_Basket = async (req, res) => {
 
         // Remove the product from the basket array
         user_in_db.basket.splice(productIndex, 1);
+        await user_in_db.save();
         product_in_db.Basket_Counter = product_in_db.Basket_Counter - 1;
         await product_in_db.save();
-        await user_in_db.save();
         return res.status(200).json({
             message: "Product deleted from basket successfully.",
         });
@@ -462,6 +462,9 @@ const add_to_Favorit = async (req, res) => {
     }
 
     try {
+         if (req.params.userId !== isAuth.decoded.userId) {
+             return res.status(401).json({ error: "Unauthorised" });
+         }
         const userId = req.params.userId;
         const productId = req.params.productId;
         if (!userId || !productId)
