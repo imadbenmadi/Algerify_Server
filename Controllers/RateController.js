@@ -47,7 +47,9 @@ const RateProduct = async (req, res) => {
                 error: "could not find the Store 'Owner of the product' ",
             });
         if (userId == Store_in_db.Owner) {
-            return res.status(409).json({ error: "User Own this Product" });
+            return res
+                .status(409)
+                .json({ error: "Cannot rate Product : User Own this Product" });
         }
         const Already_Rated = product_in_db.Ratings.some(
             (item) => item.user == userId
@@ -119,16 +121,6 @@ const Delete_RateProduct = async (req, res) => {
         );
         product_in_db.Ratings.splice(rateIndex, 1);
         await product_in_db.save();
-        // const userActions = await UserActions.findOne({ userId: userId });
-        // if (userActions) {
-        //     const productIndex = userActions.Rated_Products.findIndex(
-        //         (item) => item.productId == productId
-        //     );
-        //     if (productIndex !== -1) {
-        //         userActions.Rated_Products.splice(productIndex, 1);
-        //         await userActions.save();
-        //     }
-        // }
         return res.status(200).json({
             message: "Product rate deleted successfully.",
         });
@@ -233,7 +225,7 @@ const Edit_RateProduct = async (req, res) => {
         }
         product_in_db.Ratings[userRateindex].rate = rate;
         await product_in_db.save();
-        
+
         const userActions = await UserActions.findOne({ userId: userId });
         if (userActions) {
             userActions.Rated_Products.push({
@@ -264,10 +256,12 @@ const RateStore = async (req, res) => {
         });
     }
     try {
+        if (req.params.userId !== isAuth.decoded.userId) {
+            return res.status(401).json({ error: "Unauthorised" });
+        }
         const userId = req.params.userId;
         const StoreId = req.params.storeId;
         const rate = req.body.rate;
-        console.log(userId, StoreId, rate);
         if (typeof rate != "number")
             return res.status(409).json({ error: "Rate must be a number" });
         if (rate < 1 || rate > 5)
@@ -283,6 +277,11 @@ const RateStore = async (req, res) => {
         const Store_in_db = await Stores.findById(StoreId);
         if (!Store_in_db) {
             return res.status(404).json({ error: "Store not found." });
+        }
+        if (userId == Store_in_db.Owner) {
+            return res
+                .status(409)
+                .json({ error: "Cannot rate Store : User Own this Store" });
         }
         const Already_Rated = Store_in_db.Ratings.some(
             (item) => item.userId == userId
@@ -323,6 +322,9 @@ const Delete_RateStore = async (req, res) => {
         });
     }
     try {
+        if (req.params.userId !== isAuth.decoded.userId) {
+            return res.status(401).json({ error: "Unauthorised" });
+        }
         const userId = req.params.userId;
         const StoreId = req.params.storeId;
         if (!userId || !StoreId)
@@ -418,6 +420,9 @@ const Edit_RateStore = async (req, res) => {
         });
     }
     try {
+        if (req.params.userId !== isAuth.decoded.userId) {
+            return res.status(401).json({ error: "Unauthorised" });
+        }
         const userId = req.params.userId;
         const StoreId = req.params.storeId;
         const rate = req.body.rate;
