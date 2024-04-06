@@ -202,6 +202,9 @@ const Edit_RateProduct = async (req, res) => {
         });
     }
     try {
+        if (req.params.userId !== isAuth.decoded.userId) {
+            return res.status(401).json({ error: "Unauthorised" });
+        }
         const userId = req.params.userId;
         const productId = req.params.productId;
         const rate = req.body.rate;
@@ -233,17 +236,17 @@ const Edit_RateProduct = async (req, res) => {
         }
         product_in_db.Ratings[userRateindex].rate = rate;
         await product_in_db.save();
+        
         const userActions = await UserActions.findOne({ userId: userId });
         if (userActions) {
-            const productIndex = userActions.Rated_Products.findIndex(
-                (item) => item.productId == productId
-            );
-            if (productIndex !== -1) {
-                userActions.Rated_Products[productIndex].time = new Date();
-                userActions.Rated_Products[productIndex].rate = rate;
-                await userActions.save();
-            }
+            userActions.Rated_Products.push({
+                rate: rate,
+                productId: req.params.productId,
+                time: new Date(),
+            });
+            await userActions.save();
         }
+        
         return res.status(200).json({
             message: "Product rate edited successfully.",
         });
