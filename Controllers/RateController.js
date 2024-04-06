@@ -149,9 +149,6 @@ const get_product_userRate = async (req, res) => {
         });
     }
     try {
-        if (req.params.userId !== isAuth.decoded.userId) {
-            return res.status(401).json({ error: "Unauthorised" });
-        }
         const userId = req.params.userId;
         const productId = req.params.productId;
         if (!userId || !productId)
@@ -246,7 +243,7 @@ const Edit_RateProduct = async (req, res) => {
             });
             await userActions.save();
         }
-        
+
         return res.status(200).json({
             message: "Product rate edited successfully.",
         });
