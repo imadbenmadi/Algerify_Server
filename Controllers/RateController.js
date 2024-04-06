@@ -149,6 +149,9 @@ const get_product_userRate = async (req, res) => {
         });
     }
     try {
+        if (req.params.userId !== isAuth.decoded.userId) {
+            return res.status(401).json({ error: "Unauthorised" });
+        }
         const userId = req.params.userId;
         const productId = req.params.productId;
         if (!userId || !productId)
@@ -177,7 +180,9 @@ const get_product_userRate = async (req, res) => {
         // if (!userRateindex) {
         //     return res.status(404).json({ error: "User didn't rate this product." });
         // }
-        return res.status(200).json(product_in_db.Ratings[userRateindex].rate);
+        return res
+            .status(200)
+            .json({ rate: product_in_db.Ratings[userRateindex].rate });
     } catch (error) {
         return res.status(500).json({ error: error });
     }
