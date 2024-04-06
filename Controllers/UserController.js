@@ -462,9 +462,9 @@ const add_to_Favorit = async (req, res) => {
     }
 
     try {
-         if (req.params.userId !== isAuth.decoded.userId) {
-             return res.status(401).json({ error: "Unauthorised" });
-         }
+        if (req.params.userId !== isAuth.decoded.userId) {
+            return res.status(401).json({ error: "Unauthorised" });
+        }
         const userId = req.params.userId;
         const productId = req.params.productId;
         if (!userId || !productId)
@@ -653,6 +653,104 @@ const CreateStore = async (req, res) => {
         return res.status(500).json({ error: error });
     }
 };
+const add_to_visited_products = async (req, res) => {
+    const isAuth = await Verify_user(req, res);
+    if (!isAuth.status)
+        return res.status(401).json({ error: "Unauthorized: Invalid token" });
+    if (isAuth.status && isAuth.Refresh) {
+        res.cookie("accessToken", isAuth.newAccessToken, {
+            httpOnly: true,
+            sameSite: "None",
+            secure: true,
+            maxAge: 60 * 60 * 1000,
+        });
+    }
+    try {
+        if (req.params.userId !== isAuth.decoded.userId) {
+            return res.status(401).json({ error: "Unauthorised" });
+        }
+        const userId = req.params.userId;
+        const productId = req.params.productId;
+        if (!userId || !productId)
+            return res.status(409).json({ error: "Messing Data" });
+        const user_in_db = await Users.findById(userId);
+        if (!user_in_db)
+            return res.status(404).json({ error: "User not found." });
+        const product_in_db = await Products.findById(productId);
+        if (!product_in_db)
+            return res.status(404).json({ error: "Product not found." });
+        const userActions = await UserActions.findOne({ userId });
+        if (!userActions)
+            return res.status(404).json({ error: "UserAction not found." });
+        const alreadyVisited = userActions.Visited_Products.some((visit) =>
+            visit.productId.equals(productId)
+        );
+        if (!alreadyVisited) {
+            userActions.Visited_Products.push({
+                productId: productId,
+                time: new Date(),
+            });
+            await userActions.save();
+            product_in_db.Visits = product_in_db.Visits + 1;
+            await product_in_db.save();
+        }
+
+        return res.status(200).json({
+            message: "Product added to visited products successfully.",
+        });
+    } catch (error) {
+        return res.status(500).json({ error: error });
+    }
+};
+const add_to_visited_stores = async (req, res) => {
+    const isAuth = await Verify_user(req, res);
+    if (!isAuth.status)
+        return res.status(401).json({ error: "Unauthorized: Invalid token" });
+    if (isAuth.status && isAuth.Refresh) {
+        res.cookie("accessToken", isAuth.newAccessToken, {
+            httpOnly: true,
+            sameSite: "None",
+            secure: true,
+            maxAge: 60 * 60 * 1000,
+        });
+    }
+    try {
+        if (req.params.userId !== isAuth.decoded.userId) {
+            return res.status(401).json({ error: "Unauthorised" });
+        }
+        const userId = req.params.userId;
+        const storeId = req.params.storeId;
+        if (!userId || !storeId)
+            return res.status(409).json({ error: "Messing Data" });
+        const user_in_db = await Users.findById(userId);
+        if (!user_in_db)
+            return res.status(404).json({ error: "User not found." });
+        const Store_in_db = await Stores.findById(storeId);
+        if (!Store_in_db)
+            return res.status(404).json({ error: "Store not found." });
+        const userActions = await UserActions.findOne({ userId });
+        if (!userActions)
+            return res.status(404).json({ error: "UserAction not found." });
+        const alreadyVisited = userActions.Visited_Stores.some((visit) =>
+            visit.storeId.equals(storeId)
+        );
+        if (!alreadyVisited) {
+            userActions.Visited_Stores.push({
+                storeId: storeId,
+                time: new Date(),
+            });
+            await userActions.save();
+            Store_in_db.Visits = Store_in_db.Visits + 1;
+            await Store_in_db.save();
+        }
+
+        return res.status(200).json({
+            message: "Store added to visited Stores successfully.",
+        });
+    } catch (error) {
+        return res.status(500).json({ error: error });
+    }
+};
 module.exports = {
     Follow_Store,
     EditProfile,
@@ -668,4 +766,6 @@ module.exports = {
     delete_from_Favorit,
     get_Favorite,
     Unfollow_Store,
+    add_to_visited_products,
+    add_to_visited_stores,
 };

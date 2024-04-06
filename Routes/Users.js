@@ -62,6 +62,23 @@ router.delete(
     "/:userId/Intrested/:productId",
     IntresteController.delete_from_intrested_products
 );
-router.post("/:userId/Not_Intrested/:productId", IntresteController.add_to_not_intrested_products);
-router.delete("/:userId/Not_Intrested/:productId", IntresteController.delete_from_not_intrested_products);
+router.post(
+    "/:userId/Not_Intrested/:productId",
+    IntresteController.add_to_not_intrested_products
+);
+router.delete(
+    "/:userId/Not_Intrested/:productId",
+    IntresteController.delete_from_not_intrested_products
+);
+
+
+router.post(
+    "/:userId/Visit_Products/:productId",
+    UserController.add_to_visited_products
+);
+router.post(
+    "/:userId/Visit_Stores/:storeId",
+    UserController.add_to_visited_stores
+);
+
 module.exports = router;

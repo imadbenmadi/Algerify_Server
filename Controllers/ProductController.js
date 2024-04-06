@@ -34,29 +34,6 @@ const getProduct = async (req, res) => {
         if (!Product_in_db) {
             return res.status(404).json({ error: "Product not found." });
         }
-        if (req.query.userId) {
-            const userActions = await UserActions.findOne({
-                userId: req.query.userId,
-            });
-            if (userActions) {
-                const alreadyVisited = userActions.Visited_Products.some(
-                    (visit) => visit.productId.equals(productId)
-                );
-                if (!alreadyVisited) {
-                    userActions.Visited_Products.push({
-                        productId: productId,
-                        time: new Date(),
-                    });
-                    await userActions.save();
-                    const pruduct_in_db = await Products.findById(productId);
-                    if (pruduct_in_db){
-                        pruduct_in_db.Visits = pruduct_in_db.Visits + 1;
-                        await pruduct_in_db.save();
-                    }
-                }
-            }
-        }
-
         return res.status(200).json(Product_in_db);
     } catch (error) {
         console.log(error);

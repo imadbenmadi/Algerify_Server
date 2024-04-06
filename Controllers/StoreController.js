@@ -74,17 +74,17 @@ const EditProduct = async (req, res) => {
         if (!Store_in_db) {
             return res.status(404).json({ error: "Store not found." });
         }
-        
+
         const ProductToUpdate = await Products.findById(productId);
         if (!ProductToUpdate) {
             return res.status(404).json({ error: "Product not found." });
         }
-         if (Store_in_db.Owner.toString() != isAdmin.decoded.userId) {
-             return res.status(401).json({ error: "Unauthorized" });
-         }
-         if (ProductToUpdate.Owner.toString() != Store_in_db._id.toString()) {
-             return res.status(401).json({ error: "Unauthorized" });
-         }
+        if (Store_in_db.Owner.toString() != isAdmin.decoded.userId) {
+            return res.status(401).json({ error: "Unauthorized" });
+        }
+        if (ProductToUpdate.Owner.toString() != Store_in_db._id.toString()) {
+            return res.status(401).json({ error: "Unauthorized" });
+        }
         const { Title, Describtion, Price } = req.body;
         // Update individual fields
         if (Title) {
@@ -137,28 +137,6 @@ const getStore = async (req, res) => {
     if (!StoreId) return res.status(409).json({ error: "Missing Data." });
 
     try {
-        if (req.body.userId) {
-            const userActions = await UserActions.findOne({
-                userId: req.body.userId,
-            });
-            if (userActions) {
-                const alreadyVisited = userActions.Visited_Stores.some(
-                    (visit) => visit.storeId && visit.storeId.equals(StoreId)
-                );
-
-                if (!alreadyVisited) {
-                    userActions.Visited_Stores.push({
-                        storeId: StoreId,
-                        time: new Date(),
-                    });
-                    await userActions.save();
-                    await Stores.findByIdAndUpdate(StoreId, {
-                        $inc: { Visits: 1 },
-                    });
-                }
-            }
-        }
-
         const Store_in_db = await Stores.findById(StoreId).select(
             "StoreName Store_Describtion Telephone Store_RatingAverage Email Telephone storeProducts"
         );
