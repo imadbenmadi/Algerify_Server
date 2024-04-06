@@ -14,23 +14,24 @@ const RateProduct = async (req, res) => {
             maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
         });
     }
-
-    const user_in_db = await Users.findById(req.params.userId);
-    if (!user_in_db) {
-        return res.status(404).json({ error: "User not found." });
-    }
-
     try {
+        if (req.params.userId !== isAuth.decoded.userId) {
+            return res.status(401).json({ error: "Unauthorised" });
+        }
         const userId = req.params.userId;
         const productId = req.params.productId;
         const rate = req.body.rate;
+        if (!rate || rate == "" || rate == null)
+            return res
+                .status(409)
+                .json({ error: "Messing Data , Rate is Required  " });
         if (typeof rate != "number")
             return res.status(409).json({ error: "Rate must be a number" });
         if (rate < 1 || rate > 5)
             return res
                 .status(409)
                 .json({ error: "Rate must be between 1 and 5" });
-        if (!userId || !productId || !rate)
+        if (!userId || !productId)
             return res.status(409).json({ error: "Messing Data" });
         const user_in_db = await Users.findById(userId);
         if (!user_in_db) {
@@ -39,6 +40,14 @@ const RateProduct = async (req, res) => {
         const product_in_db = await Products.findById(productId);
         if (!product_in_db) {
             return res.status(404).json({ error: "Product not found." });
+        }
+        const Store_in_db = await Stores.findOne({ _id: product_in_db.Owner });
+        if (!Store_in_db)
+            return res.status(404).json({
+                error: "could not find the Store 'Owner of the product' ",
+            });
+        if (userId == Store_in_db.Owner) {
+            return res.status(409).json({ error: "User Own this Product" });
         }
         const Already_Rated = product_in_db.Ratings.some(
             (item) => item.user == userId
@@ -50,6 +59,8 @@ const RateProduct = async (req, res) => {
         }
         product_in_db.Ratings.push({ user: userId, rate: rate });
         await product_in_db.save();
+        // try {
+
         const userActions = await UserActions.findOne({ userId: userId });
         if (userActions) {
             userActions.Rated_Products.push({
@@ -59,6 +70,7 @@ const RateProduct = async (req, res) => {
             });
             await userActions.save();
         }
+
         return res.status(200).json({
             message: "Product rated successfully.",
         });
@@ -429,17 +441,17 @@ const Edit_RateStore = async (req, res) => {
         }
         userRate.rate = rate;
         await Store_in_db.save();
-         const userActions = await UserActions.findOne({ userId: userId });
-         if (userActions) {
-             const StoresIndex = userActions.Rated_Stores.findIndex(
-                 (item) => item.storeId == StoreId
-             );
-             if (StoresIndex !== -1) {
-                 userActions.Rated_Stores[StoresIndex].time = new Date();
-                 userActions.Rated_Stores[StoresIndex].rate = rate;
-                 await userActions.save();
-             }
-         }
+        const userActions = await UserActions.findOne({ userId: userId });
+        if (userActions) {
+            const StoresIndex = userActions.Rated_Stores.findIndex(
+                (item) => item.storeId == StoreId
+            );
+            if (StoresIndex !== -1) {
+                userActions.Rated_Stores[StoresIndex].time = new Date();
+                userActions.Rated_Stores[StoresIndex].rate = rate;
+                await userActions.save();
+            }
+        }
         return res.status(200).json({
             message: "Store rate edited successfully.",
         });
