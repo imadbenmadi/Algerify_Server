@@ -78,6 +78,9 @@ const Delete_CommentProduct = async (req, res) => {
         });
     }
     try {
+        if (req.params.userId !== isAuth.decoded.userId) {
+            return res.status(401).json({ error: "Unauthorised" });
+        }
         const userId = req.params.userId;
         const productId = req.params.productId;
         if (!userId || !productId)
@@ -103,16 +106,6 @@ const Delete_CommentProduct = async (req, res) => {
         );
         product_in_db.Comments.splice(CommentIndex, 1);
         await product_in_db.save();
-        const userActions = await UserActions.findOne({ userId: userId });
-        if (userActions) {
-            const CommentIndex = userActions.Commented_Products.findIndex(
-                (item) => item.productId == productId
-            );
-            if(CommentIndex != -1){
-                userActions.Commented_Products.splice(CommentIndex, 1);
-                await userActions.save();
-            }
-        }
         return res.status(200).json({
             message: "Product Comment deleted successfully.",
         });
