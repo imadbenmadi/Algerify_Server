@@ -23,6 +23,9 @@ const add_to_intrested_products = async (req, res) => {
         });
     }
     try {
+        if (req.params.userId !== isAuth.decoded.userId) {
+            return res.status(401).json({ error: "Unauthorised" });
+        }
         const userId = req.params.userId;
         const productId = req.params.productId;
         if (!userId || !productId)
@@ -33,11 +36,20 @@ const add_to_intrested_products = async (req, res) => {
         const productExists = user_in_db.intrested_products.some(
             (item) => item.ProductId == productId
         );
-        console.log(productExists);
         if (productExists)
             return res
                 .status(400)
                 .json({ error: "Product already in intrested products." });
+        const notInterestedProductIndex =
+            user_in_db.not_intrested_products.findIndex(
+                (item) => item.ProductId == productId
+            );
+        if (notInterestedProductIndex !== -1) {
+            user_in_db.not_intrested_products.splice(
+                notInterestedProductIndex,
+                1
+            );
+        }
         user_in_db.intrested_products.push({ ProductId: productId });
         await user_in_db.save();
         const userActions = await UserActions.findOne({ userId: userId });
@@ -72,6 +84,9 @@ const delete_from_intrested_products = async (req, res) => {
         });
     }
     try {
+        if (req.params.userId !== isAuth.decoded.userId) {
+            return res.status(401).json({ error: "Unauthorised" });
+        }
         const userId = req.params.userId;
         const productId = req.params.productId;
         if (!userId || !productId)
@@ -83,11 +98,9 @@ const delete_from_intrested_products = async (req, res) => {
             return item.ProductId == productId;
         });
         if (productIndex == -1)
-            return res
-                .status(404)
-                .json({
-                    error: "Product not found in user's intrested products.",
-                });
+            return res.status(404).json({
+                error: "Product not found in user's intrested products.",
+            });
         user_in_db.intrested_products.splice(productIndex, 1);
         await user_in_db.save();
         return res.status(200).json({
@@ -111,6 +124,9 @@ const add_to_not_intrested_products = async (req, res) => {
         });
     }
     try {
+        if (req.params.userId !== isAuth.decoded.userId) {
+            return res.status(401).json({ error: "Unauthorised" });
+        }
         const userId = req.params.userId;
         const productId = req.params.productId;
         if (!userId || !productId)
@@ -118,12 +134,7 @@ const add_to_not_intrested_products = async (req, res) => {
         const user_in_db = await Users.findById(userId);
         if (!user_in_db)
             return res.status(404).json({ error: "User not found." });
-        const intrestedProductIndex = user_in_db.intrested_products.findIndex(
-            (item) => String(item.ProductId) === productId
-        );
-        if (intrestedProductIndex !== -1) {
-            user_in_db.intrested_products.splice(intrestedProductIndex, 1);
-        }
+
         const productExists = user_in_db.not_intrested_products.some(
             (item) => item.ProductId == productId
         );
@@ -131,6 +142,12 @@ const add_to_not_intrested_products = async (req, res) => {
             return res
                 .status(400)
                 .json({ error: "Product already in not interested products." });
+        const intrestedProductIndex = user_in_db.intrested_products.findIndex(
+            (item) => String(item.ProductId) === productId
+        );
+        if (intrestedProductIndex !== -1) {
+            user_in_db.intrested_products.splice(intrestedProductIndex, 1);
+        }
         user_in_db.not_intrested_products.push({ ProductId: productId });
         await user_in_db.save();
         return res.status(200).json({
@@ -157,6 +174,9 @@ const delete_from_not_intrested_products = async (req, res) => {
         });
     }
     try {
+        if (req.params.userId !== isAuth.decoded.userId) {
+            return res.status(401).json({ error: "Unauthorised" });
+        }
         const userId = req.params.userId;
         const productId = req.params.productId;
         if (!userId || !productId)
@@ -183,7 +203,6 @@ const delete_from_not_intrested_products = async (req, res) => {
         return res.status(500).json({ error: error });
     }
 };
-
 
 module.exports = {
     add_to_intrested_products,

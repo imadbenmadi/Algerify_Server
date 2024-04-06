@@ -50,13 +50,10 @@ router.put(
     "/:userId/CommentProduct/:productId",
     CommentController.Etid_Comment
 );
-// -------------------------------------
-
 router.post("/:userId/RateStore/:storeId", RateController.RateStore);
 router.delete("/:userId/RateStore/:storeId", RateController.Delete_RateStore);
 router.put("/:userId/RateStore/:storeId", RateController.Edit_RateStore);
 router.get("/:userId/RateStore/:storeId", RateController.get_Store_userRate);
-
 router.post(
     "/:userId/Intrested/:productId",
     IntresteController.add_to_intrested_products
