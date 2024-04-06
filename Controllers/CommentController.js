@@ -166,6 +166,9 @@ const Etid_Comment = async (req, res) => {
         });
     }
     try {
+        if (req.params.userId !== isAuth.decoded.userId) {
+            return res.status(401).json({ error: "Unauthorised" });
+        }
         const userId = req.params.userId;
         const productId = req.params.productId;
         if (!userId || !productId || !req.body.Comment)
@@ -207,19 +210,18 @@ const Etid_Comment = async (req, res) => {
         }
         const userActions = await UserActions.findOne({ userId: userId });
         if (userActions) {
-            const CommentIndex = userActions.Commented_Products.findIndex(
-                (item) => item.productId == productId
-            );
-            if(CommentIndex != -1){
-                userActions.Commented_Products[CommentIndex].Comment = req.body.Comment;
-                userActions.Commented_Products[CommentIndex].time = new Date();
-                await userActions.save();
-            }
+            userActions.Commented_Products.push({
+                Comment: req.body.Comment,
+                productId: productId,
+                time: new Date(),
+            });
+            await userActions.save();
         }
         return res.status(200).json({
             message: "Product Comment edited successfully.",
         });
     } catch (error) {
+        console.log(error);
         return res.status(500).json({ error: error });
     }
 };
