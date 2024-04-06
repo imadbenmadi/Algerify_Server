@@ -23,7 +23,6 @@ router.delete(
     UserController.delete_from_Favorit
 );
 router.get("/:userId/Favorite", UserController.get_Favorite);
-// -------------------------------------
 router.post("/:userId/RateProduct/:productId", RateController.RateProduct);
 router.delete(
     "/:userId/RateProduct/:productId",
@@ -34,6 +33,7 @@ router.get(
     "/:userId/RateProduct/:productId",
     RateController.get_product_userRate
 );
+// -------------------------------------
 router.post(
     "/:userId/CommentProduct/:productId",
     CommentController.CommentProduct

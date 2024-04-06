@@ -15,6 +15,9 @@ const CommentProduct = async (req, res) => {
         });
     }
     try {
+        if (req.params.userId !== isAuth.decoded.userId) {
+            return res.status(401).json({ error: "Unauthorised" });
+        }
         const userId = req.params.userId;
         const productId = req.params.productId;
         const Comment = req.body.Comment;
@@ -27,6 +30,14 @@ const CommentProduct = async (req, res) => {
         const product_in_db = await Products.findById(productId);
         if (!product_in_db) {
             return res.status(404).json({ error: "Product not found." });
+        }
+        const Store_in_db = await Stores.findOne({ _id: product_in_db.Owner });
+        if (!Store_in_db)
+            return res.status(404).json({
+                error: "could not find the Store 'Owner of the product' ",
+            });
+        if (userId == Store_in_db.Owner) {
+            return res.status(409).json({ error: "User Own this Product" });
         }
         const Already_Commentd = product_in_db.Comments.some(
             (item) => item.user == userId
