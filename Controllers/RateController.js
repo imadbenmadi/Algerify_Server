@@ -91,6 +91,9 @@ const Delete_RateProduct = async (req, res) => {
         });
     }
     try {
+        if (req.params.userId !== isAuth.decoded.userId) {
+            return res.status(401).json({ error: "Unauthorised" });
+        }
         const userId = req.params.userId;
         const productId = req.params.productId;
         if (!userId || !productId)
@@ -116,16 +119,16 @@ const Delete_RateProduct = async (req, res) => {
         );
         product_in_db.Ratings.splice(rateIndex, 1);
         await product_in_db.save();
-        const userActions = await UserActions.findOne({ userId: userId });
-        if (userActions) {
-            const productIndex = userActions.Rated_Products.findIndex(
-                (item) => item.productId == productId
-            );
-            if (productIndex !== -1) {
-                userActions.Rated_Products.splice(productIndex, 1);
-                await userActions.save();
-            }
-        }
+        // const userActions = await UserActions.findOne({ userId: userId });
+        // if (userActions) {
+        //     const productIndex = userActions.Rated_Products.findIndex(
+        //         (item) => item.productId == productId
+        //     );
+        //     if (productIndex !== -1) {
+        //         userActions.Rated_Products.splice(productIndex, 1);
+        //         await userActions.save();
+        //     }
+        // }
         return res.status(200).json({
             message: "Product rate deleted successfully.",
         });
