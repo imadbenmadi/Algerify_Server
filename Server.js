@@ -1,18 +1,44 @@
 const express = require("express");
 const rateLimit = require("express-rate-limit");
 const app = express();
+const multer = require("multer");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-const credentials = require("./Middleware/credentials");
-const corsOptions = require("./config/corsOptions");
 const path = require("path");
+const allowedOrigins = [
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "http://localhost:3500",
+];
+const corsOptions = {
+    origin: (origin, callback) => {
+        if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+            callback(null, true);
+        } else {
+            callback(new Error(`Not allowed by CORS , origin : ${origin}`));
+        }
+    },
+    optionsSuccessStatus: 200,
+};
+const credentials = (req, res, next) => {
+    const origin = req.headers.origin;
+    if (allowedOrigins.includes(origin)) {
+        res.header("Access-Control-Allow-Credentials", true);
+    }
+    next();
+};
 require("dotenv").config();
 const limiter = rateLimit({
     windowMs: 60 * 1000, // 15 minutes
     max: 200, // limit each IP to 100 requests per windowMs
     message: "Too many requests ,try again later.",
 });
+
+var bodyParser = require("body-parser");
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
+
 app.use(limiter);
 app.use(cookieParser());
 app.use(credentials);
@@ -29,14 +55,11 @@ async function connect_to_db() {
         // useNewUrlParser: true,
         // useUnifiedTopology: true,
     });
-    
 }
 connect_to_db()
     .then(() => console.log("connected Successfully "))
     .catch((err) => console.log(err));
 
-
-    
 app.get("/", (req, res) => {
     res.send("Hello From Aos");
 });
