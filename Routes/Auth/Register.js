@@ -53,7 +53,7 @@ const validate_inputs = async (req, res, next) => {
         Address,
     } = req.body;
     const isValidTelephone = /^(0)(5|6|7)[0-9]{8}$/.test(Telephone);
-
+    console.log(req.body);
     if (
         !FirstName ||
         !LastName ||
@@ -113,6 +113,7 @@ const validate_inputs = async (req, res, next) => {
     next();
 };
 const upload = multer({
+    limits: { fileSize: 5 * 1024 * 1024 }, // Limiting file size to 5 MB
     storage: multer.diskStorage({
         destination: function (req, file, cb) {
             const destinationPath = path.join(__dirname, "../../Public/Users");
@@ -124,13 +125,25 @@ const upload = multer({
         filename: function (req, file, cb) {
             const uniqueSuffix =
                 Date.now() + "-" + Math.round(Math.random() * 1e9);
-            const fileExtension = path.extname(file.originalname);
+            const fileExtension = getFileExtension(file.originalname);
+            if (!fileExtension) return cb(new Error("Invalid file type"));
             const generatedFilename = `${uniqueSuffix}${fileExtension}`;
             req.generatedFilename = generatedFilename;
             cb(null, generatedFilename);
         },
     }),
 });
+
+function getFileExtension(filename) {
+    const extension = path.extname(filename).toLowerCase();
+    const imageExtensions = [".png", ".jpg", ".jpeg"];
+    if (imageExtensions.includes(extension)) {
+        return extension;
+    } else {
+        return false;
+    }
+}
+
 router.post(
     "/",
     (req, res, next) => validate_inputs(req, res, next),
