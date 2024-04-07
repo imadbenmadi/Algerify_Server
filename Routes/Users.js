@@ -17,7 +17,7 @@ router.get("/:userId", UserController.getUser);
 router.delete("/:userId", UserController.DeleteProfile); 
 
 
-async function test_edit_data(req, res, next) {
+async function validate_Edit_inputs(req, res, next) {
     const isAuth = await Verify_user(req, res);
     if (isAuth.status == false)
         return res.status(401).json({ error: "Unauthorized: Invalid token" });
@@ -76,7 +76,7 @@ function getFileExtension(filename) {
 }
 router.put(
     "/:userId",
-    (req, res, next) => test_edit_data(req, res, next),
+    (req, res, next) => validate_Edit_inputs(req, res, next),
     upload.single("image"),
     UserController.EditProfile
 );
