@@ -267,7 +267,6 @@ const DeleteProfile = async (req, res) => {
             );
             if (fs.existsSync(imagePath)) {
                 fs.unlinkSync(imagePath);
-                console.log("Profile image deleted successfully");
             }
         }
         await Users.findByIdAndDelete(userId);

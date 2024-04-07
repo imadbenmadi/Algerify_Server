@@ -7,35 +7,14 @@ const {
     UserActions,
 } = require("../models/Database");
 const mongoose = require("mongoose");
+const fs = require("fs");
+const path = require("path");
 
 require("dotenv").config();
 const Verify_Admin = require("../Middleware/Verify_Admin");
 const EditStore = async (req, res) => {
-    const isAdmin = await Verify_Admin(req, res);
-    if (isAdmin.status == true && isAdmin.Refresh == true) {
-        res.cookie("accessToken", isAdmin.newAccessToken, {
-            httpOnly: true,
-            sameSite: "None",
-            secure: true,
-            maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
-        });
-    } else if (isAdmin.status == false && isAdmin.Refresh == false) {
-        res.status(401).json({ error: "Unauthorized: Invalid token" });
-    }
     try {
-        const StoreId = req.params.storeId;
-
-        if (!StoreId) {
-            return res.status(409).json({ error: "Messing Data" });
-        }
-
-        const StoreToUpdate = await Stores.findById(StoreId);
-        if (!StoreToUpdate) {
-            return res.status(404).json({ error: "Store not found." });
-        }
-        if (StoreToUpdate.Owner != isAdmin.decoded.userId) {
-            return res.status(401).json({ error: "Unauthorized" });
-        }
+        const StoreToUpdate = req.StoreToUpdate;
         const { StoreName, Store_Describtion, Telephone } = req.body;
         if (StoreName) {
             StoreToUpdate.StoreName = StoreName;
@@ -45,6 +24,9 @@ const EditStore = async (req, res) => {
         }
         if (Telephone) {
             StoreToUpdate.Telephone = Telephone;
+        }
+        if (req.generatedFilename) {
+            StoreToUpdate.Store_Image = req.generatedFilename;
         }
         await StoreToUpdate.save();
         return res.status(200).json({ message: "Store updated successfully" });
@@ -227,6 +209,16 @@ const DeleteStore = async (req, res) => {
         if (Store_in_db.Owner != isAdmin.decoded.userId) {
             return res.status(401).json({ error: "Unauthorized" });
         }
+        if (Store_in_db.Store_Image) {
+            const imagePath = path.join(
+                __dirname,
+                "../../Public/Stores",
+                Store_in_db.Store_Image
+            );
+            if (fs.existsSync(imagePath)) {
+                fs.unlinkSync(imagePath);
+            }
+        }
 
         await Products.deleteMany({ Owner: StoreId });
         const user = await Users.findById(isAdmin.decoded.userId);
@@ -305,24 +297,15 @@ const CreateProduct = async (req, res) => {
         return res.status(401).json({ error: "Unauthorized: Invalid token" });
     }
     try {
-        console.log("passed");
         const { Title, Describtion, Category, Price } = req.body;
-        if (!Title || !Describtion || !Category || !Price) {
-            return res.status(409).json({ error: "Messing Data" });
-        }
-        const store_in_db = await Stores.findById(req.params.storeId);
-        if (!store_in_db)
-            return res.status(404).json({ error: "Store Not Found" });
-        console.log(store_in_db.Owner, isAdmin.decoded.userId);
-        if (store_in_db.Owner != isAdmin.decoded.userId) {
-            return res.status(401).json({ error: "Unauthorized" });
-        }
+        const store_in_db = req.store_in_db;
         const newProduct = new Products({
             Owner: req.params.storeId,
             Title,
             Describtion,
             Category,
             Price,
+            Store_Image: req.generatedFilename,
         });
         await newProduct.save();
         store_in_db.storeProducts.push(newProduct._id);
