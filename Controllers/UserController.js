@@ -7,6 +7,8 @@ const {
     UserActions,
 } = require("../models/Database");
 require("dotenv").config();
+const fs = require("fs");
+const path = require("path");
 const Verify_user = require("../Middleware/Verify_user");
 const Verify_Admin = require("../Middleware/Verify_Admin");
 const EditProfile = async (req, res) => {
@@ -275,6 +277,17 @@ const DeleteProfile = async (req, res) => {
         const user_in_db = await Users.findById(userId);
         if (!user_in_db) {
             return res.status(404).json({ error: "User not found." });
+        }
+        if (user_in_db.ProfilePic) {
+            const imagePath = path.join(
+                __dirname,
+                "../../Public/Users",
+                user_in_db.ProfilePic
+            );
+            if (fs.existsSync(imagePath)) {
+                fs.unlinkSync(imagePath);
+                console.log("Profile image deleted successfully");
+            }
         }
         await Users.findByIdAndDelete(userId);
         await Stores.deleteMany({ Owner: userId });
