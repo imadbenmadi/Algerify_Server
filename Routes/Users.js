@@ -8,16 +8,16 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 const dns = require("dns");
-const { Users } = require("../models/Database");
+const { Users, Stores } = require("../models/Database");
 const Verify_user = require("../Middleware/Verify_user");
+
 
 router.get("/", UserController.getAllUsers); // Only Admin
 router.get("/:userId/Profile", UserController.getProfile); // Only Admin
 router.get("/:userId", UserController.getUser);
-router.delete("/:userId", UserController.DeleteProfile); 
+router.delete("/:userId", UserController.DeleteProfile);
 
-
-async function validate_Edit_inputs(req, res, next) {
+async function validate_Edit_user_inputs(req, res, next) {
     const isAuth = await Verify_user(req, res);
     if (isAuth.status == false)
         return res.status(401).json({ error: "Unauthorized: Invalid token" });
@@ -43,7 +43,42 @@ async function validate_Edit_inputs(req, res, next) {
     req.userToUpdate = userToUpdate;
     next();
 }
-const upload = multer({
+async function validate_Create_Store_inputs(req, res, next) {
+    const isAuth = await Verify_user(req, res);
+    if (isAuth.status == true && isAuth.Refresh == true) {
+        res.cookie("accessToken", isAuth.newAccessToken, {
+            httpOnly: true,
+            sameSite: "None",
+            secure: true,
+            maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
+        });
+    }
+    if (isAuth.status == false)
+        return res.status(401).json({ error: "Unauthorized: Invalid token" });
+    if (req.params.userId !== isAuth.decoded.userId) {
+        return res.status(401).json({ error: "Unauthorised" });
+    }
+    let { Email, StoreName, Store_Describtion, Telephone } = req.body;
+    StoreName = StoreName.trim();
+    if (!Email || !StoreName || !Store_Describtion || !Telephone) {
+        return res.status(409).json({ error: "Messing Data" });
+    }
+    if (StoreName.length < 3 || Store_Describtion.length < 3) {
+        return res.status(409).json({
+            error: "StoreName and Store Description must be at least 3 characters long.",
+        });
+    } else if (Telephone.length < 9 || Telephone.length > 11) {
+        return res.status(409).json({ error: "Invalid Telephone number" });
+    } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(Email)) {
+        return res.status(409).json({ error: "Invalid Email" });
+    }
+    const Store_Name_Exist = await Stores.findOne({ StoreName: StoreName });
+    if (Store_Name_Exist) {
+        return res.status(409).json({ error: "Store Name already exists." });
+    }
+    next();
+}
+const upload_Profile_Pic = multer({
     limits: { fileSize: 5 * 1024 * 1024 }, // Limiting file size to 5 MB
     storage: multer.diskStorage({
         destination: function (req, file, cb) {
@@ -64,7 +99,27 @@ const upload = multer({
         },
     }),
 });
-
+const upload_Store_Pic = multer({
+    limits: { fileSize: 5 * 1024 * 1024 }, // Limiting file size to 5 MB
+    storage: multer.diskStorage({
+        destination: function (req, file, cb) {
+            const destinationPath = path.join(__dirname, "../../Public/Stores");
+            if (!fs.existsSync(destinationPath)) {
+                fs.mkdirSync(destinationPath, { recursive: true });
+            }
+            cb(null, destinationPath);
+        },
+        filename: function (req, file, cb) {
+            const uniqueSuffix =
+                Date.now() + "-" + Math.round(Math.random() * 1e9);
+            const fileExtension = getFileExtension(file.originalname);
+            if (!fileExtension) return cb(new Error("Invalid file type"));
+            const generatedFilename = `${uniqueSuffix}${fileExtension}`;
+            req.generatedFilename = generatedFilename;
+            cb(null, generatedFilename);
+        },
+    }),
+});
 function getFileExtension(filename) {
     const extension = path.extname(filename).toLowerCase();
     const imageExtensions = [".png", ".jpg", ".jpeg"];
@@ -76,14 +131,17 @@ function getFileExtension(filename) {
 }
 router.put(
     "/:userId",
-    (req, res, next) => validate_Edit_inputs(req, res, next),
-    upload.single("image"),
+    (req, res, next) => validate_Edit_user_inputs(req, res, next),
+    upload_Profile_Pic.single("image"),
     UserController.EditProfile
 );
 
-
-
-router.post("/:userId/CreateStore", UserController.CreateStore);
+router.post(
+    "/:userId/CreateStore",
+    (req, res, next) => validate_Create_Store_inputs(req, res, next),
+    upload_Store_Pic.single("image"),
+    UserController.CreateStore
+);
 router.post("/:userId/Follow/:storeId", UserController.Follow_Store);
 router.post("/:userId/Unfollow/:storeId", UserController.Unfollow_Store);
 router.post("/:userId/Basket/:productId", UserController.add_to_Basket);

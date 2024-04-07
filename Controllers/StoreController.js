@@ -35,38 +35,14 @@ const EditStore = async (req, res) => {
     }
 };
 const EditProduct = async (req, res) => {
-    const isAdmin = await Verify_Admin(req, res);
-    if (isAdmin.status == true && isAdmin.Refresh == true) {
-        res.cookie("accessToken", isAdmin.newAccessToken, {
-            httpOnly: true,
-            sameSite: "None",
-            secure: true,
-            maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
-        });
-    } else if (isAdmin.status == false && isAdmin.Refresh == false) {
-        return res.status(401).json({ error: "Unauthorized: Invalid token" });
-    }
     try {
         const storeId = req.params.storeId;
         const productId = req.params.productId;
-        if (!productId || !storeId) {
-            return res.status(409).json({ error: "Messing Data" });
-        }
-        const Store_in_db = await Stores.findById(storeId);
-        if (!Store_in_db) {
-            return res.status(404).json({ error: "Store not found." });
-        }
 
-        const ProductToUpdate = await Products.findById(productId);
-        if (!ProductToUpdate) {
-            return res.status(404).json({ error: "Product not found." });
-        }
-        if (Store_in_db.Owner.toString() != isAdmin.decoded.userId) {
-            return res.status(401).json({ error: "Unauthorized" });
-        }
-        if (ProductToUpdate.Owner.toString() != Store_in_db._id.toString()) {
-            return res.status(401).json({ error: "Unauthorized" });
-        }
+        const Store_in_db = req.Store_in_db;
+
+        const ProductToUpdate = req.ProductToUpdate;
+
         const { Title, Describtion, Price } = req.body;
         // Update individual fields
         if (Title) {
@@ -78,6 +54,8 @@ const EditProduct = async (req, res) => {
         if (Price) {
             ProductToUpdate.Price = Price;
         }
+        if (req.generatedFilename)
+            ProductToUpdate.Product_Image = req.generatedFilename;
         await ProductToUpdate.save();
         return res
             .status(200)
@@ -92,16 +70,9 @@ const getAllStores = async (req, res) => {
     const limit = parseInt(req.query.limit) || 20; // default to limit of 20 if not provided
 
     try {
-        // Count total number of stores
         const totalCount = await Stores.countDocuments();
-
-        // Calculate total number of pages
         const totalPages = Math.ceil(totalCount / limit);
-
-        // Calculate skip based on pagination
         const skip = (page - 1) * limit;
-
-        // Fetch stores for the current page
         const stores = await Stores.find()
             .select(
                 "StoreName Store_Describtion Telephone Store_Image Store_RatingAverage"
@@ -269,6 +240,16 @@ const DeleteProduct = async (req, res) => {
         if (ProductToDelete.Owner.toString() != Store_in_db._id.toString()) {
             return res.status(401).json({ error: "Unauthorized" });
         }
+        if (ProductToDelete.Product_Image) {
+            const imagePath = path.join(
+                __dirname,
+                "../../Public/Products",
+                Store_in_db.Store_Image
+            );
+            if (fs.existsSync(imagePath)) {
+                fs.unlinkSync(imagePath);
+            }
+        }
         await Stores.findByIdAndUpdate(storeId, {
             $pull: { storeProducts: productId },
         });
@@ -282,20 +263,7 @@ const DeleteProduct = async (req, res) => {
     }
 };
 
-// Only Admin can create a new Product
 const CreateProduct = async (req, res) => {
-    const isAdmin = await Verify_Admin(req, res);
-
-    if (isAdmin.status == true && isAdmin.Refresh == true) {
-        res.cookie("accessToken", isAdmin.newAccessToken, {
-            httpOnly: true,
-            sameSite: "None",
-            secure: true,
-            maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
-        });
-    } else if (isAdmin.status == false && isAdmin.Refresh == false) {
-        return res.status(401).json({ error: "Unauthorized: Invalid token" });
-    }
     try {
         const { Title, Describtion, Category, Price } = req.body;
         const store_in_db = req.store_in_db;
@@ -305,7 +273,7 @@ const CreateProduct = async (req, res) => {
             Describtion,
             Category,
             Price,
-            Store_Image: req.generatedFilename,
+            Product_Image: req.generatedFilename,
         });
         await newProduct.save();
         store_in_db.storeProducts.push(newProduct._id);

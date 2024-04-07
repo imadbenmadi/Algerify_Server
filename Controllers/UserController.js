@@ -580,62 +580,15 @@ const get_Favorite = async (req, res) => {
 };
 
 const CreateStore = async (req, res) => {
-    const isAuth = await Verify_user(req, res);
-    if (isAuth.status == true && isAuth.Refresh == true) {
-        res.cookie("accessToken", isAuth.newAccessToken, {
-            httpOnly: true,
-            sameSite: "None",
-            secure: true,
-            maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
-        });
-    }
-    if (isAuth.status == false)
-        return res.status(401).json({ error: "Unauthorized: Invalid token" });
     try {
-        if (req.params.userId !== isAuth.decoded.userId) {
-            return res.status(401).json({ error: "Unauthorised" });
-        }
-        // const { Email, Password, StoreName, Store_Describtion, Telephone } =
-        //     req.body;
         let { Email, StoreName, Store_Describtion, Telephone } = req.body;
-        StoreName = StoreName.trim();
-        if (
-            !Email ||
-            // !Password ||
-            !StoreName ||
-            !Store_Describtion ||
-            !Telephone
-        ) {
-            return res.status(409).json({ error: "Messing Data" });
-        }
-        if (StoreName.length < 3 || Store_Describtion.length < 3) {
-            return res.status(409).json({
-                error: "StoreName and Store Description must be at least 3 characters long.",
-            });
-        } else if (Telephone.length < 9 || Telephone.length > 11) {
-            return res.status(409).json({ error: "Invalid Telephone number" });
-        }
-        // else if (Password.length < 8) {
-        //     return res
-        //         .status(409)
-        //         .json({ error: "Password must be at least 8 characters" });
-        // }
-        else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(Email)) {
-            return res.status(409).json({ error: "Invalid Email" });
-        }
-        const Store_Name_Exist = await Stores.findOne({ StoreName: StoreName });
-        if (Store_Name_Exist) {
-            return res
-                .status(409)
-                .json({ error: "Store Name already exists." });
-        }
         const newStore = new Stores({
             Owner: req.params.userId,
             Email,
-            // Password,
             StoreName,
             Store_Describtion,
             Telephone,
+            Store_Image: req.generatedFilename,
         });
         await newStore.save();
         const user_in_db = await Users.findById(req.params.userId);
