@@ -12,30 +12,8 @@ const path = require("path");
 const Verify_user = require("../Middleware/Verify_user");
 const Verify_Admin = require("../Middleware/Verify_Admin");
 const EditProfile = async (req, res) => {
-    const isAuth = await Verify_user(req, res);
-    if (isAuth.status == false)
-        return res.status(401).json({ error: "Unauthorized: Invalid token" });
-    if (isAuth.status == true && isAuth.Refresh == true) {
-        res.cookie("accessToken", isAuth.newAccessToken, {
-            httpOnly: true,
-            sameSite: "None",
-            secure: true,
-            maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
-        });
-    }
-
     try {
-        const userId = req.params.userId;
-        if (!userId) {
-            return res.status(409).json({ error: "Messing Data" });
-        }
-        if (req.params.userId !== isAuth.decoded.userId) {
-            return res.status(401).json({ error: "Unauthorised" });
-        }
-        const userToUpdate = await Users.findById(userId);
-        if (!userToUpdate) {
-            return res.status(404).json({ error: "User not found." });
-        }
+        const userToUpdate = req.userToUpdate;
         const { FirstName, LastName, Age, Gender, Telephone } = req.body;
         // Update individual fields
         if (FirstName) {
@@ -54,7 +32,10 @@ const EditProfile = async (req, res) => {
         if (Telephone) {
             userToUpdate.Telephone = Telephone;
         }
-
+        const ProfilePic = req.generatedFilename;
+        if (ProfilePic) {
+            userToUpdate.ProfilePic = ProfilePic;
+        }
         // Save the updated user
         await userToUpdate.save();
 

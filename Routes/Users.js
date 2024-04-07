@@ -4,11 +4,84 @@ const UserController = require("../Controllers/UserController");
 const RateController = require("../Controllers/RateController");
 const CommentController = require("../Controllers/CommentController");
 const IntresteController = require("../Controllers/IntresteController");
+const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
+const dns = require("dns");
+const { Users } = require("../models/Database");
+const Verify_user = require("../Middleware/Verify_user");
+
 router.get("/", UserController.getAllUsers); // Only Admin
 router.get("/:userId/Profile", UserController.getProfile); // Only Admin
 router.get("/:userId", UserController.getUser);
-router.put("/:userId", UserController.EditProfile);
-router.delete("/:userId", UserController.DeleteProfile); // both Admin and User
+router.delete("/:userId", UserController.DeleteProfile); 
+
+
+async function test_edit_data(req, res, next) {
+    const isAuth = await Verify_user(req, res);
+    if (isAuth.status == false)
+        return res.status(401).json({ error: "Unauthorized: Invalid token" });
+    if (isAuth.status == true && isAuth.Refresh == true) {
+        res.cookie("accessToken", isAuth.newAccessToken, {
+            httpOnly: true,
+            sameSite: "None",
+            secure: true,
+            maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
+        });
+    }
+    const userId = req.params.userId;
+    if (!userId) {
+        return res.status(409).json({ error: "Messing Data" });
+    }
+    if (req.params.userId !== isAuth.decoded.userId) {
+        return res.status(401).json({ error: "Unauthorised" });
+    }
+    const userToUpdate = await Users.findById(userId);
+    if (!userToUpdate) {
+        return res.status(404).json({ error: "User not found." });
+    }
+    req.userToUpdate = userToUpdate;
+    next();
+}
+const upload = multer({
+    limits: { fileSize: 5 * 1024 * 1024 }, // Limiting file size to 5 MB
+    storage: multer.diskStorage({
+        destination: function (req, file, cb) {
+            const destinationPath = path.join(__dirname, "../../Public/Users");
+            if (!fs.existsSync(destinationPath)) {
+                fs.mkdirSync(destinationPath, { recursive: true });
+            }
+            cb(null, destinationPath);
+        },
+        filename: function (req, file, cb) {
+            const uniqueSuffix =
+                Date.now() + "-" + Math.round(Math.random() * 1e9);
+            const fileExtension = getFileExtension(file.originalname);
+            if (!fileExtension) return cb(new Error("Invalid file type"));
+            const generatedFilename = `${uniqueSuffix}${fileExtension}`;
+            req.generatedFilename = generatedFilename;
+            cb(null, generatedFilename);
+        },
+    }),
+});
+
+function getFileExtension(filename) {
+    const extension = path.extname(filename).toLowerCase();
+    const imageExtensions = [".png", ".jpg", ".jpeg"];
+    if (imageExtensions.includes(extension)) {
+        return extension;
+    } else {
+        return false;
+    }
+}
+router.put(
+    "/:userId",
+    (req, res, next) => test_edit_data(req, res, next),
+    upload.single("image"),
+    UserController.EditProfile
+);
+
+
 
 router.post("/:userId/CreateStore", UserController.CreateStore);
 router.post("/:userId/Follow/:storeId", UserController.Follow_Store);
@@ -70,7 +143,6 @@ router.delete(
     "/:userId/Not_Intrested/:productId",
     IntresteController.delete_from_not_intrested_products
 );
-
 
 router.post(
     "/:userId/Visit_Products/:productId",

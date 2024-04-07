@@ -6,6 +6,7 @@ const path = require("path");
 const fs = require("fs");
 const dns = require("dns");
 const { Users } = require("../../models/Database");
+
 const registrationAttempts = {};
 const blockIP = (ipAddress, duration) => {
     registrationAttempts[ipAddress] = {
@@ -22,7 +23,6 @@ const cleanupExpiredBlocks = () => {
     });
 };
 setInterval(cleanupExpiredBlocks, 60000);
-
 const isEmailValid = (Email) => {
     return new Promise((resolve, reject) => {
         const domain = Email.split("@")[1];
