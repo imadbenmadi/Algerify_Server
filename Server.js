@@ -66,14 +66,14 @@ app.get("/", (req, res) => {
 });
 // ----------------- Auth Routes -----------------
 app.use("/check_Auth", require("./Routes/Auth/check_Auth"));
-app.use("/Storecheck_Auth", require("./Routes/Auth/Store/Store_check_Auth"));
+// app.use("/Storecheck_Auth", require("./Routes/Auth/Store/Store_check_Auth"));
 app.use("/Login", require("./Routes/Auth/Login"));
 app.use("/Register", require("./Routes/Auth/Register"));
 app.use("/Logout", require("./Routes/Auth/Logout"));
 app.use("/VerifyAccount", require("./Routes/Auth/verifyAccount"));
 
-app.use("/StoreLogin", require("./Routes/Auth/Store/StoreLogin"));
-app.use("/StoreLogout", require("./Routes/Auth/Store/StoreLogout"));
+// app.use("/StoreLogin", require("./Routes/Auth/Store/StoreLogin"));
+// app.use("/StoreLogout", require("./Routes/Auth/Store/StoreLogout"));
 
 app.use(
     "/Send_Verification_Email",
