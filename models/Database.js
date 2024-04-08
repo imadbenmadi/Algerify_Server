@@ -231,9 +231,16 @@ const Categories = mongoose.model(
         Categories: { type: String },
     })
 );
-
+const admins = mongoose.model(
+    "admin",
+    new mongoose.Schema({
+        Name: { type: String },
+        Password: { type: String },
+    })
+);
 module.exports = {
     Users,
+    admins,
     Refresh_tokens,
     email_verification_tokens,
     Products,

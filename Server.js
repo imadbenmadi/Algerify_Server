@@ -94,6 +94,7 @@ app.use("/Users", require("./Routes/Users"));
 app.use("/Stores", require("./Routes/Store"));
 app.use("/Products", require("./Routes/Product"));
 
+app.use("/Dashboard", require("./Routes/Dashboard"));
 app.listen(3000);
 
 module.exports = app;
