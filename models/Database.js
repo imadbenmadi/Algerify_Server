@@ -228,7 +228,7 @@ const UserActions = mongoose.model(
 const Categories = mongoose.model(
     "Categories",
     new mongoose.Schema({
-        Categories: { type: String },
+        Category: { type: String },
     })
 );
 const admins = mongoose.model(

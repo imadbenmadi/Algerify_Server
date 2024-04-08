@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
-const { admins, Refresh_tokens } = require("../models/Database");
+const { admins, Categories, Refresh_tokens } = require("../models/Database");
 
 const Dashboard_Login = async (req, res) => {
     try {
@@ -60,4 +60,40 @@ const Dashboard_Login = async (req, res) => {
         return res.status(500).json({ error: err });
     }
 };
-module.exports = { Dashboard_Login };
+
+const add_category = async (req, res) => {
+    const { Category } = req.body;
+    if (!Category) {
+        return res.status(400).json({ error: "Missing Category data" });
+    }
+    try {
+        const existingCategory = await Categories.findOne({ Category });
+        if (existingCategory) {
+            return res.status(409).json({ error: "Category already exists" });
+        }
+        await Categories.create({ Category });
+        return res.status(200).json({ message: "Category added successfully" });
+    } catch (error) {
+        console.error("Error adding category:", error);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+const delete_category = async (req, res) => {
+    const { Category } = req.body;
+    if (!Category) {
+        return res.status(400).json({ error: "Missing Category data" });
+    }
+    try {
+        const existingCategory = await Categories.findOne({ Category });
+        if (!existingCategory) {
+            return res.status(404).json({ error: "Category not found" }); 
+        }
+        await Categories.deleteOne({ Category });
+        return res.status(200).json({ message: "Category deleted successfully" });
+    } catch (error) {
+        console.error("Error adding category:", error);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+module.exports = { Dashboard_Login, add_category, delete_category };
