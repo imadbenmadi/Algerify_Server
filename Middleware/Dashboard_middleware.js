@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const { Refresh_tokens } = require("../models/Database");
 
 const Verify_user = async (req, res) => {
-    const secretKey = ACCESS_TOKEN_SECRET;
+    const secretKey = process.env.ADMIN_ACCESS_TOKEN_SECRET;
     const accessToken = req.cookies.accessToken;
     const refreshToken = req.cookies.refreshToken;
 
@@ -29,7 +29,7 @@ const Verify_user = async (req, res) => {
                 return new Promise((resolve, reject) => {
                     jwt.verify(
                         refreshToken,
-                        process.env.REFRESH_TOKEN_SECRET,
+                        process.env.ADMIN_REFRESH_TOKEN_SECRET,
                         async (err, decoded) => {
                             if (err) {
                                 resolve({
@@ -47,7 +47,7 @@ const Verify_user = async (req, res) => {
                                 // Generate new access token
                                 const newAccessToken = jwt.sign(
                                     { userId: decoded.userId },
-                                    process.env.ACCESS_TOKEN_SECRET,
+                                    process.env.ADMIN_ACCESS_TOKEN_SECRET,
                                     { expiresIn: "5m" }
                                 );
 
