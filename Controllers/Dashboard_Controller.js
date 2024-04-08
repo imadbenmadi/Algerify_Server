@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const { admins, Categories, Refresh_tokens } = require("../models/Database");
-
+const Dashboard_middleware = require("../Middleware/Dashboard_middleware")
 const Dashboard_Login = async (req, res) => {
     try {
         const { Name, Password } = req.body;
@@ -62,6 +62,17 @@ const Dashboard_Login = async (req, res) => {
 };
 
 const add_category = async (req, res) => {
+    const isAuth = await Dashboard_middleware(req, res);
+    if (isAuth.status == false)
+        return res.status(401).json({ error: "Unauthorized: Invalid token" });
+    if (isAuth.status == true && isAuth.Refresh == true) {
+        res.cookie("accessToken", isAuth.newAccessToken, {
+            httpOnly: true,
+            sameSite: "None",
+            secure: true,
+            maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
+        });
+    }
     const { Category } = req.body;
     if (!Category) {
         return res.status(400).json({ error: "Missing Category data" });
@@ -79,6 +90,17 @@ const add_category = async (req, res) => {
     }
 };
 const delete_category = async (req, res) => {
+    const isAuth = await Dashboard_middleware(req, res);
+    if (isAuth.status == false)
+        return res.status(401).json({ error: "Unauthorized: Invalid token" });
+    if (isAuth.status == true && isAuth.Refresh == true) {
+        res.cookie("accessToken", isAuth.newAccessToken, {
+            httpOnly: true,
+            sameSite: "None",
+            secure: true,
+            maxAge: 60 * 60 * 1000, // 10 minutes in milliseconds
+        });
+    }
     const { Category } = req.body;
     if (!Category) {
         return res.status(400).json({ error: "Missing Category data" });
