@@ -238,6 +238,15 @@ const admins = mongoose.model(
         Password: { type: String },
     })
 );
+const recommended_Products = mongoose.model(
+    "recommended_Products",
+    new mongoose.Schema({
+        userId: { type: mongoose.Types.ObjectId, ref: "Users" },
+        recommendedProducts: [
+            { productId: { type: mongoose.Types.ObjectId, ref: "Products" } },
+        ],
+    })
+);
 module.exports = {
     Users,
     admins,
