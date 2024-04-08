@@ -1,7 +1,7 @@
 const { Users, Stores, Products, UserActions } = require("../models/Database");
 require("dotenv").config();
 const Verify_user = require("../Middleware/Verify_user");
-const Verify_Admin = require("../Middleware/Verify_Admin");
+const Verify_user = require("../Middleware/Verify_user");
 const RateProduct = async (req, res) => {
     const isAuth = await Verify_user(req, res);
     if (isAuth.status == false)

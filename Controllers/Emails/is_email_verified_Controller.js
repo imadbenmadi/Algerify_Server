@@ -1,5 +1,5 @@
 const { Users } = require("../../models/Database");
-const Verify_Admin = require("../../Middleware/Verify_Admin");
+const Verify_user = require("../../Middleware/Verify_user");
 const Verify_user = require("../../Middleware/Verify_user");
 const handle_check = async (req, res) => {
     const isAuth = await Verify_user(req, res);

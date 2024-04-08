@@ -2,13 +2,13 @@ require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const { Refresh_tokens } = require("../models/Database");
 
-const Verify_Admin = async (req, res) => {
-    const secretKey = process.env.ACCESS_TOKEN_SECRET;
+const Verify_user = async (req, res) => {
+    const secretKey = ACCESS_TOKEN_SECRET;
     const accessToken = req.cookies.accessToken;
     const refreshToken = req.cookies.refreshToken;
 
     try {
-        const decoded = jwt.verify(accessToken, secretKey);            
+        const decoded = jwt.verify(accessToken, secretKey);
         return { status: true, Refresh: false, decoded };
     } catch (err) {
         if (err.name === "TokenExpiredError") {
@@ -66,9 +66,9 @@ const Verify_Admin = async (req, res) => {
             }
         } else {
             // Other verification error, return false
-            return { status: false, Refresh: false,decoded: null };
+            return { status: false, Refresh: false, decoded: null };
         }
     }
 };
 
-module.exports = Verify_Admin;
+module.exports = Verify_user;

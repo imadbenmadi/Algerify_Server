@@ -213,16 +213,22 @@ const UserActions = mongoose.model(
         ],
     })
 );
+// const Categories = mongoose.model(
+//     "Categories",
+//     new mongoose.Schema({
+//         Categories: ["Tech", "Kitchen", "Books", "clothes"],
+//         SubCategories: [
+//             { Tech: ["Mobiles", "Laptops", "Tablets"] },
+//             { Kitchen: ["Blenders", "Cookers", "Microwaves"] },
+//             { Books: ["Novels", "Science", "History"] },
+//             { clothes: ["T-shirts", "Pants", "Jackets"] },
+//         ],
+//     })
+// );
 const Categories = mongoose.model(
     "Categories",
     new mongoose.Schema({
-        Categories: ["Tech", "Kitchen", "Books", "clothes"],
-        SubCategories: [
-            { Tech: ["Mobiles", "Laptops", "Tablets"] },
-            { Kitchen: ["Blenders", "Cookers", "Microwaves"] },
-            { Books: ["Novels", "Science", "History"] },
-            { clothes: ["T-shirts", "Pants", "Jackets"] },
-        ],
+        Categories: { type: String },
     })
 );
 

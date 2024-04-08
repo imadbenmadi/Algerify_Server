@@ -8,7 +8,7 @@ const {
 } = require("../models/Database");
 require("dotenv").config();
 const Verify_user = require("../Middleware/Verify_user");
-const Verify_Admin = require("../Middleware/Verify_Admin");
+const Verify_user = require("../Middleware/Verify_user");
 
 const add_to_intrested_products = async (req, res) => {
     const isAuth = await Verify_user(req, res);

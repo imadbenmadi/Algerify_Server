@@ -1,7 +1,7 @@
-const { Users, Stores, Products ,UserActions} = require("../models/Database");
+const { Users, Stores, Products, UserActions } = require("../models/Database");
 require("dotenv").config();
 const Verify_user = require("../Middleware/Verify_user");
-const Verify_Admin = require("../Middleware/Verify_Admin");
+const Verify_user = require("../Middleware/Verify_user");
 const CommentProduct = async (req, res) => {
     const isAuth = await Verify_user(req, res);
     if (isAuth.status == false)
@@ -197,7 +197,7 @@ const Etid_Comment = async (req, res) => {
             return res.status(404).json({
                 error: "User didn't Comment this product.",
             });
-        
+
         if (product_in_db.Comments[CommentIndex].user != isAuth.decoded.userId)
             return res.status(401).json({
                 error: "Unauthorized ",

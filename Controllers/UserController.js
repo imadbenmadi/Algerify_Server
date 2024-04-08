@@ -10,7 +10,7 @@ require("dotenv").config();
 const fs = require("fs");
 const path = require("path");
 const Verify_user = require("../Middleware/Verify_user");
-const Verify_Admin = require("../Middleware/Verify_Admin");
+const Verify_user = require("../Middleware/Verify_user");
 const EditProfile = async (req, res) => {
     try {
         const userToUpdate = req.userToUpdate;

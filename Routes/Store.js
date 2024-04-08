@@ -5,11 +5,11 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 const { Stores, Users, Products } = require("../models/Database");
-const Verify_Admin = require("../Middleware/Verify_Admin");
+const Verify_user = require("../Middleware/Verify_user");
 const Verify_User = require("../Middleware/Verify_User");
 
 async function validate_Edit_Store_inputs(req, res, next) {
-    const isAdmin = await Verify_Admin(req, res);
+    const isAdmin = await Verify_user(req, res);
     if (isAdmin.status == true && isAdmin.Refresh == true) {
         res.cookie("accessToken", isAdmin.newAccessToken, {
             httpOnly: true,
@@ -35,7 +35,7 @@ async function validate_Edit_Store_inputs(req, res, next) {
     next();
 }
 async function validate_add_Product_inputs(req, res, next) {
-    const isAdmin = await Verify_Admin(req, res);
+    const isAdmin = await Verify_user(req, res);
     if (isAdmin.status == true && isAdmin.Refresh == true) {
         res.cookie("accessToken", isAdmin.newAccessToken, {
             httpOnly: true,
@@ -63,7 +63,7 @@ async function validate_add_Product_inputs(req, res, next) {
     next();
 }
 async function validate_Edit_Product_inputs(req, res, next) {
-    const isAdmin = await Verify_Admin(req, res);
+    const isAdmin = await Verify_user(req, res);
     if (isAdmin.status == true && isAdmin.Refresh == true) {
         res.cookie("accessToken", isAdmin.newAccessToken, {
             httpOnly: true,

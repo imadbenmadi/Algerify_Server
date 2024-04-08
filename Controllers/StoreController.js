@@ -11,7 +11,7 @@ const fs = require("fs");
 const path = require("path");
 
 require("dotenv").config();
-const Verify_Admin = require("../Middleware/Verify_Admin");
+const Verify_user = require("../Middleware/Verify_user");
 const EditStore = async (req, res) => {
     try {
         const StoreToUpdate = req.StoreToUpdate;
@@ -106,7 +106,7 @@ const getStore = async (req, res) => {
 const getStore_Profile = async (req, res) => {
     const StoreId = req.params.storeId;
     if (!StoreId) return res.status(409).json({ error: "Messing Data." });
-    const isAuth = await Verify_Admin(req, res);
+    const isAuth = await Verify_user(req, res);
     if (isAuth.status == true && isAuth.Refresh == true) {
         res.cookie("accessToken", isAuth.newAccessToken, {
             httpOnly: true,
@@ -159,7 +159,7 @@ const getStoreProducts = async (req, res) => {
 };
 
 const DeleteStore = async (req, res) => {
-    const isAdmin = await Verify_Admin(req, res);
+    const isAdmin = await Verify_user(req, res);
     if (isAdmin.status == true && isAdmin.Refresh == true) {
         res.cookie("accessToken", isAdmin.newAccessToken, {
             httpOnly: true,
@@ -208,7 +208,7 @@ const DeleteStore = async (req, res) => {
     }
 };
 const DeleteProduct = async (req, res) => {
-    const isAdmin = await Verify_Admin(req, res);
+    const isAdmin = await Verify_user(req, res);
     if (isAdmin.status == true && isAdmin.Refresh == true) {
         res.cookie("accessToken", isAdmin.newAccessToken, {
             httpOnly: true,
