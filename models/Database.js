@@ -256,4 +256,5 @@ module.exports = {
     Stores,
     UserActions,
     Categories,
+    recommended_Products,
 };

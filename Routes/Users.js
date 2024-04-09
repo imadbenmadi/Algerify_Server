@@ -11,7 +11,6 @@ const dns = require("dns");
 const { Users, Stores } = require("../models/Database");
 const Verify_user = require("../Middleware/Verify_user");
 
-
 router.get("/", UserController.getAllUsers); // Only Admin
 router.get("/:userId/Profile", UserController.getProfile); // Only Admin
 router.get("/:userId", UserController.getUser);
@@ -210,5 +209,6 @@ router.post(
     "/:userId/Visit_Stores/:storeId",
     UserController.add_to_visited_stores
 );
+router.post("/:id/Calculate_Recommendation", UserController.Calculate_Recommendation);
 
 module.exports = router;

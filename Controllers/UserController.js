@@ -5,6 +5,9 @@ const {
     Refresh_tokens,
     email_verification_tokens,
     UserActions,
+    Categories,
+    recommended_Products,
+    // Products,
 } = require("../models/Database");
 require("dotenv").config();
 const fs = require("fs");
@@ -697,6 +700,187 @@ const add_to_visited_stores = async (req, res) => {
         return res.status(500).json({ error: error });
     }
 };
+const Calculate_Recommendation = async (req, res) => {
+    const userId = req.params.id;
+    if (!userId) return res.status(409).json({ error: "Missing Data" });
+    try {
+        const user_in_db = await Users.findById(userId);
+        if (!user_in_db) {
+            return res.status(404).json({ error: "User not found." });
+        }
+        const userActions = await UserActions.findOne({ userId: userId });
+        if (!userActions) {
+            return res.status(404).json({ error: "UserActions not found." });
+        }
+        const products = await Products.find();
+        const categories = await Categories.find();
+        if (!products.length)
+            return res
+                .status(404)
+                .json({ message: "No Product for the moment" });
+        if (!categories.length)
+            return res
+                .status(404)
+                .json({ message: "No Category for the moment" });
+
+        const score = categories.map((category) => ({
+            [category.Category]: 10,
+        }));
+        const actions_scores = [
+            { Visited_Products: 6 },
+            { Added_To_Favorite: 9 },
+            { Added_To_Basket: 9 },
+            { Rated_Products_mt3: 8 },
+            { Rated_Products_lt3: 2 },
+            { interesting_Products: 10 },
+            { Not_interesting_Products: 0 },
+        ];
+        userActions.Visited_Products.forEach((item) => {
+            if (item.productCategory) {
+                score.forEach((i) => {
+                    const categoryName = Object.keys(i)[0]; // Retrieve category name within the loop
+                    if (
+                        // i[categoryName] < 10 &&
+                        categoryName === item.productCategory
+                    ) {
+                        const actions_score = actions_scores.find((action) =>
+                            action.hasOwnProperty("Visited_Products")
+                        );
+                        i[categoryName] =
+                            (i[categoryName] +
+                                actions_score["Visited_Products"]) /
+                            2;
+                    }
+                });
+            }
+        });
+        userActions.Added_To_Favorite.forEach((item) => {
+            if (item.productCategory) {
+                score.forEach((i) => {
+                    const categoryName = Object.keys(i)[0]; // Retrieve category name within the loop
+                    if (
+                        // i[categoryName] < 10 &&
+                        categoryName === item.productCategory
+                    ) {
+                        const actions_score = actions_scores.find((action) =>
+                            action.hasOwnProperty("Added_To_Favorite")
+                        );
+                        i[categoryName] =
+                            (i[categoryName] +
+                                actions_score["Added_To_Favorite"]) /
+                            2;
+                    }
+                });
+            }
+        });
+        userActions.Added_To_Basket.forEach((item) => {
+            if (item.productCategory) {
+                score.forEach((i) => {
+                    const categoryName = Object.keys(i)[0]; // Retrieve category name within the loop
+                    if (
+                        // i[categoryName] < 10 &&
+                        categoryName === item.productCategory
+                    ) {
+                        const actions_score = actions_scores.find((action) =>
+                            action.hasOwnProperty("Added_To_Basket")
+                        );
+                        i[categoryName] =
+                            (i[categoryName] +
+                                actions_score["Added_To_Basket"]) /
+                            2;
+                    }
+                });
+            }
+        });
+        userActions.Rated_Products.forEach((item) => {
+            if (item.productCategory) {
+                score.forEach((i) => {
+                    const categoryName = Object.keys(i)[0]; // Retrieve category name within the loop
+                    if (
+                        // i[categoryName] < 10 &&
+                        categoryName === item.productCategory
+                    ) {
+                        if (item.rate >= 3) {
+                            const actions_score = actions_scores.find(
+                                (action) =>
+                                    action.hasOwnProperty("Rated_Products_mt3")
+                            );
+                            i[categoryName] =
+                                (i[categoryName] +
+                                    actions_score["Rated_Products_mt3"]) /
+                                2;
+                        } else if (item.rate < 3) {
+                            const actions_score = actions_scores.find(
+                                (action) =>
+                                    action.hasOwnProperty("Rated_Products_lt3")
+                            );
+                            i[categoryName] =
+                                (i[categoryName] +
+                                    actions_score["Rated_Products_lt3"]) /
+                                2;
+                        }
+                    }
+                });
+            }
+        });
+        userActions.interesting_Products.forEach((item) => {
+            if (item.productCategory) {
+                score.forEach((i) => {
+                    const categoryName = Object.keys(i)[0]; // Retrieve category name within the loop
+                    if (
+                        // i[categoryName] < 10 &&
+                        categoryName === item.productCategory
+                    ) {
+                        const actions_score = actions_scores.find((action) =>
+                            action.hasOwnProperty("interesting_Products")
+                        );
+                        i[categoryName] =
+                            (i[categoryName] +
+                                actions_score["interesting_Products"]) /
+                            2;
+                    }
+                });
+            }
+        });
+        userActions.Not_interesting_Products.forEach((item) => {
+            if (item.productCategory) {
+                score.forEach((i) => {
+                    const categoryName = Object.keys(i)[0]; // Retrieve category name within the loop
+                    if (
+                        // i[categoryName] < 10 &&
+                        categoryName === item.productCategory
+                    ) {
+                        const actions_score = actions_scores.find((action) =>
+                            action.hasOwnProperty("Not_interesting_Products")
+                        );
+                        i[categoryName] =
+                            (i[categoryName] +
+                                actions_score["Not_interesting_Products"]) /
+                            2;
+                    }
+                });
+            }
+        });
+        const totalScore = score.reduce(
+            (acc, curr) => acc + Object.values(curr)[0],
+            0
+        );
+         const categoriesScore = score.map((item) => {
+             const categoryName = Object.keys(item)[0];
+             const categoryScore = (Object.values(item)[0] / totalScore) * 100;
+             return { [categoryName]: categoryScore };
+         });
+        categoriesScore.sort(
+            (a, b) => Object.values(b)[0] - Object.values(a)[0]
+        );
+
+        return res.status(200).json({score, categoriesScore });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({ error: error.message });
+    }
+};
+
 module.exports = {
     Follow_Store,
     EditProfile,
@@ -714,4 +898,5 @@ module.exports = {
     Unfollow_Store,
     add_to_visited_products,
     add_to_visited_stores,
+    Calculate_Recommendation,
 };
