@@ -54,6 +54,7 @@ const CommentProduct = async (req, res) => {
             userActions.Commented_Products.push({
                 Comment: Comment,
                 productId: productId,
+                productCategory: product_in_db.Category,
             });
             await userActions.save();
         } else {
@@ -66,6 +67,7 @@ const CommentProduct = async (req, res) => {
                     {
                         Comment: Comment,
                         productId: productId,
+                        productCategory: product_in_db.Category,
                     },
                 ],
                 Rated_Stores: [],
@@ -232,6 +234,7 @@ const Etid_Comment = async (req, res) => {
             userActions.Commented_Products.push({
                 Comment: req.body.Comment,
                 productId: productId,
+                productCategory: product_in_db.Category,
             });
             await userActions.save();
         } else {
@@ -244,6 +247,7 @@ const Etid_Comment = async (req, res) => {
                     {
                         Comment: req.body.Comment,
                         productId: productId,
+                        productCategory: product_in_db.Category,
                     },
                 ],
                 Rated_Stores: [],

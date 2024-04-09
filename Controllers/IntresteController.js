@@ -33,6 +33,9 @@ const add_to_intrested_products = async (req, res) => {
         const user_in_db = await Users.findById(userId);
         if (!user_in_db)
             return res.status(404).json({ error: "User not found." });
+        const product_in_db = await Products.findById(productId);
+        if (!product_in_db)
+            return res.status(404).json({ error: "Product not found." });
         const productExists = user_in_db.intrested_products.some(
             (item) => item.ProductId == productId
         );
@@ -50,12 +53,14 @@ const add_to_intrested_products = async (req, res) => {
                 1
             );
         }
+        
         user_in_db.intrested_products.push({ ProductId: productId });
         await user_in_db.save();
         const userActions = await UserActions.findOne({ userId: userId });
         if (userActions) {
             userActions.interesting_Products.push({
                 productId: productId,
+                productCategory: product_in_db.Category,
             });
             await userActions.save();
         }
@@ -71,7 +76,10 @@ const add_to_intrested_products = async (req, res) => {
                 Visited_Stores: [],
                 Not_interesting_Products: [],
                 interesting_Products: [
-                    { productId: productId, time: new Date() },
+                    {
+                        productId: productId,
+                        productCategory: product_in_db.Category,
+                    },
                 ],
                 Followed_Stores: [],
             });

@@ -68,6 +68,7 @@ const RateProduct = async (req, res) => {
             userActions.Rated_Products.push({
                 rate: rate,
                 productId: req.params.productId,
+                productCategory: product_in_db.Category,
             });
             await userActions.save();
         } else {
@@ -79,6 +80,7 @@ const RateProduct = async (req, res) => {
                     {
                         rate: rate,
                         productId: req.params.productId,
+                        productCategory: product_in_db.Category,
                     },
                 ],
                 Commented_Products: [],
@@ -249,6 +251,7 @@ const Edit_RateProduct = async (req, res) => {
             userActions.Rated_Products.push({
                 rate: rate,
                 productId: req.params.productId,
+                productCategory: product_in_db.Category,
             });
             await userActions.save();
         } else {
@@ -260,6 +263,7 @@ const Edit_RateProduct = async (req, res) => {
                     {
                         rate: rate,
                         productId: req.params.productId,
+                        productCategory: product_in_db.Category,
                     },
                 ],
                 Commented_Products: [],

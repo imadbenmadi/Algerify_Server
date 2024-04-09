@@ -345,12 +345,18 @@ const add_to_Basket = async (req, res) => {
         if (userActions) {
             userActions.Added_To_Basket.push({
                 productId: productId,
+                productCategory: product_in_db.Category,
             });
             await userActions.save();
         } else {
             const newUserActions = new UserActions({
                 userId: userId,
-                Added_To_Basket: [{ productId: productId }],
+                Added_To_Basket: [
+                    {
+                        productId: productId,
+                        productCategory: product_in_db.Category,
+                    },
+                ],
                 Added_To_Favorite: [],
                 Rated_Products: [],
                 Commented_Products: [],
@@ -504,13 +510,19 @@ const add_to_Favorit = async (req, res) => {
         if (userActions) {
             userActions.Added_To_Favorite.push({
                 productId: productId,
+                productCategory: product_in_db.Category,
             });
             await userActions.save();
         } else {
             const newUserActions = new UserActions({
                 userId: userId,
                 Added_To_Basket: [],
-                Added_To_Favorite: [{ productId: productId }],
+                Added_To_Favorite: [
+                    {
+                        productId: productId,
+                        productCategory: product_in_db.Category,
+                    },
+                ],
                 Rated_Products: [],
                 Commented_Products: [],
                 Rated_Stores: [],
@@ -667,7 +679,12 @@ const add_to_visited_products = async (req, res) => {
                     Rated_Products: [],
                     Commented_Products: [],
                     Rated_Stores: [],
-                    Visited_Products: [{ productId: productId }],
+                    Visited_Products: [
+                        {
+                            productId: productId,
+                            productCategory: product_in_db.Category,
+                        },
+                    ],
                     Visited_Stores: [],
                     Not_interesting_Products: [],
                     interesting_Products: [],
@@ -694,6 +711,7 @@ const add_to_visited_products = async (req, res) => {
             if (!alreadyVisited) {
                 userActions.Visited_Products.push({
                     productId: productId,
+                    productCategory: product_in_db.Category,
                 });
                 await userActions.save();
                 product_in_db.Visits = product_in_db.Visits + 1;
@@ -831,7 +849,7 @@ const Recommended_Products = async (req, res) => {
                 .json({ message: "No Category for the moment" });
 
         const score = categories.map((category) => ({
-            [category.Category]: 10,
+            [category.Category]: 0,
         }));
         const actions_scores = [
             { Visited_Products: 6 },
@@ -988,7 +1006,7 @@ const Recommended_Products = async (req, res) => {
         let remainingRecommendations = 30;
 
         // Recommend products from high-percentage categories
-        categoriesScore.forEach(async (category) => {
+        for (const category of categoriesScore) {
             const categoryName = Object.keys(category)[0];
             const percentage = Object.values(category)[0];
             const numberOfProductsToRecommend = Math.ceil(
@@ -996,7 +1014,6 @@ const Recommended_Products = async (req, res) => {
             );
 
             // Recommend products from this category, ensuring not to exceed remaining recommendations
-            // You need to implement a function to fetch products based on category and other criteria
             const productsFromCategory = await Products.find({
                 Category: categoryName,
             })
@@ -1006,39 +1023,39 @@ const Recommended_Products = async (req, res) => {
             recommendedProducts =
                 recommendedProducts.concat(productsFromCategory);
             remainingRecommendations -= productsFromCategory.length;
-        });
+        }
 
         // If there are remaining recommendations, recommend at least one product from low-percentage categories
         if (remainingRecommendations > 0) {
-            const lowPercentageCategories = categoriesScore.filter(
-                (category) => Object.values(category)[0] < 10
-            );
-            lowPercentageCategories.forEach((category) => {
+            for (const category of categoriesScore) {
                 const categoryName = Object.keys(category)[0];
-                const productsFromCategory = fetchProductsByCategory(
-                    categoryName,
-                    1,
-                    "newest"
-                );
-                recommendedProducts =
-                    recommendedProducts.concat(productsFromCategory);
-                remainingRecommendations--;
-            });
+                const percentage = Object.values(category)[0];
+                if (percentage < 10 && remainingRecommendations > 0) {
+                    const productsFromCategory = await Products.find({
+                        Category: categoryName,
+                    })
+                        .sort({ Visits: -1 })
+                        .limit(remainingRecommendations);
+                    recommendedProducts =
+                        recommendedProducts.concat(productsFromCategory);
+                    remainingRecommendations -= productsFromCategory.length;
+                }
+            }
         }
 
-        if (recommendedProducts.length > 0) {
-            // Sort recommended products by date (newest first) as per your requirement
-            recommendedProducts.sort((a, b) => b.Visits - a.Visits);
-            return res.status(200).json({ recommendedProducts });
-        } else {
-            // Fetch the 30 most visited products as fallback recommendation
-            const mostVisitedProducts = await Products.find()
-                .sort({ Visits: -1 }) // Sort by Visits field in descending order (most visited first)
-                .limit(30); // Limit the number of results to 30
-            return res
-                .status(200)
-                .json({ recommendedProducts: mostVisitedProducts });
-        }
+        // if (recommendedProducts.length > 0) {
+        // Sort recommended products by date (newest first) as per your requirement
+        recommendedProducts.sort((a, b) => b.Visits - a.Visits);
+        return res.status(200).json({ categoriesScore, recommendedProducts });
+        // } else {
+        //     // Fetch the 30 most visited products as fallback recommendation
+        //     const mostVisitedProducts = await Products.find()
+        //         .sort({ Visits: -1 }) // Sort by Visits field in descending order (most visited first)
+        //         .limit(30); // Limit the number of results to 30
+        //     return res
+        //         .status(200)
+        //         .json({ recommendedProducts: mostVisitedProducts });
+        // }
         // return res.status(200).json({ categoriesScore, score });
     } catch (error) {
         console.log(error);
