@@ -112,6 +112,7 @@ const Products = mongoose.model(
         Basket_Counter: { type: Number, default: 0 },
         bought_Counter: { type: Number, default: 0 },
         Visits: { type: Number, default: 0 },
+        Date: { type: Date, default: Date.now },
     })
 );
 const UserActions = mongoose.model(
@@ -238,15 +239,15 @@ const admins = mongoose.model(
         Password: { type: String },
     })
 );
-const recommended_Products = mongoose.model(
-    "recommended_Products",
-    new mongoose.Schema({
-        userId: { type: mongoose.Types.ObjectId, ref: "Users" },
-        recommendedProducts: [
-            { productId: { type: mongoose.Types.ObjectId, ref: "Products" } },
-        ],
-    })
-);
+// const recommended_Products = mongoose.model(
+//     "recommended_Products",
+//     new mongoose.Schema({
+//         userId: { type: mongoose.Types.ObjectId, ref: "Users" },
+//         recommendedProducts: [
+//             { productId: { type: mongoose.Types.ObjectId, ref: "Products" } },
+//         ],
+//     })
+// );
 module.exports = {
     Users,
     admins,
@@ -256,5 +257,4 @@ module.exports = {
     Stores,
     UserActions,
     Categories,
-    recommended_Products,
 };

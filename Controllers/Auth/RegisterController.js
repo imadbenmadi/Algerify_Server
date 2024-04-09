@@ -112,9 +112,16 @@ const Save_to_db = async (req, res) => {
         sendVerificationEmail(Email, verificationToken);
 
         const userAction = new UserActions({
-            userId: newUser._id,
-            // Action: "Register",
-            Date: new Date(),
+            userId: user_in_db._id,
+            Added_To_Basket: [],
+            Rated_Products: [],
+            Commented_Products: [],
+            Rated_Stores: [],
+            Visited_Products: [],
+            Visited_Stores: [],
+            Not_interesting_Products: [],
+            interesting_Products: [],
+            Followed_Stores: [],
         });
         await userAction.save();
         return res.status(200).json({

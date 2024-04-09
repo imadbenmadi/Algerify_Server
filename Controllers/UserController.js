@@ -629,25 +629,57 @@ const add_to_visited_products = async (req, res) => {
         if (!product_in_db)
             return res.status(404).json({ error: "Product not found." });
         const userActions = await UserActions.findOne({ userId });
-        if (!userActions)
-            return res.status(404).json({ error: "UserAction not found." });
-        const alreadyVisited = userActions.Visited_Products.some((visit) =>
-            visit.productId.equals(productId)
-        );
-        if (!alreadyVisited) {
-            userActions.Visited_Products.push({
-                productId: productId,
-                time: new Date(),
-            });
-            await userActions.save();
-            product_in_db.Visits = product_in_db.Visits + 1;
-            await product_in_db.save();
-        }
+        if (!userActions) {
+            try {
+                const userAction = new UserActions({
+                    userId: user_in_db._id,
+                    Added_To_Basket: [],
+                    Rated_Products: [],
+                    Commented_Products: [],
+                    Rated_Stores: [],
+                    Visited_Products: [],
+                    Visited_Stores: [],
+                    Not_interesting_Products: [],
+                    interesting_Products: [],
+                    Followed_Stores: [],
+                });
+                // await userAction.save();
+                userAction.Visited_Products.push({
+                    productId: productId,
+                    time: new Date(),
+                });
+                await userAction.save();
+                product_in_db.Visits = product_in_db.Visits + 1;
+                await product_in_db.save();
+                return res.status(200).json({
+                    message: "Product added to visited products successfully.",
+                });
+            } catch (err) {
+                console.log(err);
+                return res.status(404).json({
+                    error: "UserActions not found. could not Create documnet",
+                });
+            }
+        } else {
+            const alreadyVisited = userActions.Visited_Products.some((visit) =>
+                visit.productId.equals(productId)
+            );
+            if (!alreadyVisited) {
+                userActions.Visited_Products.push({
+                    productId: productId,
+                    time: new Date(),
+                });
+                await userActions.save();
+                product_in_db.Visits = product_in_db.Visits + 1;
+                await product_in_db.save();
+            }
 
-        return res.status(200).json({
-            message: "Product added to visited products successfully.",
-        });
+            return res.status(200).json({
+                message: "Product added to visited products successfully.",
+            });
+        }
     } catch (error) {
+        console.log(error);
         return res.status(500).json({ error: error });
     }
 };
@@ -678,29 +710,59 @@ const add_to_visited_stores = async (req, res) => {
         if (!Store_in_db)
             return res.status(404).json({ error: "Store not found." });
         const userActions = await UserActions.findOne({ userId });
-        if (!userActions)
-            return res.status(404).json({ error: "UserAction not found." });
-        const alreadyVisited = userActions.Visited_Stores.some((visit) =>
-            visit.storeId.equals(storeId)
-        );
-        if (!alreadyVisited) {
-            userActions.Visited_Stores.push({
-                storeId: storeId,
-                time: new Date(),
-            });
-            await userActions.save();
-            Store_in_db.Visits = Store_in_db.Visits + 1;
-            await Store_in_db.save();
-        }
+        if (!userActions) {
+            try {
+                const userAction = new UserActions({
+                    userId: user_in_db._id,
+                    Added_To_Basket: [],
+                    Rated_Products: [],
+                    Commented_Products: [],
+                    Rated_Stores: [],
+                    Visited_Products: [],
+                    Visited_Stores: [],
+                    Not_interesting_Products: [],
+                    interesting_Products: [],
+                    Followed_Stores: [],
+                });
+                await userAction.save();
+                userAction.Visited_Stores.push({
+                    storeId: storeId,
+                    time: new Date(),
+                });
+                await userAction.save();
+                Store_in_db.Visits = Store_in_db.Visits + 1;
+                await Store_in_db.save();
+                return res.status(200).json({
+                    message: "Store added to visited Stores successfully.",
+                });
+            } catch (err) {
+                return res.status(404).json({
+                    error: "UserActions not found. could not Create documnet",
+                });
+            }
+        } else {
+            const alreadyVisited = userActions.Visited_Stores.some((visit) =>
+                visit.storeId.equals(storeId)
+            );
+            if (!alreadyVisited) {
+                userActions.Visited_Stores.push({
+                    storeId: storeId,
+                    time: new Date(),
+                });
+                await userActions.save();
+                Store_in_db.Visits = Store_in_db.Visits + 1;
+                await Store_in_db.save();
+            }
 
-        return res.status(200).json({
-            message: "Store added to visited Stores successfully.",
-        });
+            return res.status(200).json({
+                message: "Store added to visited Stores successfully.",
+            });
+        }
     } catch (error) {
         return res.status(500).json({ error: error });
     }
 };
-const Calculate_Recommendation = async (req, res) => {
+const Recommended_Products = async (req, res) => {
     const userId = req.params.id;
     if (!userId) return res.status(409).json({ error: "Missing Data" });
     try {
@@ -710,7 +772,25 @@ const Calculate_Recommendation = async (req, res) => {
         }
         const userActions = await UserActions.findOne({ userId: userId });
         if (!userActions) {
-            return res.status(404).json({ error: "UserActions not found." });
+            try {
+                const userAction = new UserActions({
+                    userId: user_in_db._id,
+                    Added_To_Basket: [],
+                    Rated_Products: [],
+                    Commented_Products: [],
+                    Rated_Stores: [],
+                    Visited_Products: [],
+                    Visited_Stores: [],
+                    Not_interesting_Products: [],
+                    interesting_Products: [],
+                    Followed_Stores: [],
+                });
+                await userAction.save();
+            } catch (err) {
+                return res.status(404).json({
+                    error: "UserActions not found. could not Create documnet",
+                });
+            }
         }
         const products = await Products.find();
         const categories = await Categories.find();
@@ -861,20 +941,76 @@ const Calculate_Recommendation = async (req, res) => {
                 });
             }
         });
+        // Calculate the total score for all categories
         const totalScore = score.reduce(
             (acc, curr) => acc + Object.values(curr)[0],
             0
         );
-         const categoriesScore = score.map((item) => {
-             const categoryName = Object.keys(item)[0];
-             const categoryScore = (Object.values(item)[0] / totalScore) * 100;
-             return { [categoryName]: categoryScore };
-         });
+        // Calculate the percentage score for each category
+        const categoriesScore = score.map((item) => {
+            const categoryName = Object.keys(item)[0];
+            const categoryScore = (Object.values(item)[0] / totalScore) * 100;
+            return { [categoryName]: categoryScore };
+        });
+        // Sort the categories by score in descending order
         categoriesScore.sort(
             (a, b) => Object.values(b)[0] - Object.values(a)[0]
         );
+        // Initialize variables
+        let recommendedProducts = [];
+        let remainingRecommendations = 30;
 
-        return res.status(200).json({score, categoriesScore });
+        // Recommend products from high-percentage categories
+        categoriesScore.forEach(async (category) => {
+            const categoryName = Object.keys(category)[0];
+            const percentage = Object.values(category)[0];
+            const numberOfProductsToRecommend = Math.ceil(
+                (percentage / 100) * 30
+            );
+
+            // Recommend products from this category, ensuring not to exceed remaining recommendations
+            // You need to implement a function to fetch products based on category and other criteria
+            const productsFromCategory = await Products.find({
+                Category: categoryName,
+            })
+                .sort({ Visits: -1 }) // Sort by Visits field in descending order (most visited first)
+                .limit(numberOfProductsToRecommend); // Limit the number of results to the calculated numbers
+
+            recommendedProducts =
+                recommendedProducts.concat(productsFromCategory);
+            remainingRecommendations -= productsFromCategory.length;
+        });
+
+        // If there are remaining recommendations, recommend at least one product from low-percentage categories
+        if (remainingRecommendations > 0) {
+            const lowPercentageCategories = categoriesScore.filter(
+                (category) => Object.values(category)[0] < 10
+            );
+            lowPercentageCategories.forEach((category) => {
+                const categoryName = Object.keys(category)[0];
+                const productsFromCategory = fetchProductsByCategory(
+                    categoryName,
+                    1,
+                    "newest"
+                );
+                recommendedProducts =
+                    recommendedProducts.concat(productsFromCategory);
+                remainingRecommendations--;
+            });
+        }
+
+        if (recommendedProducts.length > 0) {
+            // Sort recommended products by date (newest first) as per your requirement
+            recommendedProducts.sort((a, b) => b.Visits - a.Visits);
+            return res.status(200).json({ recommendedProducts });
+        } else {
+            // Fetch the 30 most visited products as fallback recommendation
+            const mostVisitedProducts = await Products.find()
+                .sort({ Visits: -1 }) // Sort by Visits field in descending order (most visited first)
+                .limit(30); // Limit the number of results to 30
+            return res.status(200).json({ mostVisitedProducts });
+        }
+        // return res.status(200).json({ categoriesScore, score });
     } catch (error) {
         console.log(error);
         return res.status(500).json({ error: error.message });
@@ -898,5 +1034,5 @@ module.exports = {
     Unfollow_Store,
     add_to_visited_products,
     add_to_visited_stores,
-    Calculate_Recommendation,
+    Recommended_Products,
 };

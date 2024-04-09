@@ -209,6 +209,6 @@ router.post(
     "/:userId/Visit_Stores/:storeId",
     UserController.add_to_visited_stores
 );
-router.post("/:id/Calculate_Recommendation", UserController.Calculate_Recommendation);
+router.get("/:id/Recommended_Products", UserController.Recommended_Products);
 
 module.exports = router;
