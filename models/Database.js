@@ -122,18 +122,18 @@ const UserActions = mongoose.model(
         Added_To_Favorite: [
             {
                 productId: { type: mongoose.Types.ObjectId, ref: "Products" },
-                productTitle: String,
+                // productTitle: String,
                 productCategory: String,
-                productPrice: Number,
+                // productPrice: Number,
                 time: { type: Date, default: Date.now },
             },
         ],
         Added_To_Basket: [
             {
                 productId: { type: mongoose.Types.ObjectId, ref: "Products" },
-                productTitle: String,
+                // productTitle: String,
                 productCategory: String,
-                productPrice: Number,
+                // productPrice: Number,
                 time: { type: Date, default: Date.now },
             },
         ],
@@ -141,9 +141,9 @@ const UserActions = mongoose.model(
             {
                 rate: { type: Number },
                 productId: { type: mongoose.Types.ObjectId, ref: "Products" },
-                productTitle: String,
+                // productTitle: String,
                 productCategory: String,
-                productPrice: Number,
+                // productPrice: Number,
                 time: { type: Date, default: Date.now },
             },
         ],
@@ -151,9 +151,9 @@ const UserActions = mongoose.model(
             {
                 Comment: { type: String },
                 productId: { type: mongoose.Types.ObjectId, ref: "Products" },
-                productTitle: String,
+                // productTitle: String,
                 productCategory: String,
-                productPrice: Number,
+                // productPrice: Number,
                 time: { type: Date, default: Date.now },
             },
         ],
@@ -170,9 +170,9 @@ const UserActions = mongoose.model(
         Visited_Products: [
             {
                 productId: { type: mongoose.Types.ObjectId, ref: "Products" },
-                productTitle: String,
+                // productTitle: String,
                 productCategory: String,
-                productPrice: Number,
+                // productPrice: Number,
                 time: { type: Number, default: Date.now() },
             },
         ],
@@ -188,18 +188,18 @@ const UserActions = mongoose.model(
         Not_interesting_Products: [
             {
                 productId: { type: mongoose.Types.ObjectId, ref: "Products" },
-                productTitle: String,
+                // productTitle: String,
                 productCategory: String,
-                productPrice: Number,
+                // productPrice: Number,
                 time: { type: Number, default: Date.now() },
             },
         ],
         interesting_Products: [
             {
                 productId: { type: mongoose.Types.ObjectId, ref: "Products" },
-                productTitle: String,
+                // productTitle: String,
                 productCategory: String,
-                productPrice: Number,
+                // productPrice: Number,
                 time: { type: Number, default: Date.now() },
             },
         ],
