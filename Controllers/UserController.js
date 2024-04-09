@@ -6,7 +6,6 @@ const {
     email_verification_tokens,
     UserActions,
     Categories,
-    recommended_Products,
     // Products,
 } = require("../models/Database");
 require("dotenv").config();
@@ -87,26 +86,28 @@ const Follow_Store = async (req, res) => {
         }
         store_in_db.Followers.push(userId);
 
-        // const userActions = await UserActions.findOne({ userId: userId });
-        // if (userActions) {
-        //     userActions.Followed_Stores.push(storeId);
-        //     await userActions.save();
-        // }
-
-        await UserActions.findOneAndUpdate(
-            { userId: user_in_db._id },
-            {
-                $push: {
-                    Followed_Stores: {
-                        storeId: store_in_db._id,
-                        storeName: store_in_db.StoreName,
-                        storeLocation: store_in_db.Location,
-                        StoreCategory: store_in_db.Category,
-                    },
-                },
-            },
-            { new: true, upsert: true }
-        );
+        const userActions = await UserActions.findOne({ userId: userId });
+        if (userActions) {
+            userActions.Followed_Stores.push({
+                storeId: req.params.storeId,
+            });
+            await userActions.save();
+        } else {
+            const newUserActions = new UserActions({
+                userId: userId,
+                Added_To_Basket: [],
+                Added_To_Favorite: [],
+                Rated_Products: [],
+                Commented_Products: [],
+                Rated_Stores: [],
+                Visited_Products: [],
+                Visited_Stores: [],
+                Not_interesting_Products: [],
+                interesting_Products: [],
+                Followed_Stores: [{ storeId: req.params.storeId }],
+            });
+            await newUserActions.save();
+        }
         user_in_db.Followed_Stores.push(storeId);
         await user_in_db.save();
         await store_in_db.save();
@@ -344,9 +345,23 @@ const add_to_Basket = async (req, res) => {
         if (userActions) {
             userActions.Added_To_Basket.push({
                 productId: productId,
-                time: new Date(),
             });
             await userActions.save();
+        } else {
+            const newUserActions = new UserActions({
+                userId: userId,
+                Added_To_Basket: [{ productId: productId }],
+                Added_To_Favorite: [],
+                Rated_Products: [],
+                Commented_Products: [],
+                Rated_Stores: [],
+                Visited_Products: [],
+                Visited_Stores: [],
+                Not_interesting_Products: [],
+                interesting_Products: [],
+                Followed_Stores: [],
+            });
+            await newUserActions.save();
         }
         return res.status(200).json({
             message: "Product added to basket successfully.",
@@ -489,9 +504,23 @@ const add_to_Favorit = async (req, res) => {
         if (userActions) {
             userActions.Added_To_Favorite.push({
                 productId: productId,
-                time: new Date(),
             });
             await userActions.save();
+        } else {
+            const newUserActions = new UserActions({
+                userId: userId,
+                Added_To_Basket: [],
+                Added_To_Favorite: [{ productId: productId }],
+                Rated_Products: [],
+                Commented_Products: [],
+                Rated_Stores: [],
+                Visited_Products: [],
+                Visited_Stores: [],
+                Not_interesting_Products: [],
+                interesting_Products: [],
+                Followed_Stores: [],
+            });
+            await newUserActions.save();
         }
         return res.status(200).json({
             message: "Product added to Favorite successfully.",
@@ -634,20 +663,18 @@ const add_to_visited_products = async (req, res) => {
                 const userAction = new UserActions({
                     userId: user_in_db._id,
                     Added_To_Basket: [],
+                    Added_To_Favorite: [],
                     Rated_Products: [],
                     Commented_Products: [],
                     Rated_Stores: [],
-                    Visited_Products: [],
+                    Visited_Products: [{ productId: productId }],
                     Visited_Stores: [],
                     Not_interesting_Products: [],
                     interesting_Products: [],
                     Followed_Stores: [],
                 });
                 // await userAction.save();
-                userAction.Visited_Products.push({
-                    productId: productId,
-                    time: new Date(),
-                });
+
                 await userAction.save();
                 product_in_db.Visits = product_in_db.Visits + 1;
                 await product_in_db.save();
@@ -667,7 +694,6 @@ const add_to_visited_products = async (req, res) => {
             if (!alreadyVisited) {
                 userActions.Visited_Products.push({
                     productId: productId,
-                    time: new Date(),
                 });
                 await userActions.save();
                 product_in_db.Visits = product_in_db.Visits + 1;
@@ -719,15 +745,10 @@ const add_to_visited_stores = async (req, res) => {
                     Commented_Products: [],
                     Rated_Stores: [],
                     Visited_Products: [],
-                    Visited_Stores: [],
+                    Visited_Stores: [{ storeId: storeId }],
                     Not_interesting_Products: [],
                     interesting_Products: [],
                     Followed_Stores: [],
-                });
-                await userAction.save();
-                userAction.Visited_Stores.push({
-                    storeId: storeId,
-                    time: new Date(),
                 });
                 await userAction.save();
                 Store_in_db.Visits = Store_in_db.Visits + 1;
@@ -747,7 +768,6 @@ const add_to_visited_stores = async (req, res) => {
             if (!alreadyVisited) {
                 userActions.Visited_Stores.push({
                     storeId: storeId,
-                    time: new Date(),
                 });
                 await userActions.save();
                 Store_in_db.Visits = Store_in_db.Visits + 1;
@@ -786,6 +806,13 @@ const Recommended_Products = async (req, res) => {
                     Followed_Stores: [],
                 });
                 await userAction.save();
+                // Fetch the 30 most visited products as fallback recommendation
+                const mostVisitedProducts = await Products.find()
+                    .sort({ Visits: -1 }) // Sort by Visits field in descending order (most visited first)
+                    .limit(30); // Limit the number of results to 30
+                return res
+                    .status(200)
+                    .json({ recommendedProducts: mostVisitedProducts });
             } catch (err) {
                 return res.status(404).json({
                     error: "UserActions not found. could not Create documnet",
@@ -1008,7 +1035,9 @@ const Recommended_Products = async (req, res) => {
             const mostVisitedProducts = await Products.find()
                 .sort({ Visits: -1 }) // Sort by Visits field in descending order (most visited first)
                 .limit(30); // Limit the number of results to 30
-            return res.status(200).json({ mostVisitedProducts });
+            return res
+                .status(200)
+                .json({ recommendedProducts: mostVisitedProducts });
         }
         // return res.status(200).json({ categoriesScore, score });
     } catch (error) {

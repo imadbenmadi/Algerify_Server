@@ -68,11 +68,29 @@ const RateProduct = async (req, res) => {
             userActions.Rated_Products.push({
                 rate: rate,
                 productId: req.params.productId,
-                time: new Date(),
             });
             await userActions.save();
+        } else {
+            const newUserActions = new UserActions({
+                userId: userId,
+                Added_To_Basket: [],
+                Added_To_Favorite: [],
+                Rated_Products: [
+                    {
+                        rate: rate,
+                        productId: req.params.productId,
+                    },
+                ],
+                Commented_Products: [],
+                Rated_Stores: [],
+                Visited_Products: [],
+                Visited_Stores: [],
+                Not_interesting_Products: [],
+                interesting_Products: [],
+                Followed_Stores: [],
+            });
+            await newUserActions.save();
         }
-
         return res.status(200).json({
             message: "Product rated successfully.",
         });
@@ -231,11 +249,29 @@ const Edit_RateProduct = async (req, res) => {
             userActions.Rated_Products.push({
                 rate: rate,
                 productId: req.params.productId,
-                time: new Date(),
             });
             await userActions.save();
+        } else {
+            const newUserActions = new UserActions({
+                userId: userId,
+                Added_To_Basket: [],
+                Added_To_Favorite: [],
+                Rated_Products: [
+                    {
+                        rate: rate,
+                        productId: req.params.productId,
+                    },
+                ],
+                Commented_Products: [],
+                Rated_Stores: [],
+                Visited_Products: [],
+                Visited_Stores: [],
+                Not_interesting_Products: [],
+                interesting_Products: [],
+                Followed_Stores: [],
+            });
+            await newUserActions.save();
         }
-
         return res.status(200).json({
             message: "Product rate edited successfully.",
         });
@@ -298,9 +334,28 @@ const RateStore = async (req, res) => {
             userActions.Rated_Stores.push({
                 rate: rate,
                 storeId: StoreId,
-                time: new Date(),
             });
             await userActions.save();
+        } else {
+            const newUserActions = new UserActions({
+                userId: userId,
+                Added_To_Basket: [],
+                Added_To_Favorite: [],
+                Rated_Products: [],
+                Commented_Products: [],
+                Rated_Stores: [
+                    {
+                        rate: rate,
+                        storeId: StoreId,
+                    },
+                ],
+                Visited_Products: [],
+                Visited_Stores: [],
+                Not_interesting_Products: [],
+                interesting_Products: [],
+                Followed_Stores: [],
+            });
+            await newUserActions.save();
         }
         return res.status(200).json({
             message: "Store rated successfully.",
@@ -350,16 +405,6 @@ const Delete_RateStore = async (req, res) => {
         );
         Store_in_db.Ratings.splice(rateIndex, 1);
         await Store_in_db.save();
-        const userActions = await UserActions.findOne({ userId: userId });
-        if (userActions) {
-            const StoresIndex = userActions.Rated_Stores.findIndex(
-                (item) => item.storeId == StoreId
-            );
-            if (StoresIndex !== -1) {
-                userActions.Rated_Stores.splice(StoresIndex, 1);
-                await userActions.save();
-            }
-        }
         return res.status(200).json({
             message: "Store rate deleted successfully.",
         });
@@ -456,14 +501,31 @@ const Edit_RateStore = async (req, res) => {
         await Store_in_db.save();
         const userActions = await UserActions.findOne({ userId: userId });
         if (userActions) {
-            const StoresIndex = userActions.Rated_Stores.findIndex(
-                (item) => item.storeId == StoreId
-            );
-            if (StoresIndex !== -1) {
-                userActions.Rated_Stores[StoresIndex].time = new Date();
-                userActions.Rated_Stores[StoresIndex].rate = rate;
-                await userActions.save();
-            }
+            userActions.Rated_Stores.push({
+                rate: rate,
+                storeId: req.params.storeId,
+            });
+            await userActions.save();
+        } else {
+            const newUserActions = new UserActions({
+                userId: userId,
+                Added_To_Basket: [],
+                Added_To_Favorite: [],
+                Rated_Products: [],
+                Commented_Products: [],
+                Rated_Stores: [
+                    {
+                        rate: rate,
+                        storeId: req.params.storeId,
+                    },
+                ],
+                Visited_Products: [],
+                Visited_Stores: [],
+                Not_interesting_Products: [],
+                interesting_Products: [],
+                Followed_Stores: [],
+            });
+            await newUserActions.save();
         }
         return res.status(200).json({
             message: "Store rate edited successfully.",

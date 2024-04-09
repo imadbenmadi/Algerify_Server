@@ -54,8 +54,8 @@ const email_verification_tokens = mongoose.model(
     new mongoose.Schema({
         userId: { type: mongoose.Types.ObjectId, ref: "Users" },
         token: { type: String },
-        expire: { type: Date, default: Date.now() + 24 * 60 * 60 * 1000 },
-        Date: { type: Date, default: Date.now() },
+        expire: { type: Date, default: Date.now + 24 * 60 * 60 * 1000 },
+        Date: { type: Date, default: Date.now },
     })
 );
 
@@ -173,7 +173,7 @@ const UserActions = mongoose.model(
                 // productTitle:  { type: String },
                 productCategory: { type: String },
                 // productPrice: Number,
-                time: { type: Number, default: Date.now() },
+                time: { type: Number, default: Date.now },
             },
         ],
         Visited_Stores: [
@@ -182,7 +182,7 @@ const UserActions = mongoose.model(
                 // storeName: { type: String },
                 // storeLocation: { type: String },
                 // StoreCategory: { type: String },
-                time: { type: Number, default: Date.now() },
+                time: { type: Number, default: Date.now },
             },
         ],
         Not_interesting_Products: [
@@ -191,7 +191,7 @@ const UserActions = mongoose.model(
                 // productTitle:  { type: String },
                 productCategory: { type: String },
                 // productPrice: Number,
-                time: { type: Number, default: Date.now() },
+                time: { type: Number, default: Date.now },
             },
         ],
         interesting_Products: [
@@ -200,7 +200,7 @@ const UserActions = mongoose.model(
                 // productTitle:  { type: String },
                 productCategory: { type: String },
                 // productPrice: Number,
-                time: { type: Number, default: Date.now() },
+                time: { type: Number, default: Date.now },
             },
         ],
         Followed_Stores: [
@@ -209,7 +209,7 @@ const UserActions = mongoose.model(
                 // storeName: { type: String },
                 // storeLocation: { type: String },
                 // StoreCategory: { type: String },
-                time: { type: Number, default: Date.now() },
+                time: { type: Number, default: Date.now },
             },
         ],
     })

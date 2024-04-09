@@ -4,7 +4,6 @@ const {
     Products,
     Refresh_tokens,
     email_verification_tokens,
-    UserActions,
 } = require("../models/Database");
 const mongoose = require("mongoose");
 const fs = require("fs");

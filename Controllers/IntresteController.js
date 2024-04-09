@@ -56,9 +56,26 @@ const add_to_intrested_products = async (req, res) => {
         if (userActions) {
             userActions.interesting_Products.push({
                 productId: productId,
-                time: new Date(),
             });
             await userActions.save();
+        }
+        else {
+            const newUserActions = new UserActions({
+                userId: userId,
+                Added_To_Basket: [],
+                Added_To_Favorite: [],
+                Rated_Products: [],
+                Commented_Products: [],
+                Rated_Stores: [],
+                Visited_Products: [],
+                Visited_Stores: [],
+                Not_interesting_Products: [],
+                interesting_Products: [
+                    { productId: productId, time: new Date() },
+                ],
+                Followed_Stores: [],
+            });
+            await newUserActions.save();
         }
         return res.status(200).json({
             message: "Product added to intrested products successfully.",

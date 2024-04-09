@@ -54,9 +54,28 @@ const CommentProduct = async (req, res) => {
             userActions.Commented_Products.push({
                 Comment: Comment,
                 productId: productId,
-                time: new Date(),
             });
             await userActions.save();
+        } else {
+            const newUserActions = new UserActions({
+                userId: userId,
+                Added_To_Basket: [],
+                Added_To_Favorite: [],
+                Rated_Products: [],
+                Commented_Products: [
+                    {
+                        Comment: Comment,
+                        productId: productId,
+                    },
+                ],
+                Rated_Stores: [],
+                Visited_Products: [],
+                Visited_Stores: [],
+                Not_interesting_Products: [],
+                interesting_Products: [],
+                Followed_Stores: [],
+            });
+            await newUserActions.save();
         }
         return res.status(200).json({
             message: "Product Commentd successfully.",
@@ -213,9 +232,28 @@ const Etid_Comment = async (req, res) => {
             userActions.Commented_Products.push({
                 Comment: req.body.Comment,
                 productId: productId,
-                time: new Date(),
             });
             await userActions.save();
+        } else {
+            const newUserActions = new UserActions({
+                userId: userId,
+                Added_To_Basket: [],
+                Added_To_Favorite: [],
+                Rated_Products: [],
+                Commented_Products: [
+                    {
+                        Comment: req.body.Comment,
+                        productId: productId,
+                    },
+                ],
+                Rated_Stores: [],
+                Visited_Products: [],
+                Visited_Stores: [],
+                Not_interesting_Products: [],
+                interesting_Products: [],
+                Followed_Stores: [],
+            });
+            await newUserActions.save();
         }
         return res.status(200).json({
             message: "Product Comment edited successfully.",

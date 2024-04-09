@@ -1,7 +1,6 @@
 const {
     Products,
     Users,
-    UserActions,
     Categories,
 } = require("../models/Database");
 require("dotenv").config();
