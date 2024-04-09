@@ -826,8 +826,8 @@ const Recommended_Products = async (req, res) => {
                 await userAction.save();
                 // Fetch the 30 most visited products as fallback recommendation
                 const mostVisitedProducts = await Products.find()
-                    .sort({ Visits: -1 }) // Sort by Visits field in descending order (most visited first)
-                    .limit(30); // Limit the number of results to 30
+                    .sort({ Visits: -1 })
+                    .limit(30);
                 return res
                     .status(200)
                     .json({ recommendedProducts: mostVisitedProducts });
@@ -1004,7 +1004,6 @@ const Recommended_Products = async (req, res) => {
         // Initialize variables
         let recommendedProducts = [];
         let remainingRecommendations = 30;
-
         // Recommend products from high-percentage categories
         for (const category of categoriesScore) {
             const categoryName = Object.keys(category)[0];
@@ -1012,20 +1011,17 @@ const Recommended_Products = async (req, res) => {
             const numberOfProductsToRecommend = Math.ceil(
                 (percentage / 100) * 30
             );
-
-            // Recommend products from this category, ensuring not to exceed remaining recommendations
             const productsFromCategory = await Products.find({
                 Category: categoryName,
             })
-                .sort({ Visits: -1 }) // Sort by Visits field in descending order (most visited first)
-                .limit(numberOfProductsToRecommend); // Limit the number of results to the calculated numbers
-
+                .sort({ Visits: -1 }) 
+                .limit(numberOfProductsToRecommend); 
             recommendedProducts =
                 recommendedProducts.concat(productsFromCategory);
             remainingRecommendations -= productsFromCategory.length;
         }
 
-        // If there are remaining recommendations, recommend at least one product from low-percentage categories
+        // If there are remaining recommendations
         if (remainingRecommendations > 0) {
             for (const category of categoriesScore) {
                 const categoryName = Object.keys(category)[0];
@@ -1043,20 +1039,23 @@ const Recommended_Products = async (req, res) => {
             }
         }
 
-        // if (recommendedProducts.length > 0) {
-        // Sort recommended products by date (newest first) as per your requirement
-        recommendedProducts.sort((a, b) => b.Visits - a.Visits);
-        return res.status(200).json({ categoriesScore, recommendedProducts });
-        // } else {
-        //     // Fetch the 30 most visited products as fallback recommendation
-        //     const mostVisitedProducts = await Products.find()
-        //         .sort({ Visits: -1 }) // Sort by Visits field in descending order (most visited first)
-        //         .limit(30); // Limit the number of results to 30
-        //     return res
-        //         .status(200)
-        //         .json({ recommendedProducts: mostVisitedProducts });
-        // }
-        // return res.status(200).json({ categoriesScore, score });
+        if (recommendedProducts.length > 0) {
+            // Sort recommended products by Most Visited
+            recommendedProducts.sort((a, b) => b.Visits - a.Visits);
+            return res
+                .status(200)
+                .json({ categoriesScore, recommendedProducts });
+        } else {
+            const mostVisitedProducts = await Products.find()
+                .sort({ Visits: -1 }) 
+                .limit(30); 
+            return res
+                .status(200)
+                .json({
+                    categoriesScore,
+                    recommendedProducts: mostVisitedProducts,
+                });
+        }
     } catch (error) {
         console.log(error);
         return res.status(500).json({ error: error.message });
