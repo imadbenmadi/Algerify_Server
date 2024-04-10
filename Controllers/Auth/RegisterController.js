@@ -126,8 +126,7 @@ const Save_to_db = async (req, res) => {
         await userAction.save();
         return res.status(200).json({
             message: "Account Created Successfully",
-            _id: newUser._id,
-            Date: new Date(),
+            userId: newUser._id,
         });
     } catch (err) {
         return res.status(400).json({ err });
