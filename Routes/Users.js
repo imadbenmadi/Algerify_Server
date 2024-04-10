@@ -30,7 +30,11 @@ async function validate_Edit_user_inputs(req, res, next) {
     }
     const userId = req.params.userId;
     if (!userId) {
-        return res.status(409).json({ error: "Messing Data" });
+        return res
+            .status(409)
+            .json({
+                error: "Messing Data, required fields: userId: params",
+            });
     }
     if (req.params.userId !== isAuth.decoded.userId) {
         return res.status(401).json({ error: "Unauthorised" });
@@ -60,7 +64,9 @@ async function validate_Create_Store_inputs(req, res, next) {
     let { Email, StoreName, Store_Describtion, Telephone } = req.body;
     StoreName = StoreName.trim();
     if (!Email || !StoreName || !Store_Describtion || !Telephone) {
-        return res.status(409).json({ error: "Messing Data" });
+        return res.status(409).json({
+            error: "Messing Data, required fields: Email: body, StoreName: body, Store_Describtion: body, Telephone: body",
+        });
     }
     if (StoreName.length < 3 || Store_Describtion.length < 3) {
         return res.status(409).json({

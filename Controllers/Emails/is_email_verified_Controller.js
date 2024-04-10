@@ -18,7 +18,11 @@ const handle_check = async (req, res) => {
             return res.status(401).json({ error: "Unauthorised" });
         }
         const userId = req.params.userId;
-        if (!userId) return res.status(409).json({ error: "messing Data" });
+        if (!userId) return res
+            .status(409)
+            .json({
+                error: "Messing Data, required fields: userId: params",
+            });
         const user = await Users.findById(userId).select("IsEmailVerified");
         if (!user) {
             return res.status(404).json({ error: "User Not Found" });

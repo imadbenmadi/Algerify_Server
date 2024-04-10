@@ -104,7 +104,11 @@ const getStore = async (req, res) => {
 // Only admin
 const getStore_Profile = async (req, res) => {
     const StoreId = req.params.storeId;
-    if (!StoreId) return res.status(409).json({ error: "Messing Data." });
+    if (!StoreId) return res
+        .status(409)
+        .json({
+            error: "Messing Data, required fields: StoreId: params",
+        });
     const isAuth = await Verify_user(req, res);
     if (isAuth.status == true && isAuth.Refresh == true) {
         res.cookie("accessToken", isAuth.newAccessToken, {
@@ -170,7 +174,11 @@ const DeleteStore = async (req, res) => {
         return res.status(401).json({ error: "Unauthorized: Invalid token" });
     }
     const StoreId = req.params.storeId;
-    if (!StoreId) return res.status(409).json({ error: "Messing Data" });
+    if (!StoreId) return res
+        .status(409)
+        .json({
+            error: "Messing Data, required fields: StoreId: params",
+        });
     try {
         const Store_in_db = await Stores.findById(StoreId);
         if (!Store_in_db) {
@@ -222,7 +230,9 @@ const DeleteProduct = async (req, res) => {
         const storeId = req.params.storeId;
         const productId = req.params.productId;
         if (!productId || !storeId) {
-            return res.status(409).json({ error: "Messing Data" });
+            return res.status(409).json({
+                error: "Messing Data, required fields: productId: params, StoreId: params",
+            });
         }
 
         const Store_in_db = await Stores.findById(storeId);

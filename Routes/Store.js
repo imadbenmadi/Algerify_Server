@@ -20,7 +20,9 @@ async function validate_Edit_Store_inputs(req, res, next) {
     }
     const StoreId = req.params.storeId;
     if (!StoreId) {
-        return res.status(409).json({ error: "Messing Data" });
+        return res.status(409).json({
+            error: "Messing Data, required fields: StoreId: params",
+        });
     }
     const StoreToUpdate = await Stores.findById(StoreId);
     if (!StoreToUpdate) {
@@ -48,7 +50,9 @@ async function validate_add_Product_inputs(req, res, next) {
     }
     const { Title, Describtion, Category, Price } = req.body;
     if (!Title || !Describtion || !Category || !Price) {
-        return res.status(409).json({ error: "Messing Data" });
+        return res.status(409).json({
+            error: "Messing Data, required fields: Title: body, Describtion: body, Category: body, Price: body ",
+        });
     }
     const store_in_db = await Stores.findById(req.params.storeId);
     if (!store_in_db) {
@@ -75,7 +79,9 @@ async function validate_Edit_Product_inputs(req, res, next) {
     const storeId = req.params.storeId;
     const productId = req.params.productId;
     if (!productId || !storeId) {
-        return res.status(409).json({ error: "Messing Data" });
+        return res.status(409).json({
+            error: "Messing Data, required fields: storeId: params, productId: params",
+        });
     }
     const Store_in_db = await Stores.findById(storeId);
     if (!Store_in_db) {

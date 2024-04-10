@@ -64,7 +64,11 @@ const Follow_Store = async (req, res) => {
         const userId = req.params.userId;
         const storeId = req.params.storeId;
         if (!userId || !storeId)
-            return res.status(409).json({ error: "Messing Data" });
+            return res
+                .status(409)
+                .json({
+                    error: "Messing Data, required fields: userId: params, StoreId: params",
+                });
         if (req.params.userId !== isAuth.decoded.userId) {
             return res.status(401).json({ error: "Unauthorised" });
         }
@@ -135,7 +139,9 @@ const Unfollow_Store = async (req, res) => {
         const userId = req.params.userId;
         const storeId = req.params.storeId;
         if (!userId || !storeId)
-            return res.status(409).json({ error: "Messing Data" });
+            return res.status(409).json({
+                error: "Messing Data, required fields: userId: params, storeId: params",
+            });
         if (req.params.userId !== isAuth.decoded.userId) {
             return res.status(401).json({ error: "Unauthorised" });
         }
@@ -199,7 +205,11 @@ const getAllUsers = async (req, res) => {
 
 const getUser = async (req, res) => {
     const userId = req.params.userId;
-    if (!userId) return res.status(409).json({ error: "Messing Data" });
+    if (!userId) return res
+        .status(409)
+        .json({
+            error: "Messing Data, required fields: userId: params",
+        });
     try {
         const user_in_db = await Users.findById(userId).select(
             "FirstName LastName Telephone Email Age Gender ProfilePic"
@@ -229,7 +239,11 @@ const getProfile = async (req, res) => {
     }
 
     const userId = req.params.userId;
-    if (!userId) return res.status(409).json({ error: "Messing Data" });
+    if (!userId) return res
+        .status(409)
+        .json({
+            error: "Messing Data, required fields: userId: params",
+        });
     try {
         const user_in_db = await Users.findById(userId);
         if (!user_in_db) {
@@ -258,7 +272,11 @@ const DeleteProfile = async (req, res) => {
             return res.status(401).json({ error: "Unauthorised" });
         }
         const userId = req.params.userId;
-        if (!userId) return res.status(409).json({ error: "Messing Data" });
+        if (!userId) return res
+            .status(409)
+            .json({
+                error: "Messing Data, required fields: userId: params",
+            });
         const user_in_db = await Users.findById(userId);
         if (!user_in_db) {
             return res.status(404).json({ error: "User not found." });
@@ -312,7 +330,9 @@ const add_to_Basket = async (req, res) => {
         const userId = req.params.userId;
         const productId = req.params.productId;
         if (!userId || !productId)
-            return res.status(409).json({ error: "Messing Data" });
+            return res.status(409).json({
+                error: "Messing Data, required fields: userId: params, productId: params",
+            });
         const user_in_db = await Users.findById(userId);
         if (!user_in_db) {
             return res.status(404).json({ error: "User not found." });
@@ -396,7 +416,9 @@ const delete_from_Basket = async (req, res) => {
         const userId = req.params.userId;
         const productId = req.params.productId;
         if (!userId || !productId)
-            return res.status(409).json({ error: "Messing Data" });
+            return res.status(409).json({
+                error: "Messing Data, required fields: userId: params, productId: params",
+            });
         const user_in_db = await Users.findById(userId);
         if (!user_in_db) {
             return res.status(404).json({ error: "User not found." });
@@ -447,7 +469,11 @@ const get_Basket = async (req, res) => {
         const userId = req.params.userId;
         const page = parseInt(req.query.page) || 1; // default to page 1 if not provided
         const limit = parseInt(req.query.limit) || 20; // default to limit of 20 if not provided
-        if (!userId) return res.status(409).json({ error: "Messing Data" });
+        if (!userId) return res
+            .status(409)
+            .json({
+                error: "Messing Data, required fields: userId: params",
+            });
         const user_in_db = await Users.findById(userId).populate({
             path: "basket",
             populate: {
@@ -485,7 +511,11 @@ const add_to_Favorit = async (req, res) => {
         const userId = req.params.userId;
         const productId = req.params.productId;
         if (!userId || !productId)
-            return res.status(409).json({ error: "Messing Data" });
+            return res
+                .status(409)
+                .json({
+                    error: "Messing Data, required fields: userId: params, productId: params",
+                });
         const user_in_db = await Users.findById(userId);
         if (!user_in_db) {
             return res.status(404).json({ error: "User not found." });
@@ -558,7 +588,11 @@ const delete_from_Favorit = async (req, res) => {
         const userId = req.params.userId;
         const productId = req.params.productId;
         if (!userId || !productId)
-            return res.status(409).json({ error: "Messing Data" });
+            return res
+                .status(409)
+                .json({
+                    error: "Messing Data, required fields: userId: params, productId: params",
+                });
         const user_in_db = await Users.findById(userId);
         if (!user_in_db) {
             return res.status(404).json({ error: "User not found." });
@@ -605,7 +639,11 @@ const get_Favorite = async (req, res) => {
         const userId = req.params.userId;
         const page = parseInt(req.query.page) || 1; // default to page 1 if not provided
         const limit = parseInt(req.query.limit) || 20; // default to limit of 20 if not provided
-        if (!userId) return res.status(409).json({ error: "Messing Data" });
+        if (!userId) return res
+            .status(409)
+            .json({
+                error: "Messing Data, required fields: userId: params",
+            });
         const user_in_db = await Users.findById(userId).populate({
             path: "Favorite",
             options: {
@@ -662,7 +700,11 @@ const add_to_visited_products = async (req, res) => {
         const userId = req.params.userId;
         const productId = req.params.productId;
         if (!userId || !productId)
-            return res.status(409).json({ error: "Messing Data" });
+            return res
+                .status(409)
+                .json({
+                    error: "Messing Data, required fields: userId: params, productId: params",
+                });
         const user_in_db = await Users.findById(userId);
         if (!user_in_db)
             return res.status(404).json({ error: "User not found." });
@@ -746,7 +788,9 @@ const add_to_visited_stores = async (req, res) => {
         const userId = req.params.userId;
         const storeId = req.params.storeId;
         if (!userId || !storeId)
-            return res.status(409).json({ error: "Messing Data" });
+            return res.status(409).json({
+                error: "Messing Data, required fields: userId: params, storeId: params",
+            });
         const user_in_db = await Users.findById(userId);
         if (!user_in_db)
             return res.status(404).json({ error: "User not found." });

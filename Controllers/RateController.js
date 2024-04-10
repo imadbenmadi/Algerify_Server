@@ -21,18 +21,18 @@ const RateProduct = async (req, res) => {
         const userId = req.params.userId;
         const productId = req.params.productId;
         const rate = req.body.rate;
-        if (!rate || rate == "" || rate == null)
+        if (!rate || rate == "" || rate == null || !userId || !productId)
             return res
                 .status(409)
-                .json({ error: "Messing Data , Rate is Required  " });
+                .json({
+                    error: "Messing Data, required fields: userId: params, productId: params, rate:body ",
+                });
         if (typeof rate != "number")
             return res.status(409).json({ error: "Rate must be a number" });
         if (rate < 1 || rate > 5)
             return res
                 .status(409)
                 .json({ error: "Rate must be between 1 and 5" });
-        if (!userId || !productId)
-            return res.status(409).json({ error: "Messing Data" });
         const user_in_db = await Users.findById(userId);
         if (!user_in_db) {
             return res.status(404).json({ error: "User not found." });
@@ -119,7 +119,11 @@ const Delete_RateProduct = async (req, res) => {
         const userId = req.params.userId;
         const productId = req.params.productId;
         if (!userId || !productId)
-            return res.status(409).json({ error: "Messing Data" });
+            return res
+                .status(409)
+                .json({
+                    error: "Messing Data, required fields: userId: params, productId: params",
+                });
         const user_in_db = await Users.findById(userId);
         if (!user_in_db) {
             return res.status(404).json({ error: "User not found." });
@@ -164,7 +168,11 @@ const get_product_userRate = async (req, res) => {
         const userId = req.params.userId;
         const productId = req.params.productId;
         if (!userId || !productId)
-            return res.status(409).json({ error: "Messing Data" });
+            return res
+                .status(409)
+                .json({
+                    error: "Messing Data, required fields: userId: params, productId: params",
+                });
         const user_in_db = await Users.findById(userId);
         if (!user_in_db) {
             return res.status(404).json({ error: "User not found." });
@@ -218,7 +226,11 @@ const Edit_RateProduct = async (req, res) => {
         const productId = req.params.productId;
         const rate = req.body.rate;
         if (!userId || !productId || !rate)
-            return res.status(409).json({ error: "Messing Data" });
+            return res
+                .status(409)
+                .json({
+                    error: "Messing Data, required fields: userId: params, productId: params, rate: body",
+                });
         const user_in_db = await Users.findById(userId);
         if (!user_in_db) {
             return res.status(404).json({ error: "User not found." });
@@ -309,7 +321,11 @@ const RateStore = async (req, res) => {
                 .status(409)
                 .json({ error: "Rate must be between 1 and 5" });
         if (!userId || !StoreId || !rate)
-            return res.status(409).json({ error: "Messing Data" });
+            return res
+                .status(409)
+                .json({
+                    error: "Messing Data, required fields: userId: params, productId: params",
+                });
         const user_in_db = await Users.findById(userId);
         if (!user_in_db) {
             return res.status(404).json({ error: "User not found." });
@@ -387,7 +403,9 @@ const Delete_RateStore = async (req, res) => {
         const userId = req.params.userId;
         const StoreId = req.params.storeId;
         if (!userId || !StoreId)
-            return res.status(409).json({ error: "Messing Data" });
+            return res.status(409).json({
+                error: "Messing Data, required fields: userId: params, StoreId: params",
+            });
         const user_in_db = await Users.findById(userId);
         if (!user_in_db) {
             return res.status(404).json({ error: "User not found." });
@@ -432,7 +450,11 @@ const get_Store_userRate = async (req, res) => {
         const userId = req.params.userId;
         const StoreId = req.params.storeId;
         if (!userId || !StoreId)
-            return res.status(409).json({ error: "Messing Data" });
+            return res
+                .status(409)
+                .json({
+                    error: "Messing Data, required fields: userId: params, StoreId: params",
+                });
         const user_in_db = await Users.findById(userId);
         if (!user_in_db) {
             return res.status(404).json({ error: "User not found." });
@@ -476,7 +498,11 @@ const Edit_RateStore = async (req, res) => {
         const StoreId = req.params.storeId;
         const rate = req.body.rate;
         if (!userId || !StoreId || !rate)
-            return res.status(409).json({ error: "Messing Data" });
+            return res
+                .status(409)
+                .json({
+                    error: "Messing Data, required fields: userId: params, StoreId: params, rate: body",
+                });
         const user_in_db = await Users.findById(userId);
         if (!user_in_db) {
             return res.status(404).json({ error: "User not found." });

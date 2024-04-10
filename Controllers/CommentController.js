@@ -22,7 +22,9 @@ const CommentProduct = async (req, res) => {
         const productId = req.params.productId;
         const Comment = req.body.Comment;
         if (!userId || !productId || !Comment)
-            return res.status(409).json({ error: "Messing Data" });
+            return res.status(409).json({
+                error: "Messing Data , required fields: userId: params, productId: params, Comment: body",
+            });
         const user_in_db = await Users.findById(userId);
         if (!user_in_db) {
             return res.status(404).json({ error: "User not found." });
@@ -105,7 +107,11 @@ const Delete_CommentProduct = async (req, res) => {
         const userId = req.params.userId;
         const productId = req.params.productId;
         if (!userId || !productId)
-            return res.status(409).json({ error: "Messing Data" });
+            return res
+                .status(409)
+                .json({
+                    error: "Messing Data, required fields: userId: params, productId: params",
+                });
         const user_in_db = await Users.findById(userId);
         if (!user_in_db) {
             return res.status(404).json({ error: "User not found." });
@@ -150,7 +156,11 @@ const get_product_userComment = async (req, res) => {
         const userId = req.params.userId;
         const productId = req.params.productId;
         if (!userId || !productId)
-            return res.status(409).json({ error: "Messing Data" });
+            return res
+                .status(409)
+                .json({
+                    error: "Messing Data, required fields: userId: params, productId: params",
+                });
         const user_in_db = await Users.findById(userId);
         if (!user_in_db) {
             return res.status(404).json({ error: "User not found." });
@@ -193,7 +203,11 @@ const Etid_Comment = async (req, res) => {
         const userId = req.params.userId;
         const productId = req.params.productId;
         if (!userId || !productId || !req.body.Comment)
-            return res.status(409).json({ error: "Messing Data" });
+            return res
+                .status(409)
+                .json({
+                    error: "Messing Data, required fields: userId: params, productId: params",
+                });
 
         const user_in_db = await Users.findById(userId);
         if (!user_in_db) {

@@ -26,7 +26,11 @@ const getAllProducts = async (req, res) => {
 };
 const getProduct = async (req, res) => {
     const productId = req.params.productId;
-    if (!productId) return res.status(409).json({ error: "Messing Data" });
+    if (!productId) return res
+        .status(409)
+        .json({
+            error: "Messing Data, required fields: productId: params",
+        });
 
     try {
         const Product_in_db = await Products.findById(productId);
