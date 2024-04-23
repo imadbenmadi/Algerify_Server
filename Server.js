@@ -37,7 +37,7 @@ require("dotenv").config();
 
 var bodyParser = require("body-parser");
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // app.use(limiter);
 app.use(cookieParser());
@@ -61,7 +61,11 @@ connect_to_db()
     .catch((err) => console.log(err));
 
 app.get("/", (req, res) => {
-    res.send("Hello From Aos");
+    res.writeHead(200, { "Content-Type": "text/plain" });
+    var message = "It works!\n",
+        version = "NodeJS " + process.versions.node + "\n",
+        response = [message, version].join("\n");
+    res.end(response);
 });
 // ----------------- Auth Routes -----------------
 app.use("/check_Auth", require("./Routes/Auth/check_Auth"));
