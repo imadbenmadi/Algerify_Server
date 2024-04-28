@@ -54,8 +54,8 @@ const email_verification_tokens = mongoose.model(
     new mongoose.Schema({
         userId: { type: mongoose.Types.ObjectId, ref: "Users" },
         token: { type: String },
-        expire: { type: Date, default: Date.now + 24 * 60 * 60 * 1000 },
-        Date: { type: Date, default: Date.now },
+        // expire: { type: Date, default: () => Date.now() + 24 * 60 * 60 * 1000 },
+        //Date: { type: Date, default: Date.now },
     })
 );
 

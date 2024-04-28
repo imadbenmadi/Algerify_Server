@@ -8,15 +8,30 @@ require("dotenv").config();
 
 
 const Recommended_Products = async (req, res) => {
+    const products = await Products.find();
+    const categories = await Categories.find();
+    if (!products.length)
+        return res.status(404).json({ message: "No Product for the moment" });
+    if (!categories.length)
+        return res.status(404).json({ message: "No Category for the moment" });
+
+    
+    const mostVisitedProducts = await Products.find()
+        .sort({ Visits: -1 })
+        .limit(30);
+    
     const userId = req.params.id;
     if (!userId) return res.status(409).json({ error: "Missing Data" });
     try {
         const user_in_db = await Users.findById(userId);
         if (!user_in_db) {
-            return res.status(404).json({ error: "User not found." });
+            // return res.status(404).json({ error: "User not found." });
+             return res
+                 .status(200)
+                 .json({ recommendedProducts: mostVisitedProducts });
         }
         const userActions = await UserActions.findOne({ userId: userId });
-        if (!userActions) {
+        if (!userActions || !user_in_db) {
             try {
                 const userAction = new UserActions({
                     userId: user_in_db._id,
@@ -32,29 +47,18 @@ const Recommended_Products = async (req, res) => {
                 });
                 await userAction.save();
                 // Fetch the 30 most visited products as fallback recommendation
-                const mostVisitedProducts = await Products.find()
-                    .sort({ Visits: -1 })
-                    .limit(30);
                 return res
                     .status(200)
                     .json({ recommendedProducts: mostVisitedProducts });
             } catch (err) {
-                return res.status(404).json({
-                    error: "UserActions not found. could not Create documnet",
-                });
+                // return res.status(404).json({
+                //     error: "UserActions not found. could not Create documnet",
+                // });
+                 return res
+                     .status(200)
+                     .json({ recommendedProducts: mostVisitedProducts });
             }
         }
-        const products = await Products.find();
-        const categories = await Categories.find();
-        if (!products.length)
-            return res
-                .status(404)
-                .json({ message: "No Product for the moment" });
-        if (!categories.length)
-            return res
-                .status(404)
-                .json({ message: "No Category for the moment" });
-
         const score = categories.map((category) => ({
             [category.Category]: 0,
         }));

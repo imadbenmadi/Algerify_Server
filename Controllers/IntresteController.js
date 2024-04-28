@@ -3,7 +3,6 @@ const {
     Stores,
     Products,
     Refresh_tokens,
-    email_verification_tokens,
     UserActions,
 } = require("../models/Database");
 require("dotenv").config();

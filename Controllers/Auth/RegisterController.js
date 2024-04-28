@@ -76,19 +76,18 @@ const sendVerificationEmail = (Email, verificationToken) => {
     );
 };
 
-
-
 const Save_to_db = async (req, res) => {
-     const {
-         FirstName,
-         LastName,
-         Email,
-         Password,
-         Age,
-         Gender,
-         Telephone,
-         Address,
-     } = req.body;
+    console.log("save to db function in regester");
+    const {
+        FirstName,
+        LastName,
+        Email,
+        Password,
+        Age,
+        Gender,
+        Telephone,
+        Address,
+    } = req.body;
     try {
         const ProfilePic = req.generatedFilename;
         const verificationToken = generateVerificationCode();
@@ -103,7 +102,7 @@ const Save_to_db = async (req, res) => {
             ProfilePic: ProfilePic,
             Address: Address,
         });
-        await newUser.save();
+        // console.log("User Created Successfully");
         const newVerificationToken = new email_verification_tokens({
             userId: newUser._id,
             token: verificationToken,
@@ -112,7 +111,7 @@ const Save_to_db = async (req, res) => {
         sendVerificationEmail(Email, verificationToken);
 
         const userAction = new UserActions({
-            userId: user_in_db._id,
+            userId: newUser._id,
             Added_To_Basket: [],
             Rated_Products: [],
             Commented_Products: [],
@@ -124,11 +123,14 @@ const Save_to_db = async (req, res) => {
             Followed_Stores: [],
         });
         await userAction.save();
+        await newUser.save();
+        console.log("Account Created Successfully");
         return res.status(200).json({
             message: "Account Created Successfully",
             userId: newUser._id,
         });
     } catch (err) {
+        console.log(err);
         return res.status(400).json({ err });
     }
 };

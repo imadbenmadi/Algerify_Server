@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const ReSend_Verification_EmailController = require("../../Controllers/emails/ReSend_Verification_EmailController");
+const ReSend_Verification_EmailController = require("../../Controllers/Emails/ReSend_Verification_EmailController");
 // route handler
 // Object to track attempts and block expiration time for each IP address
 const Attempts = {};

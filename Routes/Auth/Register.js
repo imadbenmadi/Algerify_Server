@@ -53,7 +53,7 @@ const validate_inputs = async (req, res, next) => {
         Address,
     } = req.body;
     const isValidTelephone = /^(0)(5|6|7)[0-9]{8}$/.test(Telephone);
-    console.log(req.body);
+    // console.log(req.body);
     if (
         !FirstName ||
         !LastName ||
