@@ -11,17 +11,22 @@ AOS is a pioneering e-commerce platform aimed at addressing the unique challenge
 - Node.js
 - Express.js
 - MongoDB
-- [Any additional libraries or frameworks used]
 
-## Getting Started
+## Development Aproach
+![Screenshot 2024-04-28 120823](https://github.com/imadbenmadi/AOS/assets/106430872/9d7984cd-f9ad-40ba-8906-501b77e62f0b)
 
-To get a local copy of the project up and running, follow these steps:
+## Mongo Database Explanation
+![mongodb](https://github.com/imadbenmadi/AOS/assets/106430872/d6635c6d-e219-4311-b8ac-84fba0aa7221)
+## DataBase Schema Design
+![Class Diagram](https://github.com/imadbenmadi/AOS/assets/106430872/b5920cc7-9007-461e-834e-c24251b4279f)
 
-1. Clone this repository.
-2. Navigate to the project directory.
-3. Install dependencies by running `npm install`.
-4. Set up your MongoDB database.
-5. Start the server with `npm start`.
+## Use Cases Diagram
+![Screenshot 2024-04-23 004250](https://github.com/imadbenmadi/AOS/assets/106430872/6531ed24-058d-44d2-a263-b9b46a9e4271)
+
+## Recommendation Systeme Flowchart
+![Recomendation Systeme](https://github.com/imadbenmadi/AOS/assets/106430872/e0c5e4a3-7e12-4e03-b8ae-1a9fd9bd13a3)
+
+
 
 ## Folder Structure
 
