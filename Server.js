@@ -8,18 +8,18 @@ const path = require("path");
 const allowedOrigins = [
     "http://localhost:5173",
     "http://localhost:5174",
-    "http://localhost:3500",
+    "http://localhost:3000",
 ];
 const corsOptions = {
-    // origin: (origin, callback) => {
-    //     if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
-    //         callback(null, true);
-    //     } else {
-    //         callback(new Error(`Not allowed by CORS , origin : ${origin}`));
-    //     }
-    // },
-    origin: "*",
-    optionsSuccessStatus: 200,
+    origin: (origin, callback) => {
+        if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+            callback(null, true);
+        } else {
+            callback(new Error(`Not allowed by CORS , origin : ${origin}`));
+        }
+    },
+    //origin: "*",
+    //optionsSuccessStatus: 200,
 };
 const credentials = (req, res, next) => {
     const origin = req.headers.origin;
@@ -98,6 +98,7 @@ app.use("/Stores", require("./Routes/Store"));
 app.use("/Products", require("./Routes/Product"));
 
 app.use("/Dashboard", require("./Routes/Dashboard"));
-app.listen(3000);
+const PORT = 3000 || 5000;
+app.listen(PORT);
 
 module.exports = app;
