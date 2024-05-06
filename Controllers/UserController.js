@@ -245,7 +245,7 @@ const getProfile = async (req, res) => {
             error: "Messing Data, required fields: userId: params",
         });
     try {
-        const user_in_db = await Users.findById(userId);
+        const user_in_db = await Users.findById(userId).populate();
         if (!user_in_db) {
             return res.status(404).json({ error: "user not found." });
         }

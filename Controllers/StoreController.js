@@ -1,8 +1,4 @@
-const {
-    Users,
-    Stores,
-    Products,
-} = require("../models/Database");
+const { Users, Stores, Products } = require("../models/Database");
 const mongoose = require("mongoose");
 const fs = require("fs");
 const path = require("path");
@@ -87,9 +83,17 @@ const getStore = async (req, res) => {
     if (!StoreId) return res.status(409).json({ error: "Missing Data." });
 
     try {
-        const Store_in_db = await Stores.findById(StoreId).select(
-            "StoreName Store_Describtion Telephone Store_RatingAverage Email Telephone storeProducts"
-        );
+        const Store_in_db = await Stores.findById(StoreId)
+            .select(
+                "StoreName Store_Describtion Telephone Store_RatingAverage Email Telephone storeProducts"
+            )
+            .populate({
+                path: "storeProducts",
+                populate: {
+                    path: "Owner",
+                    select: ["StoreName", "Store_Image"],
+                },
+            });
         if (!Store_in_db) {
             return res.status(404).json({ error: "Store not found." });
         }
@@ -102,9 +106,8 @@ const getStore = async (req, res) => {
 // Only admin
 const getStore_Profile = async (req, res) => {
     const StoreId = req.params.storeId;
-    if (!StoreId) return res
-        .status(409)
-        .json({
+    if (!StoreId)
+        return res.status(409).json({
             error: "Messing Data, required fields: StoreId: params",
         });
     const isAuth = await Verify_user(req, res);
@@ -119,11 +122,30 @@ const getStore_Profile = async (req, res) => {
     if (isAuth.status == false)
         return res.status(401).json({ error: "Unauthorized: Invalid token" });
     try {
-        const Store_in_db = await Stores.findById(StoreId);
+        const Store_in_db = await Stores.findById(StoreId)
+            .populate({
+                path: "Owner",
+                select: [
+                    "FirstName",
+                    "LastName",
+                    "Email",
+                    "Telephone",
+                    "ProfilePic",
+                ],
+            })
+            .populate({
+                path: "storeProducts",
+                populate: {
+                    path: "Owner",
+                    select: ["StoreName", "Store_Image"],
+                },
+            });
+        // 65fc6b66f649365e0b3b9268
         if (!Store_in_db) {
             return res.status(404).json({ error: "Store not found." });
         }
-        if (Store_in_db.Owner != isAuth.decoded.userId) {
+        console.log(Store_in_db.Owner._id, isAuth.decoded.userId);
+        if (Store_in_db.Owner._id != isAuth.decoded.userId) {
             return res.status(401).json({ error: "Unauthorized" });
         }
         return res.status(200).json(Store_in_db);
@@ -149,7 +171,9 @@ const getStoreProducts = async (req, res) => {
         const skip = (page - 1) * limit;
 
         const products = await Products.find({ Owner: storeId })
-            .select("Title Describtion Price Product_RatingAverage")
+            .select(
+                "Date Title Describtion Category Price Product_Image Product_RatingAverage Favorite_Counter Basket_Counter  bought_Counter Visits   "
+            )
             .skip(skip)
             .limit(limit);
 
@@ -172,9 +196,8 @@ const DeleteStore = async (req, res) => {
         return res.status(401).json({ error: "Unauthorized: Invalid token" });
     }
     const StoreId = req.params.storeId;
-    if (!StoreId) return res
-        .status(409)
-        .json({
+    if (!StoreId)
+        return res.status(409).json({
             error: "Messing Data, required fields: StoreId: params",
         });
     try {
