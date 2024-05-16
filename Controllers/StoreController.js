@@ -310,7 +310,10 @@ const CreateProduct = async (req, res) => {
         await store_in_db.save();
         return res
             .status(200)
-            .json({ message: "Product Created successfully." });
+            .json({
+                message: "Product Created successfully.",
+                Product: newProduct,
+            });
     } catch (error) {
         console.log(error);
         return res.status(500).json({ error: error });

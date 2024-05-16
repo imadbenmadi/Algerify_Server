@@ -24,21 +24,24 @@ const cleanupExpiredBlocks = () => {
 };
 setInterval(cleanupExpiredBlocks, 60000);
 const isEmailValid = (Email) => {
+    // return new Promise((resolve, reject) => {
+    //     const domain = Email.split("@")[1];
+    //     dns.resolve(domain, "MX", (err, addresses) => {
+    //         if (err || !addresses || addresses.length === 0) {
+    //             resolve(false);
+    //         } else {
+    //             dns.resolve(domain, (err, addresses) => {
+    //                 if (err || !addresses || addresses.length === 0) {
+    //                     resolve(false);
+    //                 } else {
+    //                     resolve(true);
+    //                 }
+    //             });
+    //         }
+    //     });
+    // });
     return new Promise((resolve, reject) => {
-        const domain = Email.split("@")[1];
-        dns.resolve(domain, "MX", (err, addresses) => {
-            if (err || !addresses || addresses.length === 0) {
-                resolve(false);
-            } else {
-                dns.resolve(domain, (err, addresses) => {
-                    if (err || !addresses || addresses.length === 0) {
-                        resolve(false);
-                    } else {
-                        resolve(true);
-                    }
-                });
-            }
-        });
+        resolve(true);
     });
 };
 const validate_inputs = async (req, res, next) => {
@@ -52,8 +55,8 @@ const validate_inputs = async (req, res, next) => {
         Telephone,
         Address,
     } = req.body;
+    console.log("body :", req.body);
     const isValidTelephone = /^(0)(5|6|7)[0-9]{8}$/.test(Telephone);
-    // console.log(req.body);
     if (
         !FirstName ||
         !LastName ||
@@ -105,35 +108,64 @@ const validate_inputs = async (req, res, next) => {
     if (!(await isEmailValid(Email))) {
         return res.status(409).json({ error: "Invalid email domain" });
     }
-
     const existingUser = await Users.findOne({ Email: Email });
     if (existingUser) {
         return res.status(400).json({ error: "Email already exists" });
     }
     next();
 };
+// const upload = multer({
+//     limits: { fileSize: 5 * 1024 * 1024 }, // Limiting file size to 5 MB
+//     storage: multer.diskStorage({
+//         destination: function (req, file, cb) {
+//             const destinationPath = path.join(__dirname, "../../Public/Users");
+//             if (!fs.existsSync(destinationPath)) {
+//                 fs.mkdirSync(destinationPath, { recursive: true });
+//             }
+//             cb(null, destinationPath);
+//         },
+//         // filename: function (req, file, cb) {
+//         //     const uniqueSuffix =
+//         //         Date.now() + "-" + Math.round(Math.random() * 1e9);
+//         //     const fileExtension = getFileExtension(file.originalname);
+//         //     if (!fileExtension) return cb(new Error("Invalid file type"));
+//         //     const generatedFilename = `${uniqueSuffix}${fileExtension}`;
+//         //     req.generatedFilename = generatedFilename;
+//         //     cb(null, generatedFilename);
+//         // },
+//         filename: function (req, file, cb) {
+//             const uniqueSuffix =
+//                 Date.now() + "-" + Math.round(Math.random() * 1e9);
+//             const fileExtension = path.extname(file.originalname);
+//             const generatedFilename = `${uniqueSuffix}${fileExtension}`;
+//             req.generatedFilename = generatedFilename;
+//             cb(null, generatedFilename);
+//         },
+//     }),
+// });
+const test = multer()
 const upload = multer({
-    limits: { fileSize: 5 * 1024 * 1024 }, // Limiting file size to 5 MB
     storage: multer.diskStorage({
         destination: function (req, file, cb) {
             const destinationPath = path.join(__dirname, "../../Public/Users");
+            // Create the destination directory if it doesn't exist
             if (!fs.existsSync(destinationPath)) {
                 fs.mkdirSync(destinationPath, { recursive: true });
             }
             cb(null, destinationPath);
+            // console.log("destinationPath :", destinationPath);
         },
         filename: function (req, file, cb) {
             const uniqueSuffix =
                 Date.now() + "-" + Math.round(Math.random() * 1e9);
-            const fileExtension = getFileExtension(file.originalname);
-            if (!fileExtension) return cb(new Error("Invalid file type"));
+            const fileExtension = path.extname(file.originalname);
             const generatedFilename = `${uniqueSuffix}${fileExtension}`;
             req.generatedFilename = generatedFilename;
             cb(null, generatedFilename);
+            // console.log("generatedFilename :", generatedFilename);
         },
     }),
 });
-
 function getFileExtension(filename) {
     const extension = path.extname(filename).toLowerCase();
     const imageExtensions = [".png", ".jpg", ".jpeg"];
@@ -146,9 +178,21 @@ function getFileExtension(filename) {
 
 router.post(
     "/",
-    (req, res, next) => validate_inputs(req, res, next),
-    upload.single("image"),
+    (req, res, next) => {
+        
+        validate_inputs(req, res, next);
+    },
+    // upload.single("image"),
+    test.single("image"),
+    
     async (req, res) => {
+        // console.log("req : ", req);
+        console.log("file : ", req.file);
+        // if (!req.generatedFilename) {
+        //     return res.status(400).json({
+        //         error: "Failed to upload image.",
+        //     });
+        // }
         const ipAddress = req.ip;
         if (
             registrationAttempts[ipAddress] &&
@@ -173,7 +217,8 @@ router.post(
                 error: "Too many registration attempts. Try again later.",
             });
         }
-        RegisterController.Save_to_db(req, res);
+        res.status(200).json({ message: "Success" });
+        // RegisterController.Save_to_db(req, res);
     }
 );
 

@@ -77,7 +77,6 @@ const sendVerificationEmail = (Email, verificationToken) => {
 };
 
 const Save_to_db = async (req, res) => {
-    console.log("save to db function in regester");
     const {
         FirstName,
         LastName,
@@ -102,7 +101,6 @@ const Save_to_db = async (req, res) => {
             ProfilePic: ProfilePic,
             Address: Address,
         });
-        // console.log("User Created Successfully");
         const newVerificationToken = new email_verification_tokens({
             userId: newUser._id,
             token: verificationToken,
@@ -124,13 +122,11 @@ const Save_to_db = async (req, res) => {
         });
         await userAction.save();
         await newUser.save();
-        console.log("Account Created Successfully");
         return res.status(200).json({
             message: "Account Created Successfully",
             userId: newUser._id,
         });
     } catch (err) {
-        console.log(err);
         return res.status(400).json({ err });
     }
 };

@@ -18,8 +18,7 @@ const corsOptions = {
             callback(new Error(`Not allowed by CORS , origin : ${origin}`));
         }
     },
-    //origin: "*",
-    //optionsSuccessStatus: 200,
+    optionsSuccessStatus: 200,
 };
 const credentials = (req, res, next) => {
     const origin = req.headers.origin;

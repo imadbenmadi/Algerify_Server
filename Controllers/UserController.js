@@ -64,11 +64,9 @@ const Follow_Store = async (req, res) => {
         const userId = req.params.userId;
         const storeId = req.params.storeId;
         if (!userId || !storeId)
-            return res
-                .status(409)
-                .json({
-                    error: "Messing Data, required fields: userId: params, StoreId: params",
-                });
+            return res.status(409).json({
+                error: "Messing Data, required fields: userId: params, StoreId: params",
+            });
         if (req.params.userId !== isAuth.decoded.userId) {
             return res.status(401).json({ error: "Unauthorised" });
         }
@@ -205,9 +203,8 @@ const getAllUsers = async (req, res) => {
 
 const getUser = async (req, res) => {
     const userId = req.params.userId;
-    if (!userId) return res
-        .status(409)
-        .json({
+    if (!userId)
+        return res.status(409).json({
             error: "Messing Data, required fields: userId: params",
         });
     try {
@@ -239,13 +236,18 @@ const getProfile = async (req, res) => {
     }
 
     const userId = req.params.userId;
-    if (!userId) return res
-        .status(409)
-        .json({
+    if (!userId)
+        return res.status(409).json({
             error: "Messing Data, required fields: userId: params",
         });
     try {
-        const user_in_db = await Users.findById(userId).populate();
+        const user_in_db = await Users.findById(userId)
+            .populate("basket.ProductId")
+            .populate("Favorite.ProductId")
+            .populate("Stores.StoreId")
+            .populate("Followed_Stores.StoreId")
+            
+        console.log(user_in_db);
         if (!user_in_db) {
             return res.status(404).json({ error: "user not found." });
         }
@@ -272,9 +274,8 @@ const DeleteProfile = async (req, res) => {
             return res.status(401).json({ error: "Unauthorised" });
         }
         const userId = req.params.userId;
-        if (!userId) return res
-            .status(409)
-            .json({
+        if (!userId)
+            return res.status(409).json({
                 error: "Messing Data, required fields: userId: params",
             });
         const user_in_db = await Users.findById(userId);
@@ -469,9 +470,8 @@ const get_Basket = async (req, res) => {
         const userId = req.params.userId;
         const page = parseInt(req.query.page) || 1; // default to page 1 if not provided
         const limit = parseInt(req.query.limit) || 20; // default to limit of 20 if not provided
-        if (!userId) return res
-            .status(409)
-            .json({
+        if (!userId)
+            return res.status(409).json({
                 error: "Messing Data, required fields: userId: params",
             });
         const user_in_db = await Users.findById(userId).populate({
@@ -511,11 +511,9 @@ const add_to_Favorit = async (req, res) => {
         const userId = req.params.userId;
         const productId = req.params.productId;
         if (!userId || !productId)
-            return res
-                .status(409)
-                .json({
-                    error: "Messing Data, required fields: userId: params, productId: params",
-                });
+            return res.status(409).json({
+                error: "Messing Data, required fields: userId: params, productId: params",
+            });
         const user_in_db = await Users.findById(userId);
         if (!user_in_db) {
             return res.status(404).json({ error: "User not found." });
@@ -588,11 +586,9 @@ const delete_from_Favorit = async (req, res) => {
         const userId = req.params.userId;
         const productId = req.params.productId;
         if (!userId || !productId)
-            return res
-                .status(409)
-                .json({
-                    error: "Messing Data, required fields: userId: params, productId: params",
-                });
+            return res.status(409).json({
+                error: "Messing Data, required fields: userId: params, productId: params",
+            });
         const user_in_db = await Users.findById(userId);
         if (!user_in_db) {
             return res.status(404).json({ error: "User not found." });
@@ -639,9 +635,8 @@ const get_Favorite = async (req, res) => {
         const userId = req.params.userId;
         const page = parseInt(req.query.page) || 1; // default to page 1 if not provided
         const limit = parseInt(req.query.limit) || 20; // default to limit of 20 if not provided
-        if (!userId) return res
-            .status(409)
-            .json({
+        if (!userId)
+            return res.status(409).json({
                 error: "Messing Data, required fields: userId: params",
             });
         const user_in_db = await Users.findById(userId).populate({
@@ -700,11 +695,9 @@ const add_to_visited_products = async (req, res) => {
         const userId = req.params.userId;
         const productId = req.params.productId;
         if (!userId || !productId)
-            return res
-                .status(409)
-                .json({
-                    error: "Messing Data, required fields: userId: params, productId: params",
-                });
+            return res.status(409).json({
+                error: "Messing Data, required fields: userId: params, productId: params",
+            });
         const user_in_db = await Users.findById(userId);
         if (!user_in_db)
             return res.status(404).json({ error: "User not found." });
@@ -1058,8 +1051,8 @@ const Recommended_Products = async (req, res) => {
             const productsFromCategory = await Products.find({
                 Category: categoryName,
             })
-                .sort({ Visits: -1 }) 
-                .limit(numberOfProductsToRecommend); 
+                .sort({ Visits: -1 })
+                .limit(numberOfProductsToRecommend);
             recommendedProducts =
                 recommendedProducts.concat(productsFromCategory);
             remainingRecommendations -= productsFromCategory.length;
@@ -1091,14 +1084,12 @@ const Recommended_Products = async (req, res) => {
                 .json({ categoriesScore, recommendedProducts });
         } else {
             const mostVisitedProducts = await Products.find()
-                .sort({ Visits: -1 }) 
-                .limit(30); 
-            return res
-                .status(200)
-                .json({
-                    categoriesScore,
-                    recommendedProducts: mostVisitedProducts,
-                });
+                .sort({ Visits: -1 })
+                .limit(30);
+            return res.status(200).json({
+                categoriesScore,
+                recommendedProducts: mostVisitedProducts,
+            });
         }
     } catch (error) {
         console.log(error);
