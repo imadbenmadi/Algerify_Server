@@ -1,0 +1,3 @@
+if (Store_in_db.Owner != isAuth.decoded.userId) {
+    return res.status(401).json({ error: "Unauthorized" });
+}

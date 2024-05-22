@@ -1,0 +1,7 @@
+const Store_in_db = await Stores.findOne({ _id: product_in_db.Owner });
+if (!Store_in_db)
+    return res.status(404).json({ error: "could not find the Store " });
+
+if (userId == Store_in_db.Owner) {
+    return res.status(409).json({ error: "User Own this Product" });
+}
