@@ -7,22 +7,6 @@ const fs = require("fs");
 const dns = require("dns");
 const { Users } = require("../../models/Database");
 
-const registrationAttempts = {};
-const blockIP = (ipAddress, duration) => {
-    registrationAttempts[ipAddress] = {
-        attempts: 1,
-        expirationTime: Date.now() + duration,
-    };
-};
-const cleanupExpiredBlocks = () => {
-    const currentTime = Date.now();
-    Object.keys(registrationAttempts).forEach((ipAddress) => {
-        if (registrationAttempts[ipAddress].expirationTime < currentTime) {
-            delete registrationAttempts[ipAddress];
-        }
-    });
-};
-setInterval(cleanupExpiredBlocks, 60000);
 const isEmailValid = (Email) => {
     // return new Promise((resolve, reject) => {
     //     const domain = Email.split("@")[1];
@@ -143,82 +127,15 @@ const validate_inputs = async (req, res, next) => {
 //         },
 //     }),
 // });
-const test = multer()
-const upload = multer({
-    storage: multer.diskStorage({
-        destination: function (req, file, cb) {
-            const destinationPath = path.join(__dirname, "../../Public/Users");
-            // Create the destination directory if it doesn't exist
-            if (!fs.existsSync(destinationPath)) {
-                fs.mkdirSync(destinationPath, { recursive: true });
-            }
-            cb(null, destinationPath);
-            // console.log("destinationPath :", destinationPath);
-        },
-        filename: function (req, file, cb) {
-            const uniqueSuffix =
-                Date.now() + "-" + Math.round(Math.random() * 1e9);
-            const fileExtension = path.extname(file.originalname);
-            const generatedFilename = `${uniqueSuffix}${fileExtension}`;
-            req.generatedFilename = generatedFilename;
-            cb(null, generatedFilename);
-            // console.log("generatedFilename :", generatedFilename);
-        },
-    }),
-});
-function getFileExtension(filename) {
-    const extension = path.extname(filename).toLowerCase();
-    const imageExtensions = [".png", ".jpg", ".jpeg"];
-    if (imageExtensions.includes(extension)) {
-        return extension;
-    } else {
-        return false;
-    }
-}
 
 router.post(
     "/",
     (req, res, next) => {
-        
         validate_inputs(req, res, next);
     },
-    // upload.single("image"),
-    test.single("image"),
-    
+
     async (req, res) => {
-        // console.log("req : ", req);
-        console.log("file : ", req.file);
-        // if (!req.generatedFilename) {
-        //     return res.status(400).json({
-        //         error: "Failed to upload image.",
-        //     });
-        // }
-        const ipAddress = req.ip;
-        if (
-            registrationAttempts[ipAddress] &&
-            registrationAttempts[ipAddress].expirationTime < Date.now()
-        ) {
-            delete registrationAttempts[ipAddress]; // Unblock the IP address
-        }
-        if (registrationAttempts[ipAddress]) {
-            if (registrationAttempts[ipAddress].attempts >= 5) {
-                return res.status(429).json({
-                    error: "Too many login attempts. Try again later.",
-                });
-            }
-        }
-        registrationAttempts[ipAddress] = registrationAttempts[ipAddress] || {
-            attempts: 0,
-        };
-        registrationAttempts[ipAddress].attempts++;
-        if (registrationAttempts[ipAddress].attempts > 5) {
-            blockIP(ipAddress, 300000); // Block IP address for 5 minutes (300,000 milliseconds)
-            return res.status(429).json({
-                error: "Too many registration attempts. Try again later.",
-            });
-        }
-        res.status(200).json({ message: "Success" });
-        // RegisterController.Save_to_db(req, res);
+        RegisterController.Save_to_db(req, res);
     }
 );
 
